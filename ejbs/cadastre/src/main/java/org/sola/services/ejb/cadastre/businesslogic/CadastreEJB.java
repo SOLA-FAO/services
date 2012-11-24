@@ -374,4 +374,21 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
             this.saveEntity(cadastreObject);
         }
     }
+
+    /**
+     * Retrieves the temporary cadastre objects that have been associated 
+     * with a bulk operation transaction.
+     *
+     * @param transactionId The identifier of the transaction
+     */
+    @Override
+    public List<SpatialUnitTemporary> getSpatialUnitTemporaryListByTransaction(String transactionId) {
+        Map params = new HashMap<String, Object>();
+        params.put(
+                CommonSqlProvider.PARAM_WHERE_PART,
+                SpatialUnitTemporary.QUERY_WHERE_SEARCHBYTRANSACTION);
+        params.put("transaction_id", transactionId);
+        return getRepository().getEntityList(SpatialUnitTemporary.class, params);
+    }
+    
 }
