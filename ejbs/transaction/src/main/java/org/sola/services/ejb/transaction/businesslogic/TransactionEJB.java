@@ -292,6 +292,16 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
         List<ValidationResult> validationResultList = validateTransaction(
                 transaction.getId(), requestType,
                 languageCode, RegistrationStatusType.STATUS_PENDING);
+        
+        if (TransactionType.BULK_OPERATION_SPATIAL.equals(requestType)){
+            // If of the bulk operation, then the db function is called to move the features
+            // to main tables.
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put(CommonSqlProvider.PARAM_QUERY,
+                    "select bulk_operation.move_spatial_units(#{transactionId})");
+            params.put("transactionId", transaction.getId());
+            getRepository().executeFunction(params);
+        }
 
         if (!systemEJB.validationSucceeded(validationResultList)) {
             //If the validation fails the whole transaction is rolledback.
