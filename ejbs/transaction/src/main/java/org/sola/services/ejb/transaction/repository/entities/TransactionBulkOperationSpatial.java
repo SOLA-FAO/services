@@ -31,17 +31,33 @@
  */
 package org.sola.services.ejb.transaction.repository.entities;
 
+import java.util.List;
+import javax.persistence.Table;
+import org.sola.services.common.repository.ChildEntityList;
+import org.sola.services.common.repository.ExternalEJB;
+import org.sola.services.ejb.cadastre.businesslogic.CadastreEJBLocal;
+import org.sola.services.ejb.cadastre.repository.entities.SpatialUnitTemporary;
+
 /**
  *
  * @author Elton Manoku
  */
-public class TransactionType {
-    public static final String CADASTRE_CHANGE = "cadastreChange"; 
-    public static final String BULK_OPERATION_SPATIAL = "bulkOperationSpatial"; 
-    public static final String REDEFINE_CADASTRE = "redefineCadastre"; 
-    public static final String NEW_DIGITAL_TITLE = "newDigitalTitle"; 
-    public static final String NEW_DIGITAL_PROPERTY = "newDigitalProperty"; 
-    public static final String NEW_APARTMENT = "newApartment"; 
-    public static final String NEW_STATE = "newState"; 
-    public static final String NEW_FREEHOLD = "newFreehold"; 
+@Table(name = "transaction", schema = "transaction")
+public class TransactionBulkOperationSpatial extends Transaction {
+
+    @ChildEntityList(parentIdField = "transactionId")
+    @ExternalEJB(
+            ejbLocalClass = CadastreEJBLocal.class, 
+            loadMethod = "getSpatialUnitTemporaryListByTransaction", 
+            saveMethod="saveEntity")
+    List<SpatialUnitTemporary> spatialUnitTemporaryList;
+
+    public List<SpatialUnitTemporary> getSpatialUnitTemporaryList() {
+        return spatialUnitTemporaryList;
+    }
+
+    public void setSpatialUnitTemporaryList(List<SpatialUnitTemporary> value) {
+        this.spatialUnitTemporaryList = value;
+    }
+
 }
