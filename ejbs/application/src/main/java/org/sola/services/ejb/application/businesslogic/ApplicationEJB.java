@@ -1239,4 +1239,45 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
         params.put(RoleVerifier.QUERY_PARAM_USERNAME, getUserName());
         return getRepository().getEntity(RoleVerifier.class, params);
     }
+    
+      /**
+     * Returns a maximum of 10 cadastre objects that have a name first part
+     * and/or name last part that matches the specified search string. This
+     * method supports partial matches and is case insensitive.
+     *
+     * @param searchString The search string to use
+     * @return The list of cadastre objects matching the search string
+     */
+    @Override
+    @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
+    public List<SysRegCertificates> getSysRegCertificatesByLocation(String searchString) {
+        HashMap params = new HashMap();
+        params.put("search_string", searchString);
+
+        return getRepository().getEntityList(SysRegCertificates.class,
+                SysRegCertificates.QUERY_WHERE_SEARCHBYPARTS, params);
+    }
+    
+      /**
+     * Returns a maximum of 10 cadastre objects that have a name first part
+     * and/or name last part that matches the specified search string. This
+     * method supports partial matches and is case insensitive.
+     *
+     * @param searchString The search string to use
+     * @return The list of cadastre objects matching the search string
+     */
+    @Override
+    @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
+    public List<SysRegCertificates> getSysRegCertificatesByApplication(String searchString, String nr) {
+        HashMap params = new HashMap();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, SysRegCertificates.QUERY_WHERE_BYNR);
+        params.put(SysRegCertificates.QUERY_PARAMETER_NR, nr);
+        params.put("search_string", searchString);
+        
+
+        return getRepository().getEntityList(SysRegCertificates.class,
+                SysRegCertificates.QUERY_WHERE_BYNR, params);
+    }
+
+    
 }

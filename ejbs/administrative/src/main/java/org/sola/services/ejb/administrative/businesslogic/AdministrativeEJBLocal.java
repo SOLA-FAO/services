@@ -146,19 +146,19 @@ public interface AdministrativeEJBLocal extends AbstractSolaTransactionEJBLocal 
     BaUnit getBaUnitWithCadObject(String nameFirstPart, String nameLastPart, String colist);
 
     /**
-     * See {@linkplain CadastreEJB#SysRegPubDisParcelName(java.lang.String)
+     * See {@linkplain AdministrativeEJB#SysRegPubDisParcelName(java.lang.String)
      * CadastreEJB.SysRegPubDisParcelName}.
      */
     List<SysRegPubDisParcelName> getSysRegPubDisParcelNameByLocation(String searchString);
 
     /**
-     * See {@linkplain CadastreEJB#SysRegPubDisOwnerName(java.lang.String)
+     * See {@linkplain AdministrativeEJB#SysRegPubDisOwnerName(java.lang.String)
      * CadastreEJB.SysRegPubDisOwnerName}.
      */
     List<SysRegPubDisOwnerName> getSysRegPubDisOwnerNameByLocation(String searchString);
 
     /**
-     * See {@linkplain CadastreEJB#SysRegPubDisStateLand(java.lang.String)
+     * See {@linkplain AdministrativeEJB#SysRegPubDisStateLand(java.lang.String)
      * CadastreEJB.SysRegPubDisStateLand}.
      */
     List<SysRegPubDisStateLand> getSysRegPubDisStateLandByLocation(String searchString);
