@@ -71,7 +71,7 @@ public class Development extends AbstractEJBTest {
         UserTransaction tx = getUserTransaction();
         try {
             tx.begin();
-            String transactionId = "7ce22c22-21e1-449a-820f-8533233515a7";
+            String transactionId = "0e9625c4-c723-4ec3-bc5c-138b47c3f56c";
             System.out.println("Test getTransactionById for id:" + transactionId);
             
             TransactionCadastreChange trns = 

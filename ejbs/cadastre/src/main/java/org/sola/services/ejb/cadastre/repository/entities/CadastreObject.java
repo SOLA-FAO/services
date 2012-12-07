@@ -80,7 +80,7 @@ public class CadastreObject extends AbstractVersionedEntity {
      * WHERE clause to return CO's linked to the specified transaction.id
      */
     public static final String QUERY_WHERE_SEARCHBYTRANSACTION =
-            "transaction_id = #{transaction_id}";
+            "transaction_id = #{transaction_id} and status_code = 'pending'";
     /**
      * WHERE clause to return current CO's matching type type_code and within distance of the
      * specified geometry

@@ -79,6 +79,12 @@ public interface TransactionEJBLocal extends AbstractEJBLocal {
     boolean rejectTransaction(String serviceId);
 
     /**
+     * See {@linkplain TransactionEJB#rejectTransactionWithId(java.lang.String)
+     * TransactionEJB.rejectTransactionWithId}.
+     */
+    boolean rejectTransactionWithId(String id);
+
+    /**
      * See {@linkplain TransactionEJB#getRegistrationStatusTypes(java.lang.String)
      * TransactionEJB.getRegistrationStatusTypes}.
      */

@@ -247,7 +247,27 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
      */
     @Override
     public boolean rejectTransaction(String serviceId) {
-        TransactionBasic transaction = this.getTransactionByServiceId(serviceId, false, TransactionBasic.class);
+        TransactionBasic transaction = 
+                this.getTransactionByServiceId(serviceId, false, TransactionBasic.class);
+        if (transaction == null) {
+            return false;
+        }
+
+        transaction.setEntityAction(EntityAction.DELETE);
+        getRepository().saveEntity(transaction);
+        return true;
+    }
+
+    /**
+     * Deletes the transaction.
+     *
+     * @param id Identifier of the transaction
+     * @return
+     * <code>true</code> if the transaction is deleted.
+     */
+    @Override
+    public boolean rejectTransactionWithId(String id) {
+        TransactionBasic transaction = this.getTransactionById(id, TransactionBasic.class);
         if (transaction == null) {
             return false;
         }

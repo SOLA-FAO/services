@@ -35,11 +35,16 @@ option applies only if the new code is made subject to such option by the copyri
             <property name="connectionAttributes" value=";create=true"/>
         </jdbc-connection-pool>
         <jdbc-connection-pool driver-classname="" datasource-classname="org.postgresql.ds.PGConnectionPoolDataSource" res-type="javax.sql.ConnectionPoolDataSource" description="" name="sola">
-            <property name="databaseName" value="${glassfish.jdbc-connection-pool.database}"></property>
+<!--            <property name="databaseName" value="${glassfish.jdbc-connection-pool.database}"></property>
             <property name="portNumber" value="${glassfish.jdbc-connection-pool.port}"></property>
             <property name="serverName" value="${glassfish.jdbc-connection-pool.server}"></property>
             <property name="user" value="${glassfish.jdbc-connection-pool.username}"></property>
-            <property name="password" value="${glassfish.jdbc-connection-pool.password}"></property>
+            <property name="password" value="${glassfish.jdbc-connection-pool.password}"></property>-->
+            <property name="databaseName" value="sola"></property>
+            <property name="portNumber" value="5432"></property>
+            <property name="serverName" value="ubtserver"></property>
+            <property name="user" value="postgres"></property>
+            <property name="password" value="PRGS143"></property>
         </jdbc-connection-pool>
         <jdbc-resource pool-name="sola" description="" jndi-name="jdbc/sola"></jdbc-resource>
     </resources>

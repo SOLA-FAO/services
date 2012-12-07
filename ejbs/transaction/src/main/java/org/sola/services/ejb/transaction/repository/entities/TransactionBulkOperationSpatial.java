@@ -32,6 +32,7 @@
 package org.sola.services.ejb.transaction.repository.entities;
 
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Table;
 import org.sola.services.common.repository.ChildEntityList;
 import org.sola.services.common.repository.ExternalEJB;
@@ -45,12 +46,23 @@ import org.sola.services.ejb.cadastre.repository.entities.SpatialUnitTemporary;
 @Table(name = "transaction", schema = "transaction")
 public class TransactionBulkOperationSpatial extends Transaction {
 
+    @Column(name = "bulk_generate_first_part")
+    private boolean generateFirstPart;
+    
     @ChildEntityList(parentIdField = "transactionId")
     @ExternalEJB(
             ejbLocalClass = CadastreEJBLocal.class, 
             loadMethod = "getSpatialUnitTemporaryListByTransaction", 
             saveMethod="saveEntity")
-    List<SpatialUnitTemporary> spatialUnitTemporaryList;
+    private List<SpatialUnitTemporary> spatialUnitTemporaryList;
+
+    public boolean isGenerateFirstPart() {
+        return generateFirstPart;
+    }
+
+    public void setGenerateFirstPart(boolean generateFirstPart) {
+        this.generateFirstPart = generateFirstPart;
+    }
 
     public List<SpatialUnitTemporary> getSpatialUnitTemporaryList() {
         return spatialUnitTemporaryList;
