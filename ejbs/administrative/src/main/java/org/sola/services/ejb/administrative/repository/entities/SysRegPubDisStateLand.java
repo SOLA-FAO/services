@@ -49,6 +49,18 @@ public class SysRegPubDisStateLand extends AbstractReadOnlyEntity {
     private BigDecimal agricultural;
     @Column(name = "industrial")
     private BigDecimal industrial;
+     @Column(insertable=false, updatable=false, name = "public_notification_duration")
+    @AccessFunctions(onSelect = "system.get_setting('public-notification-duration')")
+    private String publicNotificationDuration;
+
+    public String getPublicNotificationDuration() {
+        return publicNotificationDuration;
+    }
+
+    public void setPublicNotificationDuration(String publicNotificationDuration) {
+        this.publicNotificationDuration = publicNotificationDuration;
+    }
+    
 
     public SysRegPubDisStateLand() {
         super();
