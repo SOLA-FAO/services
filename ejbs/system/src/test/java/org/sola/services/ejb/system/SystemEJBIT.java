@@ -47,6 +47,7 @@ import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
 import org.sola.services.ejb.system.repository.entities.Br;
 import org.sola.services.ejb.system.repository.entities.BrValidation;
 import static org.junit.Assert.*;
+import org.sola.services.common.br.ValidationResult;
 
 /**
  *
@@ -154,7 +155,6 @@ public class SystemEJBIT extends AbstractEJBTest {
         List<BrValidation> result10 = 
                 instance.getBrForValidatingTransaction("source", "pending", null);
 
-        printResult(result10);
     }
 
     private void printResult(List<BrValidation> result) {

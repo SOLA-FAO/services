@@ -313,6 +313,11 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
                 transaction.getId(), requestType,
                 languageCode, RegistrationStatusType.STATUS_PENDING);
         
+        if (!systemEJB.validationSucceeded(validationResultList)) {
+            //If the validation fails the whole transaction is rolledback.
+            throw new SOLAValidationException(validationResultList);
+        }
+
         if (TransactionType.BULK_OPERATION_SPATIAL.equals(requestType)){
             // If of the bulk operation, then the db function is called to move the features
             // to main tables.
@@ -323,10 +328,6 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
             getRepository().executeFunction(params);
         }
 
-        if (!systemEJB.validationSucceeded(validationResultList)) {
-            //If the validation fails the whole transaction is rolledback.
-            throw new SOLAValidationException(validationResultList);
-        }
         return validationResultList;
     }
 
@@ -353,6 +354,9 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
                 || requestType.equals(TransactionType.REDEFINE_CADASTRE)) {
             brValidationList = this.systemEJB.getBrForValidatingTransaction(
                     "cadastre_object", momentCode, requestType);
+        }else if (requestType.equals(TransactionType.BULK_OPERATION_SPATIAL)) {
+            brValidationList = this.systemEJB.getBrForValidatingTransaction(
+                    TransactionType.BULK_OPERATION_SPATIAL, momentCode, requestType);
         }
 
         HashMap<String, Serializable> params = new HashMap<String, Serializable>();
