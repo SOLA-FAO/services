@@ -117,6 +117,12 @@ public interface SystemEJBLocal extends AbstractEJBLocal {
     List<BrValidation> getBrForValidatingRrr(String momentCode, String rrrType);
 
     /**
+     * See {@linkplain SystemEJB#getBrForPublicDisplay()
+     * SystemEJB.getBrForPublicDisplay
+     */
+    List<BrValidation> getBrForPublicDisplay();
+
+    /**
      * See {@linkplain SystemEJB#checkRuleGetResultSingle(java.lang.String, java.util.HashMap)
      * SystemEJB.checkRuleGetResultSingle
      */

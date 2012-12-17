@@ -300,6 +300,19 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
     }
 
     /**
+     * Retrieves the business rules required to validate the printing 
+     * of public display report for a certain last part. <br/>
+     * For this business rules, there is no needed a moment to be provided.
+     */
+    @Override
+    public List<BrValidation> getBrForPublicDisplay() {
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, BrValidation.QUERY_WHERE_FOR_PUBLIC_DISPLAY);
+        params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, BrValidation.QUERY_ORDERBY_ORDEROFEXECUTION);
+        return getRepository().getEntityList(BrValidation.class, params);
+    }
+
+    /**
      * Executes the rule using the appropriate rules engine. Currently only SQL rules are supported,
      * but JBOSS Drools rules could be supported in future.
      *
