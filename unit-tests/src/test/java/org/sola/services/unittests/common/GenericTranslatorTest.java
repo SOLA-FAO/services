@@ -461,6 +461,7 @@ public class GenericTranslatorTest {
         assertRequestTypeTO(requestType, result);
     }
 
+    @Ignore
     @Test
     public void testToTO_EntityList() {
         System.out.println("toTO - EntityList");
