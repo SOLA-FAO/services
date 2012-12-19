@@ -262,15 +262,20 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
      * Deletes the transaction.
      *
      * @param id Identifier of the transaction
+     * @param rowVersion 
      * @return
      * <code>true</code> if the transaction is deleted.
      */
     @Override
-    public boolean rejectTransactionWithId(String id) {
-        TransactionBasic transaction = this.getTransactionById(id, TransactionBasic.class);
+    public boolean rejectTransactionWithId(String id, int rowVersion) {
+        TransactionBulk transaction = this.getTransactionById(id, TransactionBulk.class);
         if (transaction == null) {
             return false;
         }
+        if (!transaction.isIsBulkOperation()){
+            throw new SOLAException(ServiceMessage.EJB_TRANSACTION_NOT_REJECTABLE);
+        }
+        transaction.setRowVersion(rowVersion);
 
         transaction.setEntityAction(EntityAction.DELETE);
         getRepository().saveEntity(transaction);

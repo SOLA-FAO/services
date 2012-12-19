@@ -37,7 +37,7 @@ import javax.persistence.Table;
 
 /**
  *
- * @author manoku
+ * @author Elton Manoku
  */
 @Table(name = "transaction", schema = "transaction")
 public class Transaction extends TransactionBasic{

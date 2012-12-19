@@ -72,4 +72,5 @@ public class TransactionBasic extends AbstractVersionedEntity {
     public void setFromServiceId(String fromServiceId) {
         this.fromServiceId = fromServiceId;
     }
+
 }

@@ -52,6 +52,7 @@ import org.sola.services.ejb.system.repository.entities.BrValidation;
 import org.sola.services.ejb.transaction.businesslogic.TransactionEJBLocal;
 import org.sola.services.ejb.transaction.repository.entities.RegistrationStatusType;
 import org.sola.services.ejb.transaction.repository.entities.TransactionBasic;
+import org.sola.services.ejb.transaction.repository.entities.TransactionType;
 
 /**
  * EJB to manage data in the source schema. Supports retrieving and saving
@@ -414,4 +415,58 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
         }
         return powerOfAttorneyList;
     }
+
+    /**
+     * Retrieves a transaction of bulk operation type by id.
+     * If the transaction is not of bulk operation type, it returns null.
+     *
+     * @param id The transaction identifier.
+     */
+    @Override
+    public TransactionBulkOperationSource getTransactionBulkOperationById(String id) {
+        TransactionBulkOperationSource transaction = getRepository().getEntity(
+                TransactionBulkOperationSource.class, id);
+        if (transaction != null && transaction.isIsBulkOperation()){
+            transaction = null;
+        }
+        return transaction;
+    }
+
+    /**
+     * It saves a transaction initiated by the bulk operation application.
+     * @param transaction
+     * @param languageCode
+     * @return 
+     */
+    @Override
+    public List<ValidationResult> saveTransactionBulkOperation(
+            TransactionBulkOperationSource transaction, String languageCode) {
+
+        //Saves the transaction
+        transaction = this.saveEntity(transaction);
+
+        //It runs the validation
+           List<BrValidation> brValidationList = this.systemEJB.getBrForValidatingTransaction(
+                    TransactionType.BULK_OPERATION_SOURCE, RegistrationStatusType.STATUS_PENDING, 
+                    TransactionType.BULK_OPERATION_SOURCE);
+        
+        HashMap<String, Serializable> params = new HashMap<String, Serializable>();
+
+        //The business rules fired, are supposed to get only one parameter and that is
+        // the id of the transaction
+        params.put("id", transaction.getId());
+
+        //Run the validation
+        List<ValidationResult> validationResultList =
+                this.systemEJB.checkRulesGetValidation(brValidationList, languageCode, params);
+        
+        if (!systemEJB.validationSucceeded(validationResultList)) {
+            //If the validation fails the whole transaction is rolledback.
+            throw new SOLAValidationException(validationResultList);
+        }
+
+        return validationResultList;
+    }
+    
+    
 }

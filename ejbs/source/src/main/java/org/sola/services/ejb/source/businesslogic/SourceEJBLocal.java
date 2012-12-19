@@ -27,6 +27,7 @@ package org.sola.services.ejb.source.businesslogic;
 
 import java.util.List;
 import javax.ejb.Local;
+import org.sola.services.common.br.ValidationResult;
 import org.sola.services.common.ejbs.AbstractSolaTransactionEJBLocal;
 import org.sola.services.ejb.source.repository.entities.*;
 
@@ -109,4 +110,19 @@ public interface SourceEJBLocal extends AbstractSolaTransactionEJBLocal {
      * SourceEJB.getPowerOfAttorneyByServiceId}.
      */
     List<PowerOfAttorney> getPowerOfAttorneyByServiceId(String serviceId);
+    
+    /**
+     * See {@linkplain SourceEJB#getTransactionBulkOperationById(java.lang.String)
+     * SourceEJB.getTransactionBulkOperationById}.
+     */
+    TransactionBulkOperationSource getTransactionBulkOperationById(String id);
+
+    /**
+     * See {@linkplain SourceEJB#saveTransactionBulkOperation(
+     * org.sola.services.ejb.source.repository.entities.TransactionBulkOperationSource,
+     * java.lang.String, java.lang.String) SourceEJB.saveTransactionBulkOperation}.
+     */
+    List<ValidationResult> saveTransactionBulkOperation(
+            TransactionBulkOperationSource transaction, String languageCode);
+    
 }

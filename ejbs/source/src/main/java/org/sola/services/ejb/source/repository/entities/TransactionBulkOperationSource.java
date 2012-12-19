@@ -29,47 +29,29 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.sola.services.ejb.transaction.repository.entities;
+package org.sola.services.ejb.source.repository.entities;
 
 import java.util.List;
-import javax.persistence.Column;
 import javax.persistence.Table;
 import org.sola.services.common.repository.ChildEntityList;
-import org.sola.services.common.repository.ExternalEJB;
-import org.sola.services.ejb.cadastre.businesslogic.CadastreEJBLocal;
-import org.sola.services.ejb.cadastre.repository.entities.SpatialUnitTemporary;
+import org.sola.services.ejb.transaction.repository.entities.TransactionBulk;
 
 /**
  *
  * @author Elton Manoku
  */
 @Table(name = "transaction", schema = "transaction")
-public class TransactionBulkOperationSpatial extends TransactionBulk {
-
-    @Column(name = "bulk_generate_first_part")
-    private boolean generateFirstPart;
+public class TransactionBulkOperationSource extends TransactionBulk {
     
     @ChildEntityList(parentIdField = "transactionId")
-    @ExternalEJB(
-            ejbLocalClass = CadastreEJBLocal.class, 
-            loadMethod = "getSpatialUnitTemporaryListByTransaction", 
-            saveMethod="saveEntity")
-    private List<SpatialUnitTemporary> spatialUnitTemporaryList;
+    private List<Source> sourceList;
 
-    public boolean isGenerateFirstPart() {
-        return generateFirstPart;
+    public List<Source> getSourceList() {
+        return sourceList;
     }
 
-    public void setGenerateFirstPart(boolean generateFirstPart) {
-        this.generateFirstPart = generateFirstPart;
+    public void setSourceList(List<Source> sourceList) {
+        this.sourceList = sourceList;
     }
-
-    public List<SpatialUnitTemporary> getSpatialUnitTemporaryList() {
-        return spatialUnitTemporaryList;
-    }
-
-    public void setSpatialUnitTemporaryList(List<SpatialUnitTemporary> value) {
-        this.spatialUnitTemporaryList = value;
-    }
-
+    
 }
