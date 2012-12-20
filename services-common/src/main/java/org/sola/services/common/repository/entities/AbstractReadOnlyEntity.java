@@ -98,7 +98,7 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
                 getValueException = true;
                 throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
                         new Object[]{"Unable to get value from " + entityInfo.getterName()
-                            + " for entity " + this.toString(), ex});
+                            + " for entity " + this.toString(), ex, ex.getCause()});
             }
         }
         return result;
