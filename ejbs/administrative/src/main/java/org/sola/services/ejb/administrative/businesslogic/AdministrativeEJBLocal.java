@@ -149,17 +149,17 @@ public interface AdministrativeEJBLocal extends AbstractSolaTransactionEJBLocal 
      * See {@linkplain AdministrativeEJB#SysRegPubDisParcelName(java.lang.String)
      * CadastreEJB.SysRegPubDisParcelName}.
      */
-    List<SysRegPubDisParcelName> getSysRegPubDisParcelNameByLocation(String searchString);
+    List<SysRegPubDisParcelName> getSysRegPubDisParcelNameByLocation(String searchString, String languageCode);
 
     /**
      * See {@linkplain AdministrativeEJB#SysRegPubDisOwnerName(java.lang.String)
      * CadastreEJB.SysRegPubDisOwnerName}.
      */
-    List<SysRegPubDisOwnerName> getSysRegPubDisOwnerNameByLocation(String searchString);
+    List<SysRegPubDisOwnerName> getSysRegPubDisOwnerNameByLocation(String searchString, String languageCode);
 
     /**
      * See {@linkplain AdministrativeEJB#SysRegPubDisStateLand(java.lang.String)
      * CadastreEJB.SysRegPubDisStateLand}.
      */
-    List<SysRegPubDisStateLand> getSysRegPubDisStateLandByLocation(String searchString);
+    List<SysRegPubDisStateLand> getSysRegPubDisStateLandByLocation(String searchString, String languageCode);
 }

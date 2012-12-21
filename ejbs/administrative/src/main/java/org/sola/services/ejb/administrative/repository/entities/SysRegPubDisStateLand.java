@@ -26,7 +26,9 @@ public class SysRegPubDisStateLand extends AbstractReadOnlyEntity {
      * WHERE clause to return current CO's based on search string compared to
      * last part
      */
-    public static final String QUERY_WHERE_SEARCHBYPARTS = "compare_strings(#{search_string}, name_lastpart)";
+//    public static final String QUERY_WHERE_SEARCHBYPARTS = "compare_strings(#{search_string}, name_lastpart)";
+    public static final String QUERY_WHERE_SEARCHBYPARTS = "name_lastpart = #{search_string}";
+    
     @Id
     @Column(name = "id")
     private String id;

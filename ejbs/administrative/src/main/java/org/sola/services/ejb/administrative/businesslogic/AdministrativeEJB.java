@@ -487,11 +487,13 @@ public class AdministrativeEJB extends AbstractEJB
      * insensitive.
      *
      * @param searchString The search string to use
-     * @return The list of cadastre objects matching the search string
+     * @return The list of Parcels matching the search string
      */
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
-    public List<SysRegPubDisParcelName> getSysRegPubDisParcelNameByLocation(String searchString) {
+    public List<SysRegPubDisParcelName> getSysRegPubDisParcelNameByLocation(String searchString, String languageCode) {
+        
+        this.validatePublicDisplay(searchString, languageCode);
         HashMap params = new HashMap();
         params.put("search_string", searchString);
 
@@ -505,11 +507,12 @@ public class AdministrativeEJB extends AbstractEJB
      * insensitive.
      *
      * @param searchString The search string to use
-     * @return The list of cadastre objects matching the search string
+     * @return The list of Parcels matching the search string
      */
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
-    public List<SysRegPubDisOwnerName> getSysRegPubDisOwnerNameByLocation(String searchString) {
+    public List<SysRegPubDisOwnerName> getSysRegPubDisOwnerNameByLocation(String searchString, String languageCode) {
+        this.validatePublicDisplay(searchString, languageCode);
         HashMap params = new HashMap();
         params.put("search_string", searchString);
         return getRepository().getEntityList(SysRegPubDisOwnerName.class,
@@ -522,12 +525,12 @@ public class AdministrativeEJB extends AbstractEJB
      * insensitive.
      *
      * @param searchString The search string to use
-     * @return The list of cadastre objects matching the search string
+     * @return The list of Parcels matching the search string
      */
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
-    public List<SysRegPubDisStateLand> getSysRegPubDisStateLandByLocation(String searchString) {
-
+    public List<SysRegPubDisStateLand> getSysRegPubDisStateLandByLocation(String searchString, String languageCode) {
+        this.validatePublicDisplay(searchString, languageCode);
         HashMap params = new HashMap();
         params.put("search_string", searchString);
 
@@ -549,7 +552,7 @@ public class AdministrativeEJB extends AbstractEJB
         //Run the validation
         List<ValidationResult> validationResult = this.systemEJB.checkRulesGetValidation(
                 brValidationList, languageCode, params);
-        if (systemEJB.validationSucceeded(validationResult)) {
+        if (! systemEJB.validationSucceeded(validationResult)) {
             throw new SOLAValidationException(validationResult);
         }
     }
