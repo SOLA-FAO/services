@@ -48,6 +48,17 @@ import org.sola.services.ejb.cadastre.repository.entities.*;
 public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
 
     /**
+     * Retrieves all cadastre.land_use_type code values.
+     *
+     * @param languageCode The language code to use for localization of display
+     * values.
+     */
+    @Override
+    public List<LandUseType> getLandUseTypes(String languageCode) {
+        return getRepository().getCodeList(LandUseType.class, languageCode);
+    }
+
+    /**
      * Retrieves all cadastre.cadastre_object_type code values.
      *
      * @param languageCode The language code to use for localization of display
@@ -392,8 +403,8 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
     }
 
     /**
-     * Retrieves the temporary cadastre objects that have been associated 
-     * with a bulk operation transaction.
+     * Retrieves the temporary cadastre objects that have been associated with a
+     * bulk operation transaction.
      *
      * @param transactionId The identifier of the transaction
      */
@@ -406,5 +417,4 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
         params.put("transaction_id", transactionId);
         return getRepository().getEntityList(SpatialUnitTemporary.class, params);
     }
-    
 }

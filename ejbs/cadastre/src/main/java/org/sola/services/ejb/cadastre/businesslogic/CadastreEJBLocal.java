@@ -41,6 +41,12 @@ import org.sola.services.ejb.cadastre.repository.entities.*;
 public interface CadastreEJBLocal extends AbstractEJBLocal {
 
     /**
+     * See {@linkplain CadastreEJB#getLandUseTypes(java.lang.String)
+     * CadastreEJB.getCadastreObjectTypes}.
+     */
+    List<LandUseType> getLandUseTypes(String languageCode);
+
+    /**
      * See {@linkplain CadastreEJB#getCadastreObjectTypes(java.lang.String)
      * CadastreEJB.getCadastreObjectTypes}.
      */
@@ -150,11 +156,11 @@ public interface CadastreEJBLocal extends AbstractEJBLocal {
      * CadastreEJB.approveCadastreRedefinition}.
      */
     void approveCadastreRedefinition(String transactionId);
-    
+
     /**
      * See {@linkplain CadastreEJB#getSpatialUnitTemporaryListByTransaction(java.lang.String)
      * CadastreEJB.getSpatialUnitTemporaryListByTransaction}.
      */
     List<SpatialUnitTemporary> getSpatialUnitTemporaryListByTransaction(
-             String transactionId);
+            String transactionId);
 }
