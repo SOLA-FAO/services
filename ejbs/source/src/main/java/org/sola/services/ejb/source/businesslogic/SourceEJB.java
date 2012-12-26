@@ -274,7 +274,7 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
         source.resetEntityAction();
         source.setRowVersion(0);
         source.markForSave();
-
+        
 
         // Get the transaction. If transaction does not exist it will be created
         TransactionBasic transaction =

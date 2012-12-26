@@ -76,6 +76,8 @@ public class Source extends AbstractVersionedEntity {
     private Date recordation;
     @Column(name = "submission")
     private Date submission;
+    @Column(name = "expiration_date") 
+    private Date expirationDate;
     @Column(name = "ext_archive_id")
     private String archiveDocumentId;
     @Column(name = "availability_status_code")
@@ -97,7 +99,7 @@ public class Source extends AbstractVersionedEntity {
     @Column
     private String description;
     private Boolean locked = null;
-
+     
     public Source() {
         super();
     }
@@ -112,6 +114,14 @@ public class Source extends AbstractVersionedEntity {
             }
         }
         return result;
+    }
+
+    public Date getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     private Transaction getTransaction() {
