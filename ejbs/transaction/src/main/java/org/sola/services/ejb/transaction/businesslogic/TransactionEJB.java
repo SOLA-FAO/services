@@ -203,7 +203,7 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
     }
 
     /**
-     * Updates the status of any cadastre objects associated with the transaction. 
+     * Updates the status of any cadastre objects associated with the transaction.
      *
      * @param requestType The type of service associated to the transaction
      * @param transactionId The transaction identifier
@@ -247,7 +247,7 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
      */
     @Override
     public boolean rejectTransaction(String serviceId) {
-        TransactionBasic transaction = 
+        TransactionBasic transaction =
                 this.getTransactionByServiceId(serviceId, false, TransactionBasic.class);
         if (transaction == null) {
             return false;
@@ -262,7 +262,7 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
      * Deletes the transaction.
      *
      * @param id Identifier of the transaction
-     * @param rowVersion 
+     * @param rowVersion
      * @return
      * <code>true</code> if the transaction is deleted.
      */
@@ -272,13 +272,20 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
         if (transaction == null) {
             return false;
         }
-        if (!transaction.isIsBulkOperation()){
+        if (!transaction.isIsBulkOperation()) {
             throw new SOLAException(ServiceMessage.EJB_TRANSACTION_NOT_REJECTABLE);
         }
         transaction.setRowVersion(rowVersion);
 
         transaction.setEntityAction(EntityAction.DELETE);
         getRepository().saveEntity(transaction);
+
+        // Run a clean - up database function after the transaction is rejected.
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_QUERY, 
+                TransactionBulk.CLEAN_AFTER_ROLLBACK_QUERY);
+        getRepository().executeFunction(params);
+
         return true;
     }
 
@@ -317,19 +324,22 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
         List<ValidationResult> validationResultList = validateTransaction(
                 transaction.getId(), requestType,
                 languageCode, RegistrationStatusType.STATUS_PENDING);
-        
+
         if (!systemEJB.validationSucceeded(validationResultList)) {
             //If the validation fails the whole transaction is rolledback.
             throw new SOLAValidationException(validationResultList);
         }
 
-        if (TransactionType.BULK_OPERATION_SPATIAL.equals(requestType)){
+        if (TransactionType.BULK_OPERATION_SPATIAL.equals(requestType)) {
             // If of the bulk operation, then the db function is called to move the features
             // to main tables.
             Map<String, Object> params = new HashMap<String, Object>();
             params.put(CommonSqlProvider.PARAM_QUERY,
-                    "select bulk_operation.move_spatial_units(#{transactionId})");
-            params.put("transactionId", transaction.getId());
+                    TransactionBulkOperationSpatial.MOVE_SPATIAL_UNITS_QUERY);
+            params.put(TransactionBulkOperationSpatial.PARAM_TRANSACTIONID, 
+                    transaction.getId());
+            params.put(TransactionBulkOperationSpatial.PARAM_CHANGEUSER, 
+                    getUserName());
             getRepository().executeFunction(params);
         }
 
@@ -359,7 +369,7 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
                 || requestType.equals(TransactionType.REDEFINE_CADASTRE)) {
             brValidationList = this.systemEJB.getBrForValidatingTransaction(
                     "cadastre_object", momentCode, requestType);
-        }else if (requestType.equals(TransactionType.BULK_OPERATION_SPATIAL)) {
+        } else if (requestType.equals(TransactionType.BULK_OPERATION_SPATIAL)) {
             brValidationList = this.systemEJB.getBrForValidatingTransaction(
                     TransactionType.BULK_OPERATION_SPATIAL, momentCode, requestType);
         }

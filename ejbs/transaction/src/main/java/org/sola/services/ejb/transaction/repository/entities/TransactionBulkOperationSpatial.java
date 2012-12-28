@@ -45,6 +45,13 @@ import org.sola.services.ejb.cadastre.repository.entities.SpatialUnitTemporary;
  */
 @Table(name = "transaction", schema = "transaction")
 public class TransactionBulkOperationSpatial extends TransactionBulk {
+    
+    public static final String PARAM_TRANSACTIONID = "transactionId";
+    public static final String PARAM_CHANGEUSER = "changeUser";
+
+    public static final String MOVE_SPATIAL_UNITS_QUERY = 
+            "select bulk_operation.move_spatial_units(#{" 
+            + PARAM_TRANSACTIONID + "}, #{" + PARAM_CHANGEUSER + "})";
 
     @Column(name = "bulk_generate_first_part")
     private boolean generateFirstPart;

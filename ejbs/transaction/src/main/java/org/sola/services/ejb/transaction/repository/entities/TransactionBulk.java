@@ -13,6 +13,9 @@ import javax.persistence.Table;
  */
 @Table(name = "transaction", schema = "transaction")
 public class TransactionBulk extends TransactionBasic {
+
+    public static final String CLEAN_AFTER_ROLLBACK_QUERY = 
+            "select bulk_operation.clean_after_rollback()";
     
     @Column(name = "is_bulk_operation", updatable= false)
     private boolean isBulkOperation;
