@@ -29,6 +29,7 @@
  */
 package org.sola.services.ejb.administrative.businesslogic;
 
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Local;
 import org.sola.services.common.br.ValidationResult;
@@ -165,4 +166,7 @@ public interface AdministrativeEJBLocal extends AbstractSolaTransactionEJBLocal 
     List<SysRegPubDisStateLand> getSysRegPubDisStateLandByLocation(String searchString, String languageCode);
 
     List<ValidationResult> publicDisplay(String params, String languageCode) ;
+    
+    List<SysRegManagement> getSysRegManagement(SysRegManagementParams params, String languageCode);
+    
 }

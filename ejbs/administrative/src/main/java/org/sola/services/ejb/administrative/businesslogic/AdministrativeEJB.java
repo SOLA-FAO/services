@@ -30,10 +30,7 @@
 package org.sola.services.ejb.administrative.businesslogic;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -597,4 +594,30 @@ public class AdministrativeEJB extends AbstractEJB
             String params, String languageCode) {
         return this.validatePublicDisplay(params, languageCode);
     }
+    
+    
+     /**
+     * Returns a maximum of 10 cadastre objects that have a name first part
+     * and/or name last part that matches the specified search string. This
+     * method supports partial matches and is case insensitive.
+     *
+     * @param searchString The search string to use
+     * @return The list of Parcels matching the search string
+     */
+    @Override
+    @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
+    public List<SysRegManagement> getSysRegManagement(SysRegManagementParams params, String languageCode) {
+        List<SysRegManagement> result;
+        Map queryParams = new HashMap<String, Object>();
+        queryParams.put(CommonSqlProvider.PARAM_QUERY, SysRegManagement.QUERY_GETQUERY);
+
+        queryParams.put(SysRegManagement.PARAMETER_FROM,
+                params.getFromDate() == null ? new GregorianCalendar(1, 1, 1).getTime() : params.getFromDate());
+        queryParams.put(SysRegManagement.PARAMETER_TO,
+                params.getToDate() == null ? new GregorianCalendar(2500, 1, 1).getTime() : params.getToDate());
+        queryParams.put(SysRegManagement.QUERY_PARAMETER_LASTPART, params.getNameLastpart());
+        result = getRepository().executeFunction(queryParams, SysRegManagement.class);
+        return result;
+    }
+
 }
