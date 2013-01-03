@@ -18,7 +18,6 @@ public class SysRegManagement extends AbstractReadOnlyEntity {
     public static final String PARAMETER_FROM = "fromDate";
     public static final String PARAMETER_TO = "toDate";
     public static final String QUERY_PARAMETER_LASTPART = "nameLastpart";
-
 //        public static final String QUERY_GETQUERY = "select * from administrative.getsysregmanagement(#{" + 
 //            PARAMETER_FROM + "}, #{" + PARAMETER_TO + "}, #{" + QUERY_PARAMETER_LASTPART + "}) "
 //            + " as SysRegManagementReport(application decimal, spatial decimal,"
@@ -30,12 +29,9 @@ public class SysRegManagement extends AbstractReadOnlyEntity {
 //                + " parcelapprovedindustrial decimal, sizeapprovedindustrial decimal, "
 //                + " parcelapprovedagricultural decimal,  sizeapprovedagricultural decimal, "
 //                + " objection decimal) ";
-          
-            public static final String QUERY_GETQUERY = "select * from administrative.getsysregmanagement(#{" + 
-            PARAMETER_FROM + "}, #{" + PARAMETER_TO + "}, #{" + QUERY_PARAMETER_LASTPART + "}) "
-            + " as SysRegManagementReport(counter integer, descr  varchar) ";
-    
-    
+    public static final String QUERY_GETQUERY = "select * from administrative.getsysregmanagement(#{"
+            + PARAMETER_FROM + "}, #{" + PARAMETER_TO + "}, #{" + QUERY_PARAMETER_LASTPART + "}) "
+            + " as SysRegManagementReport(counter integer, descr  varchar, area  varchar) ";
 //    @Column(name = "application")
 //    private BigDecimal application;
 //    @Column(name = "spatial")
@@ -72,18 +68,17 @@ public class SysRegManagement extends AbstractReadOnlyEntity {
 //    private BigDecimal sizeapprovedagricultural;
 //    @Column(name = "objection")
 //    private BigDecimal objection;
-      
-    @Column(name="counter")
+    @Column(name = "counter")
     private Integer counter;
-    @Column(name="descr")
-    private String  descr;
-         
+    @Column(name = "descr")
+    private String descr;
+    @Column(name = "area")
+    private String area;
+
     public SysRegManagement() {
         super();
     }
-    
-    
-    
+
 //    public BigDecimal getApplication() {
 //        return application;
 //    }
@@ -227,7 +222,6 @@ public class SysRegManagement extends AbstractReadOnlyEntity {
 //    public void setSpatial(BigDecimal spatial) {
 //        this.spatial = spatial;
 //    }
-
     public Integer getCounter() {
         return counter;
     }
@@ -242,5 +236,13 @@ public class SysRegManagement extends AbstractReadOnlyEntity {
 
     public void setDescr(String descr) {
         this.descr = descr;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public void setArea(String area) {
+        this.area = area;
     }
 }
