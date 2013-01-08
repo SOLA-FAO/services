@@ -48,6 +48,9 @@ public class SysRegPubDisParcelName extends AbstractReadOnlyEntity {
     @Column(insertable=false, updatable=false, name = "public_notification_duration")
     @AccessFunctions(onSelect = "system.get_setting('public-notification-duration')")
     private String publicNotificationDuration;
+    @Column(name = "name")
+    private String name;
+
 
     public String getPublicNotificationDuration() {
         return publicNotificationDuration;
@@ -122,4 +125,14 @@ public class SysRegPubDisParcelName extends AbstractReadOnlyEntity {
     public void setConcatenatedName(String concatenatedName) {
         this.concatenatedName = concatenatedName;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    
 }
