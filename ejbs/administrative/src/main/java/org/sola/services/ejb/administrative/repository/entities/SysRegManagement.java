@@ -31,7 +31,7 @@ public class SysRegManagement extends AbstractReadOnlyEntity {
 //                + " objection decimal) ";
     public static final String QUERY_GETQUERY = "select * from administrative.getsysregmanagement(#{"
             + PARAMETER_FROM + "}, #{" + PARAMETER_TO + "}, #{" + QUERY_PARAMETER_LASTPART + "}) "
-            + " as SysRegManagementReport(counter integer, descr  varchar, area  varchar) ";
+            + " as SysRegManagementReport(counter decimal, descr  varchar, area  varchar) ";
 //    @Column(name = "application")
 //    private BigDecimal application;
 //    @Column(name = "spatial")
@@ -69,7 +69,7 @@ public class SysRegManagement extends AbstractReadOnlyEntity {
 //    @Column(name = "objection")
 //    private BigDecimal objection;
     @Column(name = "counter")
-    private Integer counter;
+    private BigDecimal counter;
     @Column(name = "descr")
     private String descr;
     @Column(name = "area")
@@ -222,11 +222,11 @@ public class SysRegManagement extends AbstractReadOnlyEntity {
 //    public void setSpatial(BigDecimal spatial) {
 //        this.spatial = spatial;
 //    }
-    public Integer getCounter() {
+    public BigDecimal getCounter() {
         return counter;
     }
 
-    public void setCounter(Integer counter) {
+    public void setCounter(BigDecimal counter) {
         this.counter = counter;
     }
 
