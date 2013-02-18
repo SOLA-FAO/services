@@ -50,6 +50,9 @@ public class SysRegPubDisParcelName extends AbstractReadOnlyEntity {
     private String publicNotificationDuration;
     @Column(name = "name")
     private String name;
+    @Column(insertable = false, updatable = false, name = "objections")
+    @AccessFunctions(onSelect = "administrative.get_objections(name_lastpart)")
+    private String objections;
 
 
     public String getPublicNotificationDuration() {
@@ -132,6 +135,14 @@ public class SysRegPubDisParcelName extends AbstractReadOnlyEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getObjections() {
+        return objections;
+    }
+
+    public void setObjections(String objections) {
+        this.objections = objections;
     }
     
     

@@ -38,6 +38,8 @@ public class SysRegPubDisStateLand extends AbstractReadOnlyEntity {
     private String nameFirstpart;
     @Column(name = "name_lastpart")
     private String nameLastpart;
+    @Column(name = "size")
+    private BigDecimal size;
     @Localized
     @Column(name = "land_use_code")
     private String landUsecode;
@@ -51,10 +53,13 @@ public class SysRegPubDisStateLand extends AbstractReadOnlyEntity {
     private BigDecimal agricultural;
     @Column(name = "industrial")
     private BigDecimal industrial;
-     @Column(insertable=false, updatable=false, name = "public_notification_duration")
+    @Column(insertable=false, updatable=false, name = "public_notification_duration")
     @AccessFunctions(onSelect = "system.get_setting('public-notification-duration')")
     private String publicNotificationDuration;
-
+    @Column(insertable=false, updatable=false, name = "objections")
+    @AccessFunctions(onSelect = "administrative.get_objections(name_lastpart)")
+    private String objections;
+   
     public String getPublicNotificationDuration() {
         return publicNotificationDuration;
     }
@@ -147,5 +152,20 @@ public class SysRegPubDisStateLand extends AbstractReadOnlyEntity {
     public void setBaUnitId(String baUnitId) {
         this.baUnitId = baUnitId;
     }
+    
+    public String getObjections() {
+        return objections;
+    }
 
+    public void setObjections(String objections) {
+        this.objections = objections;
+    }
+
+    public BigDecimal getSize() {
+        return size;
+    }
+
+    public void setSize(BigDecimal size) {
+        this.size = size;
+    }
 }

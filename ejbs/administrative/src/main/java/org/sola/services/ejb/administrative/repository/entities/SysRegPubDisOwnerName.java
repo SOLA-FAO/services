@@ -10,7 +10,7 @@ import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 
 /**
  * Entity representing the administrative sys_reg_owner_name view.
- * 
+ *
  *
  * @author soladev
  */
@@ -35,16 +35,13 @@ public class SysRegPubDisOwnerName extends AbstractReadOnlyEntity {
     private String nameFirstpart;
     @Column(name = "name_lastpart")
     private String nameLastpart;
-//    @Column(name = "size")
-//    private BigDecimal size;
+    @Column(name = "size")
+    private BigDecimal size;
     @Localized
     @Column(name = "land_use_code")
     private String landUsecode;
     @Column(name = "ba_unit_id")
     private String baUnitId;
-//    @Column(insertable=false, updatable=false, name = "concatenated_name")
-//    @AccessFunctions(onSelect = "cadastre.get_parcel_ownernames(ba_unit_id)")
-//    private String concatenatedName;
     @Column(name = "residential")
     private BigDecimal residential;
     @Column(name = "commercial")
@@ -53,9 +50,12 @@ public class SysRegPubDisOwnerName extends AbstractReadOnlyEntity {
     private BigDecimal agricultural;
     @Column(name = "industrial")
     private BigDecimal industrial;
-    @Column(insertable=false, updatable=false, name = "public_notification_duration")
+    @Column(insertable = false, updatable = false, name = "public_notification_duration")
     @AccessFunctions(onSelect = "system.get_setting('public-notification-duration')")
     private String publicNotificationDuration;
+    @Column(insertable = false, updatable = false, name = "objections")
+    @AccessFunctions(onSelect = "administrative.get_objections(name_lastpart)")
+    private String objections;
 
     public String getPublicNotificationDuration() {
         return publicNotificationDuration;
@@ -64,7 +64,6 @@ public class SysRegPubDisOwnerName extends AbstractReadOnlyEntity {
     public void setPublicNotificationDuration(String publicNotificationDuration) {
         this.publicNotificationDuration = publicNotificationDuration;
     }
-    
 
     public SysRegPubDisOwnerName() {
         super();
@@ -149,11 +148,20 @@ public class SysRegPubDisOwnerName extends AbstractReadOnlyEntity {
     public void setBaUnitId(String baUnitId) {
         this.baUnitId = baUnitId;
     }
-//    public String getConcatenatedName() {
-//        return concatenatedName;
-//    }
-//
-//    public void setConcatenatedName(String concatenatedName) {
-//        this.concatenatedName = concatenatedName;
-//    }
+
+    public String getObjections() {
+        return objections;
+    }
+
+    public void setObjections(String objections) {
+        this.objections = objections;
+    }
+
+    public BigDecimal getSize() {
+        return size;
+    }
+
+    public void setSize(BigDecimal size) {
+        this.size = size;
+    }
 }
