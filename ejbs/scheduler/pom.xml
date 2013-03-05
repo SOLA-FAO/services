@@ -22,8 +22,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.sola.common</groupId>
-            <artifactId>sola-common</artifactId>
+            <groupId>org.sola.services</groupId>
+            <artifactId>sola-services-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

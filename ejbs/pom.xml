@@ -39,11 +39,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.sola.common</groupId>
-            <artifactId>sola-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <version>6.0</version>

@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2012 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2012 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 /*
@@ -31,6 +33,9 @@
  */
 package org.sola.services.common.repository;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -38,12 +43,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.sola.common.SOLAException;
+import org.sola.common.logging.LogUtility;
 import org.sola.common.messaging.ServiceMessage;
 import org.sola.services.common.ejbs.AbstractEJBLocal;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
@@ -97,7 +105,7 @@ public class RepositoryUtility {
         }
         return sorterExpression;
     }
-    
+
     public static <T extends AbstractReadOnlyEntity> List<ColumnInfo> getColumns(Class<T> entityClass) {
 
         List<ColumnInfo> columns = new ArrayList<ColumnInfo>();
@@ -114,7 +122,7 @@ public class RepositoryUtility {
                     Boolean isLocalized = (field.getAnnotation(Localized.class) != null);
                     Class<?> fieldType = field.getType();
                     String columnName = columnAnnotation.name();
-                    if(columnName==null || columnName.length()<1){
+                    if (columnName == null || columnName.length() < 1) {
                         columnName = field.getName();
                     }
                     ColumnInfo columnInfo = new ColumnInfo(columnName,
@@ -222,7 +230,7 @@ public class RepositoryUtility {
                         throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
                                 // The ChildEntity annoation is not configured correctly
                                 new Object[]{"ChildEntity annotation is not configured correclty on "
-                                    + entityClass.getSimpleName() + "." + field.getName()});
+                            + entityClass.getSimpleName() + "." + field.getName()});
                     }
 
                     childInfo = new ChildEntityInfo(field.getName(), field.getType(), insert,
@@ -276,5 +284,69 @@ public class RepositoryUtility {
             // Ignore the naming exception and return null; 
         }
         return ejb;
+    }
+
+    /**
+     * Issue #192 Compare two arrays to determine if they are equal or not.
+     * Performs a deep comparison of all array members using the Arrays.equal
+     * method. Uses the array class to determine the correct cast to apply to
+     * the object parameters.
+     *
+     * @param arrayClass The class for the array
+     * @param array1 One of the arrays to compare
+     * @param array2 The other array to compare
+     * @return true if both arrays are equal
+     */
+    public static boolean arraysAreEqual(Class<?> arrayClass, Object array1, Object array2) {
+        boolean result = false;
+        if (byte[].class.isAssignableFrom(arrayClass)) {
+            result = Arrays.equals((byte[]) array1, (byte[]) array2);
+        } else if (Object[].class.isAssignableFrom(arrayClass)) {
+            result = Arrays.equals((Object[]) array1, (Object[]) array2);
+        } else if (int[].class.isAssignableFrom(arrayClass)) {
+            result = Arrays.equals((int[]) array1, (int[]) array2);
+        } else if (char[].class.isAssignableFrom(arrayClass)) {
+            result = Arrays.equals((char[]) array1, (char[]) array2);
+        } else if (long[].class.isAssignableFrom(arrayClass)) {
+            result = Arrays.equals((long[]) array1, (long[]) array2);
+        } else if (short[].class.isAssignableFrom(arrayClass)) {
+            result = Arrays.equals((short[]) array1, (short[]) array2);
+        } else if (boolean[].class.isAssignableFrom(arrayClass)) {
+            result = Arrays.equals((boolean[]) array1, (boolean[]) array2);
+        } else if (float[].class.isAssignableFrom(arrayClass)) {
+            result = Arrays.equals((float[]) array1, (float[]) array2);
+        } else if (double[].class.isAssignableFrom(arrayClass)) {
+            result = Arrays.equals((double[]) array1, (double[]) array2);
+        }
+        return result;
+    }
+
+    /**
+     * Issue #192 Compare two arrays to determine if they are equal or not.
+     * Geometries are held as byte arrays, however a basic comparison of the
+     * byte data does not give an accurate equals test due to Big Endian vs
+     * Little Endian issues. Instead it is necessary to create the geometries
+     * and use the explicit equals to their geometric equivalence.
+     *
+     * @param geom1 A geom to compare - can be NULL
+     * @param geom2 The second geom to compare - can be NULL
+     * @return TRUE if both geoms are NULL or geometrically equivalent. FALSE
+     * otherwise.
+     */
+    public static boolean geometriesAreEqual(Object geom1, Object geom2) {
+        boolean result = false;
+        if (geom1 == null && geom2 == null) {
+            result = true;
+        } else if (geom1 != null && geom2 != null) {
+            try {
+                Geometry g1 = new WKBReader().read((byte[]) geom1);
+                Geometry g2 = new WKBReader().read((byte[]) geom2);
+                result = g1.equals(g2);
+            } catch (ParseException ex) {
+                LogUtility.log("Unable to compare geometries. Parse Error:" + ex.getMessage(), ex);
+                result = false;
+            }
+        }
+        return result;
     }
 }
