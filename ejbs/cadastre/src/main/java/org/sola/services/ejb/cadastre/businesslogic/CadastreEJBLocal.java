@@ -163,4 +163,12 @@ public interface CadastreEJBLocal extends AbstractEJBLocal {
      */
     List<SpatialUnitTemporary> getSpatialUnitTemporaryListByTransaction(
             String transactionId);
+    
+    /**
+     * see {@linkplain CadastreEJB#getSpatialValueArea(java.lang.String)
+     * CadastreEJB.getSpatialValueArea}
+     */
+    public SpatialValueArea getSpatialValueArea(String colist);
+
+   
 }

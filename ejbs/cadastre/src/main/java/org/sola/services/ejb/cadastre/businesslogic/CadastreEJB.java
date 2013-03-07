@@ -421,4 +421,21 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
         params.put("transaction_id", transactionId);
         return getRepository().getEntityList(SpatialUnitTemporary.class, params);
     }
+    
+     /**
+     * Locates cadastre object's area size
+     *
+     *
+     * 
+     * @param colist the list of cadastre object 
+     * @return The total area size
+     */
+    @Override
+    public SpatialValueArea getSpatialValueArea(String colist) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+        params.put(SpatialValueArea.QUERY_PARAMETER_COLIST, colist);
+        return getRepository().getEntity(SpatialValueArea.class, params);
+    }
+
 }
