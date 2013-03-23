@@ -84,7 +84,7 @@ public class Rrr extends AbstractVersionedEntity {
     private Date expirationDate;
     @Column(name = "share")
     private Double share;
-    @Column(name = "mortgage_amount")
+    @Column(name = "amount")
     private BigDecimal mortgageAmount;
     @Column(name = "mortgage_interest_rate")
     private BigDecimal mortgageInterestRate;
