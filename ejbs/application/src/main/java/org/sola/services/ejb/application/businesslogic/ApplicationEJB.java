@@ -1241,12 +1241,11 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     }
     
       /**
-     * Returns a maximum of 10 cadastre objects that have a name first part
-     * and/or name last part that matches the specified search string. This
-     * method supports partial matches and is case insensitive.
+     * Returns the list of ba_unit_id for approved systematic registration
+     * that matches the specified search string. 
      *
      * @param searchString The search string to use
-     * @return The list of cadastre objects matching the search string
+     * @return The list of  ba_unit_id for approved systematic registration
      */
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
@@ -1259,12 +1258,11 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     }
     
       /**
-     * Returns a maximum of 10 cadastre objects that have a name first part
-     * and/or name last part that matches the specified search string. This
-     * method supports partial matches and is case insensitive.
+     * Returns the list of ba_unit_id for a specific approved systematic registration
+     * that matches the specified search string. 
      *
      * @param searchString The search string to use
-     * @return The list of cadastre objects matching the search string
+     * @return The list of  ba_unit_id for a specific approved systematic registration
      */
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
