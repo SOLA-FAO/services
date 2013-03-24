@@ -597,12 +597,12 @@ public class AdministrativeEJB extends AbstractEJB
     
     
      /**
-     * Returns a maximum of 10 cadastre objects that have a name first part
-     * and/or name last part that matches the specified search string. This
-     * method supports partial matches and is case insensitive.
+     * Returns list of systematic registration applications
+     * that matches the specified search string. This
+     * 
      *
      * @param searchString The search string to use
-     * @return The list of Parcels matching the search string
+     * @return list of systematic registration applications matching the search string
      */
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
@@ -617,6 +617,21 @@ public class AdministrativeEJB extends AbstractEJB
                 params.getToDate() == null ? new GregorianCalendar(2500, 1, 1).getTime() : params.getToDate());
         queryParams.put(SysRegManagement.QUERY_PARAMETER_LASTPART, params.getNameLastpart());
         result = getRepository().executeFunction(queryParams, SysRegManagement.class);
+        return result;
+    }
+    @Override
+    @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
+    public List<SysRegStatus> getSysRegStatus(SysRegManagementParams params, String languageCode) {
+        List<SysRegStatus> result;
+        Map queryParams = new HashMap<String, Object>();
+        queryParams.put(CommonSqlProvider.PARAM_QUERY, SysRegStatus.QUERY_GETQUERY);
+
+        queryParams.put(SysRegStatus.PARAMETER_FROM,
+                params.getFromDate() == null ? new GregorianCalendar(1, 1, 1).getTime() : params.getFromDate());
+        queryParams.put(SysRegStatus.PARAMETER_TO,
+                params.getToDate() == null ? new GregorianCalendar(2500, 1, 1).getTime() : params.getToDate());
+        queryParams.put(SysRegStatus.QUERY_PARAMETER_LASTPART, params.getNameLastpart());
+        result = getRepository().executeFunction(queryParams, SysRegStatus.class);
         return result;
     }
 
