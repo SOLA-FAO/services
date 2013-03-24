@@ -1,26 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2012 - Food and Agriculture Organization of the United Nations (FAO). All rights
- * reserved.
+ * Copyright (C) 2012 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification, are permitted
- * provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- * 1. Redistributions of source code must retain the above copyright notice,this list of conditions
- * and the following disclaimer. 2. Redistributions in binary form must reproduce the above
- * copyright notice,this list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution. 3. Neither the name of FAO nor the names of its
- * contributors may be used to endorse or promote products derived from this software without
- * specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
- * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.ejb.search.businesslogic;
@@ -43,18 +47,20 @@ import org.sola.services.ejb.search.spatial.ResultForNavigationInfo;
 import org.sola.services.ejb.search.spatial.ResultForSelectionInfo;
 
 /**
- * SOLA EJB's have responsibility for managing data in one schema. This can complicate searches that
- * require interrogating data across multiple schemas to obtain a result. If the strict rule to only
- * allow EJBs to manage data in one schema was applied, cross schema searches would require the use
- * of multiple EJBs to obtain several part datasets which would then need to be sorted and filtered
- * based on the users search criteria. That approach is very inefficient compared to using SQL, so
- * the SearchEJB has been created to allow efficient searching for data across multiple schemas.
+ * SOLA EJB's have responsibility for managing data in one schema. This can
+ * complicate searches that require interrogating data across multiple schemas
+ * to obtain a result. If the strict rule to only allow EJBs to manage data in
+ * one schema was applied, cross schema searches would require the use of
+ * multiple EJBs to obtain several part datasets which would then need to be
+ * sorted and filtered based on the users search criteria. That approach is very
+ * inefficient compared to using SQL, so the SearchEJB has been created to allow
+ * efficient searching for data across multiple schemas.
  *
- * <p>The SearchEJB supports execution of dynamic SQL queries obtained from the system.query
- * table.</p>
+ * <p>The SearchEJB supports execution of dynamic SQL queries obtained from the
+ * system.query table.</p>
  *
- * <p>Note that this EJB has access to all SOLA database tables and it must be treated as read only.
- * It must not be used to persist data changes.</p>
+ * <p>Note that this EJB has access to all SOLA database tables and it must be
+ * treated as read only. It must not be used to persist data changes.</p>
  */
 @Stateless
 @EJB(name = "java:global/SOLA/SearchEJBLocal", beanInterface = SearchEJBLocal.class)
@@ -65,8 +71,10 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      *
      * @param queryName The name of the dynamic query to retrieve
      * @param params The parameters to use for the dynamic query. If the {@linkplain CommonSqlProvider#PARAM_LANGUAGE_CODE}
-     * param is supplied, this value is used to localize the display values for the dynamic query.
-     * @throws SOLAException If the dynamic query name does not match any query in the database
+     * param is supplied, this value is used to localize the display values for
+     * the dynamic query.
+     * @throws SOLAException If the dynamic query name does not match any query
+     * in the database
      */
     private DynamicQuery getDynamicQuery(String queryName, Map params) {
         DynamicQuery query;
@@ -91,8 +99,9 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      *
      * @param query The dynamic query to execute
      * @param params The parameters to pass to the dynamic query.
-     * @return A list of HashMap(String,Object) where the String is the column name and the Object
-     * is the value for the column. Each result row is captured as a Hash Map in the list.
+     * @return A list of HashMap(String,Object) where the String is the column
+     * name and the Object is the value for the column. Each result row is
+     * captured as a Hash Map in the list.
      * @see
      * org.sola.services.common.repository.CommonRepositoryImpl#mapToEntityList(java.lang.Class,
      * java.util.ArrayList) CommonRepositoryImpl.mapToEntityList
@@ -106,11 +115,12 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     // 
     /**
      * Overloaded version of {@linkplain #executeDynamicQuery(org.sola.services.ejb.search.repository.entities.DynamicQuery,
-     * java.util.Map) executeDynamicQuery} that maps the generic result from the dynamic query onto
-     * an entity list.
+     * java.util.Map) executeDynamicQuery} that maps the generic result from the
+     * dynamic query onto an entity list.
      *
      * @param <T> Generic data type
-     * @param entityClass The entity class to map for each row of the result. Must extend {@linkplain AbstractReadOnlyEntity}.
+     * @param entityClass The entity class to map for each row of the result.
+     * Must extend {@linkplain AbstractReadOnlyEntity}.
      * @param queryName The name of the query to execute
      * @param params The parameters to use when executing the dynamic query.
      */
@@ -123,14 +133,15 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Executes a dynamic query and returns a generic result that also provides a localized display
-     * name for each result field.
+     * Executes a dynamic query and returns a generic result that also provides
+     * a localized display name for each result field.
      *
      * @param queryName The name of the dynamic query to execute
      * @param params The parameters to use for the dynamic query
-     * @throws SOLAException If the dynamic query does not have any field configuration in the
-     * system.query_fields table.
-     * @see #executeDynamicQuery(org.sola.services.ejb.search.repository.entities.DynamicQuery,
+     * @throws SOLAException If the dynamic query does not have any field
+     * configuration in the system.query_fields table.
+     * @see
+     * #executeDynamicQuery(org.sola.services.ejb.search.repository.entities.DynamicQuery,
      * java.util.Map) executeDynamicQuery
      */
     @Override
@@ -174,8 +185,8 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Returns the first row of the result set obtained from the execution of a dynamic SQL
-     * statement. Used for the execution of business rules.
+     * Returns the first row of the result set obtained from the execution of a
+     * dynamic SQL statement. Used for the execution of business rules.
      *
      * @param sqlStatement The SQL statement to execute
      * @param params The parameters for the SQL statement
@@ -196,11 +207,13 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Determines if the property details provided already exist in the SOLA database or not. Can be
-     * used to help determine if the property being added to a new application is valid or not.
+     * Determines if the property details provided already exist in the SOLA
+     * database or not. Can be used to help determine if the property being
+     * added to a new application is valid or not.
      *
-     * @param applicationNumber The number of the application the property is being added/associated
-     * to. Used to exclude the current application from the test and avoid a false positive match.
+     * @param applicationNumber The number of the application the property is
+     * being added/associated to. Used to exclude the current application from
+     * the test and avoid a false positive match.
      * @param firstPart The first part of the property name.
      * @param lastPart The last part of the property name.
      */
@@ -218,15 +231,17 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Executes a search across all applications using the search criteria provided. Partial, case
-     * insensitive matches are supported for the contact person name, agent name, application
-     * number, document number and the document reference number criteria.
+     * Executes a search across all applications using the search criteria
+     * provided. Partial, case insensitive matches are supported for the contact
+     * person name, agent name, application number, document number and the
+     * document reference number criteria.
      *
-     * <p>Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
+     * <p>Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS}
+     * role.</p>
      *
      * @param params The criteria to use for the search.
-     * @return A maximum of 100 applications that match the search criteria, sorted by lodgement
-     * date DESC.
+     * @return A maximum of 100 applications that match the search criteria,
+     * sorted by lodgement date DESC.
      */
     @Override
     @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
@@ -260,8 +275,9 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Executes a search across all sources using the search criteria provided. Partial matches are
-     * supported for the document number and the document reference number criteria.
+     * Executes a search across all sources using the search criteria provided.
+     * Partial matches are supported for the document number and the document
+     * reference number criteria.
      *
      * <p>Requires the {@linkplain RolesConstants#SOURCE_SEARCH} role.</p>
      *
@@ -276,7 +292,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         return getRepository().getEntityList(SourceSearchResult.class, params);
     }
 
-    private Map<String, Object> processSourceSearchParams(SourceSearchParams searchParams){
+    private Map<String, Object> processSourceSearchParams(SourceSearchParams searchParams) {
         Map params = new HashMap<String, Object>();
         params.put(SourceSearchResult.QUERY_PARAM_FROM_RECORDATION_DATE,
                 searchParams.getFromRecordationDate() == null
@@ -310,10 +326,11 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
                 searchParams.getVersion() == null ? "" : searchParams.getVersion());
         return params;
     }
-    
+
     /**
-     * Executes a search across all power of attorney using the search criteria provided. 
-     * Partial matches are supported for the document number and the document reference number criteria.
+     * Executes a search across all power of attorney using the search criteria
+     * provided. Partial matches are supported for the document number and the
+     * document reference number criteria.
      *
      * <p>Requires the {@linkplain RolesConstants#SOURCE_SEARCH} role.</p>
      *
@@ -322,7 +339,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      */
     @Override
     @RolesAllowed(RolesConstants.SOURCE_SEARCH)
-    public List<PowerOfAttorneySearchResult> searchPowerOfAttorney(PowerOfAttorneySearchParams searchParams){
+    public List<PowerOfAttorneySearchResult> searchPowerOfAttorney(PowerOfAttorneySearchParams searchParams) {
         Map params = processSourceSearchParams(searchParams);
         params.put(PowerOfAttorneySearchResult.QUERY_PARAM_PERSON_NAME,
                 searchParams.getPersonName() == null ? "" : searchParams.getPersonName());
@@ -331,12 +348,14 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(CommonSqlProvider.PARAM_QUERY, PowerOfAttorneySearchResult.SEARCH_POWER_OF_ATTORNEY_QUERY);
         return getRepository().getEntityList(PowerOfAttorneySearchResult.class, params);
     }
-    
+
     /**
-     * Executes a search across all users using the search criteria provided. Partial matches are
-     * supported for the username, first name and last name criteria.
+     * Executes a search across all users using the search criteria provided.
+     * Partial matches are supported for the username, first name and last name
+     * criteria.
      *
-     * <p>Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role.</p>
+     * <p>Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY}
+     * role.</p>
      *
      * @param searchParams The criteria to use for the search.
      * @return The users that match the search criteria.
@@ -370,13 +389,16 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Returns applications that have a lodged or approve status and are not assigned to any user.
+     * Returns applications that have a lodged or approve status and are not
+     * assigned to any user.
      *
-     * <p>Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
+     * <p>Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS}
+     * role.</p>
      *
-     * @param locale The language code to use for localization of display values.
-     * @return A maximum of 100 applications that match the search criteria, sorted by lodgement
-     * date DESC.
+     * @param locale The language code to use for localization of display
+     * values.
+     * @return A maximum of 100 applications that match the search criteria,
+     * sorted by lodgement date DESC.
      */
     @Override
     @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
@@ -393,17 +415,20 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Returns applications that have a lodged or approved status and are assigned to the currently
-     * logged in user.
+     * Returns applications that have a lodged or approved status and are
+     * assigned to the currently logged in user.
      *
      * <p>If the currently logged in user has the {@linkplain RolesConstants#APPLICATION_UNASSIGN_FROM_OTHERS}
-     * then all lodged or approved applications assigned to any user are returned. </p>
+     * then all lodged or approved applications assigned to any user are
+     * returned. </p>
      *
-     * <p>Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
+     * <p>Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS}
+     * role.</p>
      *
-     * @param locale The language code to use for localization of display values.
-     * @return A maximum of 100 applications that match the search criteria, sorted by lodgement
-     * date DESC.
+     * @param locale The language code to use for localization of display
+     * values.
+     * @return A maximum of 100 applications that match the search criteria,
+     * sorted by lodgement date DESC.
      */
     @Override
     @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
@@ -436,8 +461,8 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Executes a search across all parties using the search criteria provided. Partial matches are
-     * supported for the party name criteria.
+     * Executes a search across all parties using the search criteria provided.
+     * Partial matches are supported for the party name criteria.
      *
      * @param searchParams The criteria to use for the search.
      * @return A maximum of 101 parties that match the search criteria.
@@ -465,12 +490,13 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Used for navigation (i.e. pan and zoom) of the Map. Executes a dynamic layer query using the
-     * bounding box details provided in the search parameters. The dynamic query to execute must be
-     * one of the layer queries in system.query.
+     * Used for navigation (i.e. pan and zoom) of the Map. Executes a dynamic
+     * layer query using the bounding box details provided in the search
+     * parameters. The dynamic query to execute must be one of the layer queries
+     * in system.query.
      *
-     * @param spatialQuery The parameters to use for the query including the name of the dynamic
-     * layer query to execute.
+     * @param spatialQuery The parameters to use for the query including the
+     * name of the dynamic layer query to execute.
      * @return A summary of all spatial objects intersecting the bounding box
      */
     @Override
@@ -495,7 +521,8 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     /**
      * Returns the map layer config details from system.config_map_layer table.
      *
-     * @param languageCode The language code to use for localization of display values.
+     * @param languageCode The language code to use for localization of display
+     * values.
      */
     @Override
     public List<ConfigMapLayer> getConfigMapLayerList(String languageCode) {
@@ -507,13 +534,15 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Executes a group of dynamic spatial queries using a filtering geometry. Primarily used to
-     * obtain results for the Object Information Tool. Each dynamic query must have a set of query
-     * fields configured in the system.query_field table.
+     * Executes a group of dynamic spatial queries using a filtering geometry.
+     * Primarily used to obtain results for the Object Information Tool. Each
+     * dynamic query must have a set of query fields configured in the
+     * system.query_field table.
      *
-     * @param queriesForSelection The list of dynamic spatial queries to execute using the filtering
-     * geometry as a parameter.
-     * @see #getGenericResultList(java.lang.String, java.util.Map) getGenericResultList
+     * @param queriesForSelection The list of dynamic spatial queries to execute
+     * using the filtering geometry as a parameter.
+     * @see #getGenericResultList(java.lang.String, java.util.Map)
+     * getGenericResultList
      */
     @Override
     public List<ResultForSelectionInfo> getSpatialResultFromSelection(
@@ -537,8 +566,8 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Retrieves the default map settings (i.e. default extent for the map and srid) from the
-     * system.settings table.
+     * Retrieves the default map settings (i.e. default extent for the map and
+     * srid) from the system.settings table.
      *
      * @see #getSettingList(java.lang.String) getSettingList
      */
@@ -548,9 +577,11 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Retrieves the system settings from the system.setting table using the specified query.
+     * Retrieves the system settings from the system.setting table using the
+     * specified query.
      *
-     * @param queryBody The query to use to obtain the settings from the system.setting table.
+     * @param queryBody The query to use to obtain the settings from the
+     * system.setting table.
      * @see #getMapSettingList() getMapSettingList
      */
     private HashMap<String, String> getSettingList(String queryBody) {
@@ -567,8 +598,9 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Retrieves the history of changes and actions that have been applied to the application.
-     * <p>Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
+     * Retrieves the history of changes and actions that have been applied to
+     * the application. <p>Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS}
+     * role.</p>
      *
      * @param applicationId The application to retrieve the log for
      */
@@ -583,8 +615,9 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Executes a search across all Business Rules. Partial matches of the br display name are
-     * supported. <p>Requires the {@linkplain RolesConstants#ADMIN_MANAGE_BR} role.</p>
+     * Executes a search across all Business Rules. Partial matches of the br
+     * display name are supported. <p>Requires the {@linkplain RolesConstants#ADMIN_MANAGE_BR}
+     * role.</p>
      *
      * @param searchParams The parameters to use for the search.
      * @param lang The language code to use for localization of display values
@@ -623,10 +656,11 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Executes a search across all BA Units. Partial, case insensitive matches of the name first
-     * part, name last part and owner name are supported.
+     * Executes a search across all BA Units. Partial, case insensitive matches
+     * of the name first part, name last part and owner name are supported.
      *
-     * <p>Requires the {@linkplain RolesConstants#ADMINISTRATIVE_BA_UNIT_SEARCH} role.</p>
+     * <p>Requires the {@linkplain RolesConstants#ADMINISTRATIVE_BA_UNIT_SEARCH}
+     * role.</p>
      *
      * @param searchParams The search criteria to use.
      * @return A maximum of 100 BA Units matching the search criteria.
@@ -658,7 +692,8 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
-     * Retrieves the list of active spatial search options from the system.map_search_option table.
+     * Retrieves the list of active spatial search options from the
+     * system.map_search_option table.
      *
      * @param languageCode the language code of the client application.
      */
@@ -683,5 +718,41 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         Map params = new HashMap<String, Object>();
         params.put(SpatialSearchResult.PARAM_SEARCH_STRING, searchString);
         return executeDynamicQuery(SpatialSearchResult.class, queryName, params);
+    }
+
+    /**
+     * Returns list of rights for export by given parameters.
+     */
+    @Override
+    public List<RightsExportResult> searchRightsForExport(RightsExportParams searchParams) {
+        Map params = new HashMap<String, Object>();
+        Calendar cal = Calendar.getInstance();
+        
+        if (searchParams.getDateFrom() == null) {
+            searchParams.setDateFrom(new GregorianCalendar(1, 1, 1, 0, 0).getTime());
+        } else {
+            cal.setTime(searchParams.getDateFrom());
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            searchParams.setDateFrom(cal.getTime());
+        }
+
+        if (searchParams.getDateTo() == null) {
+            searchParams.setDateTo(new GregorianCalendar(2500, 1, 1, 23, 59).getTime());
+        } else {
+            cal.setTime(searchParams.getDateTo());
+            cal.set(Calendar.HOUR_OF_DAY, 23);
+            cal.set(Calendar.MINUTE, 59);
+            searchParams.setDateTo(cal.getTime());
+        }
+        
+        if (searchParams.getRightTypeCode() == null) {
+            searchParams.setRightTypeCode("");
+        }
+        params.put(CommonSqlProvider.PARAM_QUERY, RightsExportResult.SEARCH_QUERY);
+        params.put(RightsExportResult.PARAM_DATE_FROM, searchParams.getDateFrom());
+        params.put(RightsExportResult.PARAM_DATE_TO, searchParams.getDateTo());
+        params.put(RightsExportResult.PARAM_RIGHT_TYPE, searchParams.getRightTypeCode());
+        return getRepository().getEntityList(RightsExportResult.class, params);
     }
 }

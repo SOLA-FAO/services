@@ -168,4 +168,9 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
      * SearchEJB.searchSpatialObjects}.
      */
     List<SpatialSearchResult> searchSpatialObjects(String queryName, String searchString);
+    
+    /**
+     * See {@linkplain SearchEJB#searchRightsForExport(org.sola.services.ejb.search.repository.entities.RightsExportParams)}.
+     */
+    List<RightsExportResult> searchRightsForExport(RightsExportParams searchParams);
 }
