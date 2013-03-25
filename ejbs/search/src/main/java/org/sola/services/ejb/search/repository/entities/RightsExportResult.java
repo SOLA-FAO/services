@@ -18,7 +18,7 @@ public class RightsExportResult extends AbstractReadOnlyEntity {
             "SELECT DISTINCT b.id AS ba_unit_id, b.name_firstpart, b.name_lastpart, "
             + "(SELECT size FROM administrative.ba_unit_area WHERE ba_unit_id = b.id AND type_code = 'officialArea' LIMIT 1) AS area, "
             + "r.id AS right_id, r.type_code AS right_type, r.registration_date, r.expiration_date, r.amount, "
-            + "(SELECT string_agg(COALESCE(p.name, '') || COALESCE(p.last_name, ''), ',') "
+            + "(SELECT string_agg(COALESCE(p.name, '') || ' ' || COALESCE(p.last_name, ''), ',') "
             + "  FROM administrative.party_for_rrr pr "
             + "  INNER JOIN party.party p ON pr.party_id = p.id WHERE pr.rrr_id = r.id) AS owners, "
             + "p.id AS applicant_id, p.name AS applicant_name, p.last_name AS applicant_last_name, "
