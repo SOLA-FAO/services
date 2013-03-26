@@ -724,6 +724,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      * Returns list of rights for export by given parameters.
      */
     @Override
+    @RolesAllowed(RolesConstants.ADMINISTRATIVE_RIGHTS_EXPORT)
     public List<RightsExportResult> searchRightsForExport(RightsExportParams searchParams) {
         Map params = new HashMap<String, Object>();
         Calendar cal = Calendar.getInstance();
