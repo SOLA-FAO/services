@@ -76,6 +76,8 @@ public class Source extends AbstractVersionedEntity {
     private Date recordation;
     @Column(name = "submission")
     private Date submission;
+    @Column(name = "signing_date")
+    private Date signingDate;
     @Column(name = "expiration_date") 
     private Date expirationDate;
     @Column(name = "ext_archive_id")
@@ -234,6 +236,14 @@ public class Source extends AbstractVersionedEntity {
 
     public void setReferenceNr(String referenceNr) {
         this.referenceNr = referenceNr;
+    }
+
+    public Date getSigningDate() {
+        return signingDate;
+    }
+
+    public void setSigningDate(Date signingDate) {
+        this.signingDate = signingDate;
     }
 
     public Date getSubmission() {
