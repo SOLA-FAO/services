@@ -42,6 +42,7 @@ import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.ejb.search.repository.SearchSqlProvider;
 import org.sola.services.ejb.search.repository.entities.*;
 import org.sola.services.ejb.search.spatial.QueryForNavigation;
+import org.sola.services.ejb.search.spatial.QueryForPublicDisplayMap;
 import org.sola.services.ejb.search.spatial.QueryForSelect;
 import org.sola.services.ejb.search.spatial.ResultForNavigationInfo;
 import org.sola.services.ejb.search.spatial.ResultForSelectionInfo;
@@ -502,6 +503,27 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     @Override
     public ResultForNavigationInfo getSpatialResult(
             QueryForNavigation spatialQuery) {
+        Map params = this.getSpatialNavigationQueryParams(spatialQuery);
+        return getSpatialResultForNavigation(spatialQuery.getQueryName(), params);
+    }
+
+    /**
+     * Used for retrieving the features of the layers used for public display.
+     * It sets an extra parameter in the query used to retrieve features.
+     *
+     * @param spatialQuery The parameters to use for the query including the
+     * name of the dynamic layer query to execute.
+     * @return A summary of all spatial objects intersecting the bounding box
+     */
+    @Override
+    public ResultForNavigationInfo getSpatialResultForPublicDisplay(
+            QueryForPublicDisplayMap spatialQuery) {
+        Map params = this.getSpatialNavigationQueryParams(spatialQuery);
+        params.put("name_lastpart", spatialQuery.getNameLastPart());
+        return getSpatialResultForNavigation(spatialQuery.getQueryName(), params);
+    }
+    
+    private Map getSpatialNavigationQueryParams(QueryForNavigation spatialQuery) {
         Map params = new HashMap<String, Object>();
         params.put("minx", spatialQuery.getWest());
         params.put("miny", spatialQuery.getSouth());
@@ -509,13 +531,19 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put("maxy", spatialQuery.getNorth());
         params.put("srid", spatialQuery.getSrid());
         params.put("pixel_res", spatialQuery.getPixelResolution());
+        return params;
+    }
+    
+    private ResultForNavigationInfo getSpatialResultForNavigation(
+            String queryName, Map params){
         ResultForNavigationInfo spatialResultInfo = new ResultForNavigationInfo();
         getRepository().setLoadInhibitors(new Class[]{DynamicQueryField.class});
         List<SpatialResult> result = executeDynamicQuery(SpatialResult.class,
-                spatialQuery.getQueryName(), params);
+                queryName, params);
         getRepository().clearLoadInhibitors();
         spatialResultInfo.setToAdd(result);
         return spatialResultInfo;
+        
     }
 
     /**

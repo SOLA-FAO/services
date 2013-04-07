@@ -35,7 +35,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Manoku
+ * @author Elton Manoku
  */
 public class QueryForNavigation extends Query {
     private ArrayList<String> fidsPresent;
