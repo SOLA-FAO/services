@@ -22,30 +22,20 @@ public class SysRegProgress extends AbstractReadOnlyEntity {
             + PARAMETER_FROM + "}, #{" + PARAMETER_TO + "}, #{" + QUERY_PARAMETER_LASTPART + "}) "
             + " as SysRegStatusReport(block varchar,"
             + "	TotAppLod  		decimal,"
-            + " TotParcLoaded  		decimal,"
+            + " TotParcLoaded  		varchar,"
             + "	TotRecObj  		decimal,"
             + "	TotSolvedObj  		decimal,"
             + "	TotAppPDisp  		decimal,"
             + "	TotPrepCertificate	decimal,"
             + " TotIssuedCertificate    decimal )";
             
-//        block  			varchar;	
-//       	TotAppLod		decimal:=0 ;	
-//        TotParcLoaded		decimal:=0 ;	
-//        TotRecObj		decimal:=0 ;	
-//        TotSolvedObj		decimal:=0 ;	
-//        TotAppPDisp		decimal:=0 ;	
-//        TotPrepCertificate      decimal:=0 ;	
-//        TotIssuedCertificate	decimal:=0 ;	
-
-
      
     @Column(name = "block")
     private String block;
     @Column(name = "TotAppLod")
     private BigDecimal TotAppLod;
     @Column(name = "TotParcLoaded")
-    private BigDecimal TotParcLoaded;
+    private String TotParcLoaded;
     @Column(name = "TotRecObj")
     private BigDecimal TotRecObj;
     @Column(name = "TotSolvedObj")
@@ -85,11 +75,11 @@ public class SysRegProgress extends AbstractReadOnlyEntity {
         this.TotIssuedCertificate = TotIssuedCertificate;
     }
 
-    public BigDecimal getTotParcLoaded() {
+    public String getTotParcLoaded() {
         return TotParcLoaded;
     }
 
-    public void setTotParcLoaded(BigDecimal TotParcLoaded) {
+    public void setTotParcLoaded(String TotParcLoaded) {
         this.TotParcLoaded = TotParcLoaded;
     }
 
