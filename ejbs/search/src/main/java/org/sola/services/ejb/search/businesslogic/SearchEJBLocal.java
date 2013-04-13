@@ -180,4 +180,9 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
      * See {@linkplain SearchEJB#searchRightsForExport(org.sola.services.ejb.search.repository.entities.RightsExportParams)}.
      */
     List<RightsExportResult> searchRightsForExport(RightsExportParams searchParams);
+    
+    /**
+     * See {@linkplain SearchEJB#getExtentOfPublicDisplayMap(String)}.
+     */
+    byte[] getExtentOfPublicDisplayMap(String nameLastPart);
 }

@@ -784,4 +784,27 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(RightsExportResult.PARAM_RIGHT_TYPE, searchParams.getRightTypeCode());
         return getRepository().getEntityList(RightsExportResult.class, params);
     }
+
+    /**
+     * Get the extent of the public display map.
+     * 
+     * @param nameLastPart
+     * @return 
+     */
+    @Override
+    public byte[] getExtentOfPublicDisplayMap(String nameLastPart) {
+        String sqlToGetExtent = "select st_asewkb(st_extent(co.geom_polygon)) as extent "
+                + " from cadastre.cadastre_object co where type_code= 'parcel' "
+                + " and status_code= 'current' and name_lastpart =#{name_lastpart}";
+        String paramLastPart = "name_lastpart";
+        Map params = new HashMap();
+        params.put(CommonSqlProvider.PARAM_QUERY, sqlToGetExtent);
+        params.put(paramLastPart, nameLastPart);
+        List result = getRepository().executeSql(params);
+        byte[] value = null;
+        if (result.size()>0){
+            value = (byte[]) ((HashMap)result.get(0)).get("extent");
+        }
+        return value;
+    }    
 }
