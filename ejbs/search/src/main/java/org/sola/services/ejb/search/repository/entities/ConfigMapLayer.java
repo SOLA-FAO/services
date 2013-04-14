@@ -76,6 +76,8 @@ public class ConfigMapLayer extends AbstractReadOnlyEntity {
     private String securityUser;
     @Column(name = "security_password")
     private String securityPassword;
+    @Column(name = "use_in_public_display")
+    private boolean useInPublicDisplay;
 
     public ConfigMapLayer() {
         super();
@@ -199,6 +201,14 @@ public class ConfigMapLayer extends AbstractReadOnlyEntity {
 
     public void setWmsVersion(String wmsVersion) {
         this.wmsVersion = wmsVersion;
+    }
+
+    public boolean isUseInPublicDisplay() {
+        return useInPublicDisplay;
+    }
+
+    public void setUseInPublicDisplay(boolean useInPublicDisplay) {
+        this.useInPublicDisplay = useInPublicDisplay;
     }
     
     

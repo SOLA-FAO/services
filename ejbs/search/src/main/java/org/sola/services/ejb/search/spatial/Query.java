@@ -35,7 +35,7 @@ import java.io.Serializable;
 
 /**
  *
- * @author Manoku
+ * @author Elton Manoku
  */
 public class Query implements Serializable{
 

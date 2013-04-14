@@ -32,6 +32,7 @@ import javax.ejb.Local;
 import org.sola.services.common.ejbs.AbstractEJBLocal;
 import org.sola.services.ejb.search.repository.entities.*;
 import org.sola.services.ejb.search.spatial.QueryForNavigation;
+import org.sola.services.ejb.search.spatial.QueryForPublicDisplayMap;
 import org.sola.services.ejb.search.spatial.QueryForSelect;
 import org.sola.services.ejb.search.spatial.ResultForNavigationInfo;
 import org.sola.services.ejb.search.spatial.ResultForSelectionInfo;
@@ -77,6 +78,12 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
      * SearchEJB.getSpatialResult}.
      */
     ResultForNavigationInfo getSpatialResult(QueryForNavigation spatialQuery);
+
+    /**
+     * See {@linkplain SearchEJB#getSpatialResultForPublicDisplay(org.sola.services.ejb.search.spatial.QueryForPublicDisplayMap)
+     * SearchEJB.getSpatialResult}.
+     */
+    ResultForNavigationInfo getSpatialResultForPublicDisplay(QueryForPublicDisplayMap spatialQuery);
 
     /**
      * See {@linkplain SearchEJB#getConfigMapLayerList(java.lang.String)
@@ -173,4 +180,9 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
      * See {@linkplain SearchEJB#searchRightsForExport(org.sola.services.ejb.search.repository.entities.RightsExportParams)}.
      */
     List<RightsExportResult> searchRightsForExport(RightsExportParams searchParams);
+    
+    /**
+     * See {@linkplain SearchEJB#getExtentOfPublicDisplayMap(String)}.
+     */
+    byte[] getExtentOfPublicDisplayMap(String nameLastPart);
 }
