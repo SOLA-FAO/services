@@ -48,7 +48,6 @@ import org.sola.services.ejb.system.br.Result;
 import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
 import org.sola.services.ejb.transaction.businesslogic.TransactionEJBLocal;
 import org.sola.services.ejb.transaction.repository.entities.Transaction;
-import org.sola.services.ejb.transaction.repository.entities.TransactionBasic;
 import org.sola.services.ejb.transaction.repository.entities.TransactionStatusType;
 
 /**
@@ -99,6 +98,8 @@ public class Rrr extends AbstractVersionedEntity {
     private BaUnitNotation notation;
     @ChildEntityList(parentIdField = "rrrId", cascadeDelete = true)
     private List<RrrShare> rrrShareList;
+    @ChildEntityList(parentIdField = "rrrId", cascadeDelete = true)
+    private List<LeaseConditionForRrr> leaseConditionList;
     @ExternalEJB(ejbLocalClass = SourceEJBLocal.class,
     loadMethod = "getSources", saveMethod = "saveSource")
     @ChildEntityList(parentIdField = "rrrId", childIdField = "sourceId",
@@ -299,6 +300,14 @@ public class Rrr extends AbstractVersionedEntity {
 
     public void setRightHolderList(List<Party> rightHolderList) {
         this.rightHolderList = rightHolderList;
+    }
+
+    public List<LeaseConditionForRrr> getLeaseConditionList() {
+        return leaseConditionList;
+    }
+
+    public void setLeaseConditionList(List<LeaseConditionForRrr> leaseConditionList) {
+        this.leaseConditionList = leaseConditionList;
     }
 
     public Boolean isLocked() {

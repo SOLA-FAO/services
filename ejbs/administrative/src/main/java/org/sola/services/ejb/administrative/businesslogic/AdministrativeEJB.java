@@ -105,6 +105,17 @@ public class AdministrativeEJB extends AbstractEJB
     }
 
     /**
+     * Retrieves all administrative.lease_condition code values.
+     *
+     * @param languageCode The language code to use for localization of display
+     * values.
+     */
+    @Override
+    public List<LeaseCondition> getLeaseConditions(String languageCode){
+        return getRepository().getCodeList(LeaseCondition.class, languageCode);
+    }
+    
+    /**
      * Retrieves all administrative.mortgage_type code values.
      *
      * @param languageCode The language code to use for localization of display

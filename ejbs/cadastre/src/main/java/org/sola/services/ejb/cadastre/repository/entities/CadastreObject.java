@@ -37,12 +37,13 @@ import javax.persistence.Table;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.repository.AccessFunctions;
 import org.sola.services.common.repository.ChildEntityList;
+import org.sola.services.common.repository.ExternalEJB;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
+import org.sola.services.ejb.address.businesslogic.AddressEJBLocal;
+import org.sola.services.ejb.address.repository.entities.Address;
 
 /**
  * Entity representing the cadastre.cadastre_object table.
- *
- * @author soladev
  */
 @Table(name = "cadastre_object", schema = "cadastre")
 public class CadastreObject extends AbstractVersionedEntity {
@@ -124,7 +125,11 @@ public class CadastreObject extends AbstractVersionedEntity {
     private List<SpatialValueArea> spatialValueAreaList;
     @Column(name = "land_use_code")
     private String landUseCode;
-
+    @ExternalEJB(ejbLocalClass = AddressEJBLocal.class, loadMethod = "getAddresses", saveMethod="saveAddress")
+    @ChildEntityList(parentIdField = "cadastreObjectId", childIdField = "addressId",
+    manyToManyClass = AddressForCadastreObject.class)
+    private List<Address> addressList;
+    
     public String getLandUseCode() {
         return landUseCode;
     }
@@ -228,6 +233,14 @@ public class CadastreObject extends AbstractVersionedEntity {
 
     public void setSpatialValueAreaList(List<SpatialValueArea> spatialValueAreaList) {
         this.spatialValueAreaList = spatialValueAreaList;
+    }
+
+    public List<Address> getAddressList() {
+        return addressList;
+    }
+
+    public void setAddressList(List<Address> addressList) {
+        this.addressList = addressList;
     }
 
     /**
