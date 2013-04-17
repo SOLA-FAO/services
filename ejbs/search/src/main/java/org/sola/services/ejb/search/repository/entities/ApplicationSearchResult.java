@@ -35,7 +35,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import org.sola.services.common.repository.AccessFunctions;
 import org.sola.services.common.repository.CommonSqlProvider;
-import org.sola.services.common.repository.DefaultSorter;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 
 /**
@@ -122,7 +121,16 @@ public class ApplicationSearchResult extends AbstractReadOnlyEntity {
     private String serviceList;
     @Column(name = "fee_paid")
     private Boolean feePaid;
-
+    @Column(name = "rowversion")
+    @AccessFunctions(onSelect = "a.rowversion")
+    private int rowVersion;
+    @Column(name = "change_user")
+    @AccessFunctions(onSelect = "a.change_user")
+    private String changeUser;
+    @Column(name = "rowidentifier")
+    @AccessFunctions(onSelect = "a.rowidentifier")
+    private String rowId;
+    
     public ApplicationSearchResult() {
         super();
     }
@@ -237,5 +245,29 @@ public class ApplicationSearchResult extends AbstractReadOnlyEntity {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getChangeUser() {
+        return changeUser;
+    }
+
+    public void setChangeUser(String changeUser) {
+        this.changeUser = changeUser;
+    }
+
+    public String getRowId() {
+        return rowId;
+    }
+
+    public void setRowId(String rowId) {
+        this.rowId = rowId;
+    }
+
+    public int getRowVersion() {
+        return rowVersion;
+    }
+
+    public void setRowVersion(int rowVersion) {
+        this.rowVersion = rowVersion;
     }
 }
