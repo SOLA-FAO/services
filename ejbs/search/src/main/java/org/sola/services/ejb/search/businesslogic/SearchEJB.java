@@ -802,7 +802,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(paramLastPart, nameLastPart);
         List result = getRepository().executeSql(params);
         byte[] value = null;
-        if (result.size()>0){
+        if (result != null && result.size()>0 && result.get(0) != null){
             value = (byte[]) ((HashMap)result.get(0)).get("extent");
         }
         return value;
