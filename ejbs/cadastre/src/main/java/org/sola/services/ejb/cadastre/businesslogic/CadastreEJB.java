@@ -29,6 +29,7 @@
  */
 package org.sola.services.ejb.cadastre.businesslogic;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import javax.ejb.Stateless;
 import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.ejb.cadastre.repository.entities.*;
+import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
 
 /**
  * EJB to manage data in the cadastre schema. Supports retrieving and saving of
@@ -46,6 +48,9 @@ import org.sola.services.ejb.cadastre.repository.entities.*;
 @Stateless
 @EJB(name = "java:global/SOLA/CadastreEJBLocal", beanInterface = CadastreEJBLocal.class)
 public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
+
+    @EJB
+    private SystemEJBLocal systemEJB;
 
     /**
      * Retrieves all cadastre.land_use_type code values.
@@ -438,4 +443,23 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
         return getRepository().getEntity(SpatialValueArea.class, params);
     }
 
+    @Override
+    public NewCadastreObjectIdentifier getNewCadastreObjectIdentifier(
+            byte[] geom, String cadastreObjectType) {
+        String brToGetLastPart = "generate-cadastre-object-lastpart";
+        String brToGetFirstPart = "generate-cadastre-object-firstpart";
+        HashMap<String, Serializable> params = new HashMap<String, Serializable>();
+        params.put("geom", geom);
+        params.put("cadastre_object_type", cadastreObjectType);
+        String lastPart = systemEJB.checkRuleGetResultSingle(brToGetLastPart, params).getValue().toString();
+        params = new HashMap<String, Serializable>();
+        params.put("last_part", lastPart);
+        params.put("cadastre_object_type", cadastreObjectType);
+        String firstPart = systemEJB.checkRuleGetResultSingle(brToGetFirstPart, null).getValue().toString();
+        NewCadastreObjectIdentifier identifier = new NewCadastreObjectIdentifier();
+        identifier.setFirstPart(firstPart);
+        identifier.setLastPart(lastPart);
+        return identifier;
+    }
+    
 }

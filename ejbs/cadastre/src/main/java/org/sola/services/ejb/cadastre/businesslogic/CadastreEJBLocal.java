@@ -170,5 +170,9 @@ public interface CadastreEJBLocal extends AbstractEJBLocal {
      */
     public SpatialValueArea getSpatialValueArea(String colist);
 
-   
+    /**
+     * see {@linkplain CadastreEJB#getNewCadastreObjectIdentifier(byte[], java.lang.String)
+     * CadastreEJB.getNewCadastreObjectIdentifier}
+     */
+   NewCadastreObjectIdentifier getNewCadastreObjectIdentifier(byte[] geom, String cadastreObjectType);
 }
