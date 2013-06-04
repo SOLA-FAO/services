@@ -34,6 +34,7 @@ package org.sola.services.ejb.search.repository.entities;
 public class SpatialSearchResult extends SpatialResult {
 
     public static final String PARAM_SEARCH_STRING = "search_string";
+    public static final String PARAM_SRID = "srid";
     public SpatialSearchResult() {
         super();
     }

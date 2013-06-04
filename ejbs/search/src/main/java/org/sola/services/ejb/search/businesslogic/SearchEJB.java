@@ -562,6 +562,16 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     /**
+     * Returns the list of Crs
+     * @return 
+     */
+    @Override
+    public List<Crs> getCrsList(){
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, Crs.ORDER_COLUMN);
+        return getRepository().getEntityList(Crs.class, params);
+    }
+    /**
      * Executes a group of dynamic spatial queries using a filtering geometry.
      * Primarily used to obtain results for the Object Information Tool. Each
      * dynamic query must have a set of query fields configured in the
@@ -742,9 +752,10 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      */
     @Override
     public List<SpatialSearchResult> searchSpatialObjects(String queryName,
-            String searchString) {
+            String searchString, int srid) {
         Map params = new HashMap<String, Object>();
         params.put(SpatialSearchResult.PARAM_SEARCH_STRING, searchString);
+        params.put(SpatialSearchResult.PARAM_SRID, srid);
         return executeDynamicQuery(SpatialSearchResult.class, queryName, params);
     }
 

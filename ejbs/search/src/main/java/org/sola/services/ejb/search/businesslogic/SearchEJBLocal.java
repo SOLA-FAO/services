@@ -92,6 +92,11 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
     List<ConfigMapLayer> getConfigMapLayerList(String languageCode);
 
     /**
+     * See {@linkplain SearchEJB#getCrsList()
+     * SearchEJB.getCrsList}.
+     */
+    List<Crs> getCrsList();
+        /**
      * See {@linkplain SearchEJB#getSpatialResultFromSelection(java.util.List)
      * SearchEJB.getSpatialResultFromSelection}.
      */
@@ -174,7 +179,7 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
      * See {@linkplain SearchEJB#searchSpatialObjects(java.lang.String, java.lang.String)
      * SearchEJB.searchSpatialObjects}.
      */
-    List<SpatialSearchResult> searchSpatialObjects(String queryName, String searchString);
+    List<SpatialSearchResult> searchSpatialObjects(String queryName, String searchString, int srid);
     
     /**
      * See {@linkplain SearchEJB#searchRightsForExport(org.sola.services.ejb.search.repository.entities.RightsExportParams)}.

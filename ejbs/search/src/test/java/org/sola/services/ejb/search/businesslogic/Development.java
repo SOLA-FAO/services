@@ -71,7 +71,7 @@ public class Development extends AbstractEJBTest {
         //this.testQueriesForResultList(instance, "CadastreObjectWithGeometry.searchByBaUnitId",
         //        new Object[]{"3068323"});
         List result =  instance.searchSpatialObjects(
-                "map_search.cadastre_object_by_baunit_owner", "fiku");
+                "map_search.cadastre_object_by_baunit_owner", "fiku", 2193);
         System.out.println("Found:" + result.size());
     }
 
