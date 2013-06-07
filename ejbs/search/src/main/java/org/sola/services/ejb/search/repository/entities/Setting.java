@@ -42,9 +42,7 @@ import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 public class Setting extends AbstractReadOnlyEntity {
 
     public static final String QUERY_SQL_FOR_MAP_SETTINGS =
-            "SELECT name as id, vl from system.setting where active and name like 'map%'"
-            + " union select 'wkt-of-crs' as id, srtext as vl from public.spatial_ref_sys  "
-            + " where cast(srid as varchar) in (select vl from system.setting where name = 'map-srid')";
+            "SELECT name as id, vl from system.setting where active and name like 'map%'";
     @Id
     @Column(name = "id")
     private String id;
