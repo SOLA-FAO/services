@@ -46,30 +46,30 @@ public class CadastreObjectNode extends AbstractReadOnlyEntity {
      * FROM clause to obtain all CO node coordinates intersecting the given extent
      */
     public final static String QUERY_GET_BY_RECTANGLE_FROM_PART =
-            "st_dumppoints((select co.geom_polygon from cadastre.cadastre_object co "
+            "st_dumppoints((select st_transform(co.geom_polygon, #{srid}) from cadastre.cadastre_object co "
             + " where type_code= #{cadastre_object_type} and status_code= 'current' "
-            + " and ST_Intersects(co.geom_polygon, " + EXTENT_DEFINITION + ") limit 1)) t ";
+            + " and ST_Intersects(st_transform(co.geom_polygon, #{srid}), " + EXTENT_DEFINITION + ") limit 1)) t ";
     /**
      * Obtains all CO node coordinates intersecting the given extent
      */
     public final static String QUERY_GET_BY_RECTANGLE_WHERE_PART =
-            " ST_Intersects(t.geom, " + EXTENT_DEFINITION + ") ";
+            " ST_Intersects(st_transform(t.geom, #{srid}), " + EXTENT_DEFINITION + ") ";
     /**
      * Not sure!
      */
     public final static String QUERY_GET_BY_RECTANGLE_POTENTIAL_FROM_PART =
             "(select distinct ST_Line_Interpolate_Point(st_intersection("
-            + "st_boundary(geom_polygon)," + EXTENT_DEFINITION
+            + "st_boundary(st_transform(geom_polygon, #{srid}))," + EXTENT_DEFINITION
             + "), 0.5) as geom from cadastre.cadastre_object co "
             + "where type_code= #{cadastre_object_type} "
-            + "and status_code= 'current' and ST_Intersects(geom_polygon,"
-            + EXTENT_DEFINITION + ") and st_geometrytype(st_intersection(st_boundary(geom_polygon),"
+            + "and status_code= 'current' and ST_Intersects(st_transform(geom_polygon, #{srid}),"
+            + EXTENT_DEFINITION + ") and st_geometrytype(st_intersection(st_boundary(st_transform(geom_polygon, #{srid})),"
             + EXTENT_DEFINITION + ")) = 'ST_LineString' limit 1) t";
     @Column(name = "id")
-    @AccessFunctions(onSelect = "st_astext(geom)")
+    @AccessFunctions(onSelect = "st_astext(st_transform(geom, #{srid}))")
     private String id;
     @Column(name = "geom")
-    @AccessFunctions(onSelect = "st_asewkb(geom)")
+    @AccessFunctions(onSelect = "st_asewkb(st_transform(geom, #{srid}))")
     private byte[] geom;
     private List<CadastreObject> cadastreObjectList;
 

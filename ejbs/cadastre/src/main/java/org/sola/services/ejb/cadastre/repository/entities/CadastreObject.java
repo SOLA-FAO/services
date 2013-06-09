@@ -65,7 +65,7 @@ public class CadastreObject extends AbstractVersionedEntity {
      */
     public static final String QUERY_WHERE_SEARCHBYPOINT = "type_code= #{type_code} "
             + "and status_code= 'current' and "
-            + "ST_Intersects(geom_polygon, ST_SetSRID(ST_Point(#{x}, #{y}), #{srid}))";
+            + "ST_Intersects(st_transform(geom_polygon, #{srid}), ST_SetSRID(ST_Point(#{x}, #{y}), #{srid}))";
     /**
      * WHERE clause to return CO's linked to the specified ba_unit.id
      */
@@ -89,7 +89,7 @@ public class CadastreObject extends AbstractVersionedEntity {
      */
     public static final String QUERY_WHERE_SEARCHBYGEOM = "type_code=#{type_code} "
             + "and status_code= 'current' and "
-            + "ST_DWithin(geom_polygon, get_geometry_with_srid(#{geom}), "
+            + "ST_DWithin(st_transform(geom_polygon, #{srid}), st_transform(#{geom}, #{srid}), "
             + "system.get_setting('map-tolerance')::double precision)";
     /**
      * ORDER BY clause used to order search results for the Search by parts queries. 

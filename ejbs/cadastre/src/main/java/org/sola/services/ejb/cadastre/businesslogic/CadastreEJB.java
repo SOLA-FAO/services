@@ -311,6 +311,7 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
             params.clear();
             params.put("geom", cadastreObjectNode.getGeom());
             params.put("type_code", cadastreObjectType);
+            params.put("srid", srid);
             cadastreObjectNode.setCadastreObjectList(getRepository().getEntityList(
                     CadastreObject.class, CadastreObject.QUERY_WHERE_SEARCHBYGEOM, params));
         }
@@ -348,6 +349,7 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
             params.clear();
             params.put("geom", cadastreObjectNode.getGeom());
             params.put("type_code", cadastreObjectType);
+            params.put("srid", srid);
             cadastreObjectNode.setCadastreObjectList(getRepository().getEntityList(
                     CadastreObject.class, CadastreObject.QUERY_WHERE_SEARCHBYGEOM, params));
         }
