@@ -452,4 +452,16 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
         }
         return true;
     }
+
+    /**
+     * Retrieves the business rules required to check the correctness of spatial unit group. <br/>
+     * For this business rules, there is no needed a moment to be provided.
+     */
+    @Override
+    public List<BrValidation> getBrForSpatialUnitGroupTransaction() {
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, BrValidation.QUERY_WHERE_FOR_SPATIAL_UNIT_GROUP);
+        params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, BrValidation.QUERY_ORDERBY_ORDEROFEXECUTION);
+        return getRepository().getEntityList(BrValidation.class, params);
+    }
 }

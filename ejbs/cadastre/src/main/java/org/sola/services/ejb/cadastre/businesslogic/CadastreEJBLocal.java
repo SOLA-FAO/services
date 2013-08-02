@@ -175,4 +175,30 @@ public interface CadastreEJBLocal extends AbstractEJBLocal {
      * CadastreEJB.getNewCadastreObjectIdentifier}
      */
    NewCadastreObjectIdentifier getNewCadastreObjectIdentifier(byte[] geom, String cadastreObjectType);
+
+    /**
+     * see {@linkplain CadastreEJB#saveSpatialUnitGroups(List<SpatialUnitGroup>, String)
+     * CadastreEJB.saveSpatialUnitGroups}
+     */
+   void saveSpatialUnitGroups(List<SpatialUnitGroup> items, String languageCode);
+   
+    /**
+     * see {@linkplain CadastreEJB#getSpatialUnitGroups(byte[], Integer, Integer)
+     * CadastreEJB.getSpatialUnitGroups}
+     */
+   List<SpatialUnitGroup> getSpatialUnitGroups(
+           byte[] filteringGeometry, Integer hierarchyLevel, Integer srid);
+
+    /**
+     * See {@linkplain CadastreEJB#getSpatialUnitGroupsByIds(java.util.List)
+     * CadastreEJB.getSpatialUnitGroupsByIds}.
+     */
+    List<SpatialUnitGroup> getSpatialUnitGroupsByIds(List<String> ids);
+    
+        /**
+     * See {@linkplain CadastreEJB#getHierarchyLevels(java.lang.String)
+     * CadastreEJB.getHierarchyLevels}.
+     */
+    List<HierarchyLevel> getHierarchyLevels(String languageCode);
+
 }

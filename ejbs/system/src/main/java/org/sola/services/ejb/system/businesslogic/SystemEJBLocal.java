@@ -142,4 +142,10 @@ public interface SystemEJBLocal extends AbstractEJBLocal {
      * SystemEJB.validationSucceeded
      */
     boolean validationSucceeded(List<ValidationResult> validationResultList);
+    
+    /**
+     * See {@linkplain SystemEJB#getBrForSpatialUnitGroupTransaction()
+     * SystemEJB.getBrForSpatialUnitGroupTransaction
+     */
+    List<BrValidation> getBrForSpatialUnitGroupTransaction();
 }
