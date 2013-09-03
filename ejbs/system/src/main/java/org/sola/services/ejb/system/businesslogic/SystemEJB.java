@@ -109,7 +109,7 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
     public String getSetting(String name, String defaultValue) {
         String result = defaultValue;
         Setting config = getRepository().getEntity(Setting.class, name);
-        if (config != null && config.getValue() != null) {
+        if (config != null && config.getValue() != null && config.isActive()) {
             result = config.getValue();
         }
         return result;
