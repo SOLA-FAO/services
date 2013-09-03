@@ -97,7 +97,16 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
             scanFolder = new NetworkFolder(scanFolderLocation);
         }
 
-        scanFolder.createFolder();
+        try {
+            scanFolder.createFolder();
+        } catch (Exception ex) {
+            // The most likely cause of an exception during createFolder is the unavailablity of
+            // the Network scan folder. Configure the scan folder to use a location on the 
+            // local hard disk and log the error
+            LogUtility.log("Error configuring Network Scan Folder", ex);
+            scanFolder = new NetworkFolder(System.getProperty("user.home") + "/sola/scan");
+            scanFolder.createFolder();
+        }
         localCacheFolder = new NetworkFolder(FileUtility.getCachePath());
         localCacheFolder.createFolder();
         thumbFolder = localCacheFolder.getSubFolder(THUMB_SUBFOLDER);
@@ -235,11 +244,11 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
             //File no longer exists in the scan folder. 
             return null;
         }
-            
+
         FileMetaData localFileMetaData = localCacheFolder.getMetaData(fileName);
-        if (localFileMetaData == null || !DateUtility.areEqual(fileMetaData.getModificationDate(), 
+        if (localFileMetaData == null || !DateUtility.areEqual(fileMetaData.getModificationDate(),
                 localFileMetaData.getModificationDate())) {
-             // Copy the file from the remote folder location to the local folder.
+            // Copy the file from the remote folder location to the local folder.
             localCacheFolder.deleteFile(fileName);
             thumbFolder.deleteFile(fileName);
             scanFolder.copyFileToLocal(fileName, new File(getLocalFilePathName(fileName)));
@@ -315,11 +324,11 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
             //File no longer exists in the scan folder. 
             return null;
         }
-            
+
         FileMetaData localFileMetaData = localCacheFolder.getMetaData(fileName);
-        if (localFileMetaData == null || !DateUtility.areEqual(fileMetaData.getModificationDate(), 
+        if (localFileMetaData == null || !DateUtility.areEqual(fileMetaData.getModificationDate(),
                 localFileMetaData.getModificationDate())) {
-             // Copy the file from the remote folder location to the local folder.
+            // Copy the file from the remote folder location to the local folder.
             localCacheFolder.deleteFile(fileName);
             thumbFolder.deleteFile(fileName);
             scanFolder.copyFileToLocal(fileName, new File(getLocalFilePathName(fileName)));
@@ -359,11 +368,11 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
             //File no longer exists in the scan folder. 
             return null;
         }
-            
+
         FileMetaData localFileMetaData = localCacheFolder.getMetaData(fileName);
-        if (localFileMetaData == null || !DateUtility.areEqual(fileMetaData.getModificationDate(), 
+        if (localFileMetaData == null || !DateUtility.areEqual(fileMetaData.getModificationDate(),
                 localFileMetaData.getModificationDate())) {
-             // Copy the file from the remote folder location to the local folder.
+            // Copy the file from the remote folder location to the local folder.
             localCacheFolder.deleteFile(fileName);
             thumbFolder.deleteFile(fileName);
             scanFolder.copyFileToLocal(fileName, new File(getLocalFilePathName(fileName)));
@@ -389,7 +398,7 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
         // Download the file using the File Streaming Service
         //FileBinary fileBinary = new FileBinary();
         //fileBinary.setContent(fileBytes);
-        FileInfo fileBinary = new FileBinary(); 
+        FileInfo fileBinary = new FileBinary();
         fileBinary.setFileSize(file.length());
         fileBinary.setName(thumbName);
         fileBinary.setModificationDate(fileMetaData.getModificationDate());
@@ -453,10 +462,10 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
     public List<FileInfo> getAllFiles() {
         List<FileMetaData> fileInfoList = scanFolder.getAllFiles(
                 ".*pdf$|.*png$|.*jpg$|.*jpeg$|.*tif$|.*tiff$");
-        
+
         List<FileInfo> result = new ArrayList<FileInfo>();
         MappingUtility.translateList(fileInfoList, result, FileInfo.class, MappingManager.getMapper());
-        
+
         // Sort list by modification date
         Collections.sort(result, new FileInfoSorterByModificationDate());
         return result;
