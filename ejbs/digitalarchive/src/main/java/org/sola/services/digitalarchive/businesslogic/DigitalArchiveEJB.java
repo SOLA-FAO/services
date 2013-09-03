@@ -76,6 +76,7 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
     private NetworkFolder thumbFolder;
     private int thumbWidth;
     private int thumbHeight;
+    private static String THUMB_SUBFOLDER = "thumb";
 
     /**
      * Configures the default network location to read scanned images as well as
@@ -99,7 +100,7 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
         scanFolder.createFolder();
         localCacheFolder = new NetworkFolder(FileUtility.getCachePath());
         localCacheFolder.createFolder();
-        thumbFolder = localCacheFolder.getSubFolder("thumb");
+        thumbFolder = localCacheFolder.getSubFolder(THUMB_SUBFOLDER);
 
         // Increse the size of the "thumbnail" so there is more information 
         // in the picture when the user resizes the file dialog. 
@@ -229,13 +230,18 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
             return null;
         }
 
-        // Check if file exists within the scan folder. If not, ignore the file
-        if (!scanFolder.fileExists(fileName)) {
+        FileMetaData fileMetaData = scanFolder.getMetaData(fileName);
+        if (fileMetaData == null) {
+            //File no longer exists in the scan folder. 
             return null;
         }
-
-        if (!localCacheFolder.fileExists(fileName)) {
-            // Coopy the file from the remote folder location to the local folder.
+            
+        FileMetaData localFileMetaData = localCacheFolder.getMetaData(fileName);
+        if (localFileMetaData == null || !DateUtility.areEqual(fileMetaData.getModificationDate(), 
+                localFileMetaData.getModificationDate())) {
+             // Copy the file from the remote folder location to the local folder.
+            localCacheFolder.deleteFile(fileName);
+            thumbFolder.deleteFile(fileName);
             scanFolder.copyFileToLocal(fileName, new File(getLocalFilePathName(fileName)));
         }
 
@@ -304,13 +310,18 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
             return null;
         }
 
-        // Check if file exists within the scan folder. If not, ignore the file
-        if (!scanFolder.fileExists(fileName)) {
+        FileMetaData fileMetaData = scanFolder.getMetaData(fileName);
+        if (fileMetaData == null) {
+            //File no longer exists in the scan folder. 
             return null;
         }
-
-        if (!localCacheFolder.fileExists(fileName)) {
-            // Copy the file from the remote folder location to the local folder.
+            
+        FileMetaData localFileMetaData = localCacheFolder.getMetaData(fileName);
+        if (localFileMetaData == null || !DateUtility.areEqual(fileMetaData.getModificationDate(), 
+                localFileMetaData.getModificationDate())) {
+             // Copy the file from the remote folder location to the local folder.
+            localCacheFolder.deleteFile(fileName);
+            thumbFolder.deleteFile(fileName);
             scanFolder.copyFileToLocal(fileName, new File(getLocalFilePathName(fileName)));
         }
 
@@ -338,18 +349,23 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
      */
     @Override
     @RolesAllowed({RolesConstants.SOURCE_SEARCH, RolesConstants.APPLICATION_VIEW_APPS})
-    public FileBinary getFileThumbnail(String fileName) {
+    public FileInfo getFileThumbnail(String fileName) {
         if (fileName == null || fileName.equals("")) {
             return null;
         }
 
-        if (!scanFolder.fileExists(fileName)) {
+        FileMetaData fileMetaData = scanFolder.getMetaData(fileName);
+        if (fileMetaData == null) {
             //File no longer exists in the scan folder. 
             return null;
         }
-
-        if (!localCacheFolder.fileExists(fileName)) {
-            // Copy the file from the remote folder location to the local folder.
+            
+        FileMetaData localFileMetaData = localCacheFolder.getMetaData(fileName);
+        if (localFileMetaData == null || !DateUtility.areEqual(fileMetaData.getModificationDate(), 
+                localFileMetaData.getModificationDate())) {
+             // Copy the file from the remote folder location to the local folder.
+            localCacheFolder.deleteFile(fileName);
+            thumbFolder.deleteFile(fileName);
             scanFolder.copyFileToLocal(fileName, new File(getLocalFilePathName(fileName)));
         }
 
@@ -370,11 +386,13 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
         }
 
         File file = new File(thumbFilePathName);
-        FileBinary fileBinary = new FileBinary();
-        fileBinary.setContent(fileBytes);
+        // Download the file using the File Streaming Service
+        //FileBinary fileBinary = new FileBinary();
+        //fileBinary.setContent(fileBytes);
+        FileInfo fileBinary = new FileBinary(); 
         fileBinary.setFileSize(file.length());
-        fileBinary.setName(fileName);
-        fileBinary.setModificationDate(new Date(file.lastModified()));
+        fileBinary.setName(thumbName);
+        fileBinary.setModificationDate(fileMetaData.getModificationDate());
         return fileBinary;
     }
 
