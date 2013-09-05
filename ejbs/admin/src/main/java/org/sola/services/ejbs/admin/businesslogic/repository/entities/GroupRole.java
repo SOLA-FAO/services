@@ -30,10 +30,10 @@ package org.sola.services.ejbs.admin.businesslogic.repository.entities;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import org.sola.services.common.repository.entities.AbstractEntity;
+import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 
 @Table(schema="system", name="approle_appgroup")
-public class GroupRole extends AbstractEntity{
+public class GroupRole extends AbstractVersionedEntity {
     @Id
     @Column(name = "approle_code")
     private String roleCode;

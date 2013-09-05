@@ -30,10 +30,10 @@ package org.sola.services.ejbs.admin.businesslogic.repository.entities;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import org.sola.services.common.repository.entities.AbstractEntity;
+import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 
 @Table(schema="system", name="appuser_appgroup")
-public class UserGroup extends AbstractEntity {
+public class UserGroup extends AbstractVersionedEntity {
     @Id
     @Column(name = "appuser_id")
     private String userId;
