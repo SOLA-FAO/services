@@ -65,18 +65,6 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
     Application saveApplication(Application application);
 
     /**
-     * See {@linkplain ApplicationEJB#getLodgementView(org.sola.services.ejb.application.repository.entities.LodgementViewParams)
-     * ApplicationEJB.getLodgementView}.
-     */
-    List<LodgementView> getLodgementView(LodgementViewParams params);
-
-    /**
-     * See {@linkplain ApplicationEJB#getLodgementTiming(org.sola.services.ejb.application.repository.entities.LodgementViewParams)
-     * ApplicationEJB.getLodgementTiming}.
-     */
-    List<LodgementTiming> getLodgementTiming(LodgementViewParams params);
-
-    /**
      * See {@linkplain ApplicationEJB#getRequestTypes(java.lang.String)
      * ApplicationEJB.getRequestTypes}.
      */
@@ -259,17 +247,22 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
      * serviceNumber, String firstPart, String lastPart);
      */
     RoleVerifier getRoleVerifier(String serviceId);
-    
-     /**
+
+    /**
      * See {@linkplain ApplicationEJB#SysRegCerificates(java.lang.String)
      * CadastreEJB.SysRegPubDisParcelName}.
      */
     List<SysRegCertificates> getSysRegCertificatesByLocation(String searchString);
-    
-     /**
+
+    /**
      * See {@linkplain ApplicationEJB#SysRegCerificates(java.lang.String)
      * CadastreEJB.SysRegPubDisParcelName}.
      */
     List<SysRegCertificates> getSysRegCertificatesByApplication(String searchString, String nr);
 
+    /**
+     * See {@linkplain ApplicationEJB#getWorkSummary(java.util.Date, java.util.Date)
+     * ApplicationEJB.getWorkSummary}.
+     */
+    List<WorkSummary> getWorkSummary(Date fromDate, Date toDate);
 }

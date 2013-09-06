@@ -338,54 +338,6 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     }
 
     /**
-     * Retrieves the data required for the lodgement view report. <p>Requires
-     * the {@linkplain RolesConstants#REPORTS_VIEW} role.</p>
-     *
-     * @param params The date parameters for the report.
-     * @return THe data for the Lodgement View report
-     */
-    @Override
-//    @RolesAllowed(RolesConstants.REPORTS_VIEW)
-    public List<LodgementView> getLodgementView(LodgementViewParams params) {
-
-        List<LodgementView> result;
-        Map queryParams = new HashMap<String, Object>();
-        queryParams.put(CommonSqlProvider.PARAM_QUERY, LodgementView.QUERY_GETLODGEMENT);
-
-        queryParams.put(LodgementView.PARAMETER_FROM,
-                params.getFromDate() == null ? new GregorianCalendar(1, 1, 1).getTime() : params.getFromDate());
-        queryParams.put(LodgementView.PARAMETER_TO,
-                params.getToDate() == null ? new GregorianCalendar(2500, 1, 1).getTime() : params.getToDate());
-
-        result = getRepository().executeFunction(queryParams, LodgementView.class);
-        return result;
-    }
-
-    /**
-     * Retrieves the data required for the lodgement timing report. <p>Requires
-     * the {@linkplain RolesConstants#REPORTS_VIEW} role.</p>
-     *
-     * @param params The date parameters for the report.
-     * @return The data for the Lodgement Timing report
-     */
-    @Override
-//    @RolesAllowed(RolesConstants.REPORTS_VIEW)
-    public List<LodgementTiming> getLodgementTiming(LodgementViewParams params) {
-
-        List<LodgementTiming> result = null;
-        Map queryParams = new HashMap<String, Object>();
-        queryParams.put(CommonSqlProvider.PARAM_QUERY, LodgementTiming.QUERY_GETLODGEMENT);
-
-        queryParams.put(LodgementTiming.PARAMETER_FROM,
-                params.getFromDate() == null ? new GregorianCalendar(1, 1, 1).getTime() : params.getFromDate());
-        queryParams.put(LodgementView.PARAMETER_TO,
-                params.getToDate() == null ? new GregorianCalendar(2500, 1, 1).getTime() : params.getToDate());
-
-        result = getRepository().executeFunction(queryParams, LodgementTiming.class);
-        return result;
-    }
-
-    /**
      * Retrieves the application log for the specified application id. The log
      * captures details to track when specific actions are performed against the
      * application. <p>Requires the {@linkplain RolesConstants#REPORTS_VIEW}
@@ -1277,5 +1229,24 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
                 SysRegCertificates.QUERY_WHERE_BYNR, params);
     }
 
+     /**
+     * Retrieves a summary of the work performed during the specified reporting period.
+     *
+     * @param fromDate The start of the reporting period
+     * @param toDate The end of the reporting period
+     */
+    @Override
+    @RolesAllowed(RolesConstants.REPORTS_VIEW)
+    public List<WorkSummary> getWorkSummary(Date fromDate, Date toDate) {
+
+        List<WorkSummary> result;
+        Map queryParams = new HashMap<String, Object>();
+        queryParams.put(CommonSqlProvider.PARAM_FROM_PART, WorkSummary.QUERY_FROM_WORK_SUMMARY);
+        queryParams.put(WorkSummary.PARAMETER_FROM, fromDate);
+        queryParams.put(WorkSummary.PARAMETER_TO, toDate);
+
+        result = getRepository().getEntityList(WorkSummary.class, queryParams);
+        return result;
+    }
     
 }
