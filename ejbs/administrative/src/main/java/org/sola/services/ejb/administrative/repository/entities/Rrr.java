@@ -99,7 +99,7 @@ public class Rrr extends AbstractVersionedEntity {
     @ChildEntityList(parentIdField = "rrrId", cascadeDelete = true)
     private List<RrrShare> rrrShareList;
     @ChildEntityList(parentIdField = "rrrId", cascadeDelete = true)
-    private List<LeaseConditionForRrr> leaseConditionList;
+    private List<ConditionForRrr> conditionsList;
     @ExternalEJB(ejbLocalClass = SourceEJBLocal.class,
     loadMethod = "getSources", saveMethod = "saveSource")
     @ChildEntityList(parentIdField = "rrrId", childIdField = "sourceId",
@@ -302,12 +302,12 @@ public class Rrr extends AbstractVersionedEntity {
         this.rightHolderList = rightHolderList;
     }
 
-    public List<LeaseConditionForRrr> getLeaseConditionList() {
-        return leaseConditionList;
+    public List<ConditionForRrr> getConditionsList() {
+        return conditionsList;
     }
 
-    public void setLeaseConditionList(List<LeaseConditionForRrr> leaseConditionList) {
-        this.leaseConditionList = leaseConditionList;
+    public void setConditionsList(List<ConditionForRrr> conditionsList) {
+        this.conditionsList = conditionsList;
     }
 
     public Boolean isLocked() {

@@ -5,8 +5,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 
-@Table(name = "lease_condition_for_rrr", schema = "administrative")
-public class LeaseConditionForRrr extends AbstractVersionedEntity {
+@Table(name = "condition_for_rrr", schema = "administrative")
+public class ConditionForRrr extends AbstractVersionedEntity {
     
     @Id
     @Column
@@ -15,13 +15,19 @@ public class LeaseConditionForRrr extends AbstractVersionedEntity {
     @Column(name="rrr_id")
     private String rrrId;
     
-    @Column(name="lease_condition_code")
-    private String leaseConditionCode;
+    @Column(name="condition_code")
+    private String conditionCode;
     
     @Column(name="custom_condition_text")
     private String customConditionText;
   
-    public LeaseConditionForRrr(){
+    @Column(name="condition_quantity")
+    private int conditionQuantity;
+    
+    @Column(name="condition_unit")
+    private String conditionUnit;
+    
+    public ConditionForRrr(){
         super();
     }
 
@@ -41,12 +47,28 @@ public class LeaseConditionForRrr extends AbstractVersionedEntity {
         this.id = id;
     }
 
-    public String getLeaseConditionCode() {
-        return leaseConditionCode;
+    public String getConditionCode() {
+        return conditionCode;
     }
 
-    public void setLeaseConditionCode(String leaseConditionCode) {
-        this.leaseConditionCode = leaseConditionCode;
+    public void setConditionCode(String conditionCode) {
+        this.conditionCode = conditionCode;
+    }
+
+    public int getConditionQuantity() {
+        return conditionQuantity;
+    }
+
+    public void setConditionQuantity(int conditionQuantity) {
+        this.conditionQuantity = conditionQuantity;
+    }
+
+    public String getConditionUnit() {
+        return conditionUnit;
+    }
+
+    public void setConditionUnit(String conditionUnit) {
+        this.conditionUnit = conditionUnit;
     }
 
     public String getRrrId() {
