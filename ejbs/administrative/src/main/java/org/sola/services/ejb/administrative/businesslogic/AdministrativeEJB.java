@@ -111,10 +111,10 @@ public class AdministrativeEJB extends AbstractEJB
      * values.
      */
     @Override
-    public List<LeaseCondition> getLeaseConditions(String languageCode){
+    public List<LeaseCondition> getLeaseConditions(String languageCode) {
         return getRepository().getCodeList(LeaseCondition.class, languageCode);
     }
-    
+
     /**
      * Retrieves all administrative.mortgage_type code values.
      *
@@ -207,8 +207,7 @@ public class AdministrativeEJB extends AbstractEJB
     /**
      * Saves any updates to an existing BA Unit. Can also be used to create a
      * new BA Unit, however this method does not set any default values on the
-     * BA Unit like
-     * {@linkplain #createBaUnit(java.lang.String, org.sola.services.ejb.administrative.repository.entities.BaUnit)
+     * BA Unit like      {@linkplain #createBaUnit(java.lang.String, org.sola.services.ejb.administrative.repository.entities.BaUnit)
      * createBaUnit}. Will also create a new Transaction record for the BA Unit
      * if the Service is not already associated to a Transaction.
      *
@@ -266,10 +265,16 @@ public class AdministrativeEJB extends AbstractEJB
      * @return A list of validation results.
      */
     @Override
+    @RolesAllowed({RolesConstants.APPLICATION_APPROVE, RolesConstants.APPLICATION_SERVICE_COMPLETE,
+        RolesConstants.APPLICATION_VALIDATE})
     public List<ValidationResult> approveTransaction(
             String transactionId, String approvedStatus,
             boolean validateOnly, String languageCode) {
         List<ValidationResult> validationResult = new ArrayList<ValidationResult>();
+
+        if (!this.isInRole(RolesConstants.APPLICATION_APPROVE)) {
+            validateOnly = true;
+        }
 
         //Change the status of BA Units that are involved in a transaction directly
         Map<String, Object> params = new HashMap<String, Object>();
@@ -423,7 +428,8 @@ public class AdministrativeEJB extends AbstractEJB
 
     /**
      * Reverses the cancellation / termination of a BA Unit by removing the BA
-     * Unit Target created by {@linkplain #terminateBaUnit(java.lang.String, java.lang.String) terminateBaUnit}.
+     * Unit Target created by
+     * {@linkplain #terminateBaUnit(java.lang.String, java.lang.String) terminateBaUnit}.
      * <p>Requires the {@linkplain RolesConstants#ADMINISTRATIVE_BA_UNIT_SAVE}
      * role.</p>
      *
@@ -483,8 +489,8 @@ public class AdministrativeEJB extends AbstractEJB
     }
 
     /**
-     * Creates a new BA Unit Area <p>Requires the {@linkplain RolesConstants#ADMINISTRATIVE_BA_UNIT_SAVE}
-     * role.</p>
+     * Creates a new BA Unit Area <p>Requires the
+     * {@linkplain RolesConstants#ADMINISTRATIVE_BA_UNIT_SAVE} role.</p>
      *
      * @param baUnitId The identifier of the area the BA Unit is being created
      * as part of
@@ -605,15 +611,15 @@ public class AdministrativeEJB extends AbstractEJB
             String params, String languageCode) {
         return this.validatePublicDisplay(params, languageCode);
     }
-    
-    
-     /**
-     * Returns list of systematic registration applications
-     * that matches the specified search string. This
-     * 
+
+    /**
+     * Returns list of systematic registration applications that matches the
+     * specified search string. This
+     *
      *
      * @param searchString The search string to use
-     * @return list of systematic registration applications matching the search string
+     * @return list of systematic registration applications matching the search
+     * string
      */
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
@@ -630,6 +636,7 @@ public class AdministrativeEJB extends AbstractEJB
         result = getRepository().executeFunction(queryParams, SysRegManagement.class);
         return result;
     }
+
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
     public List<SysRegStatus> getSysRegStatus(SysRegManagementParams params, String languageCode) {
@@ -645,7 +652,7 @@ public class AdministrativeEJB extends AbstractEJB
         result = getRepository().executeFunction(queryParams, SysRegStatus.class);
         return result;
     }
-    
+
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
     public List<SysRegProgress> getSysRegProgress(SysRegManagementParams params, String languageCode) {
@@ -661,5 +668,4 @@ public class AdministrativeEJB extends AbstractEJB
         result = getRepository().executeFunction(queryParams, SysRegProgress.class);
         return result;
     }
-
 }

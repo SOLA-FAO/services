@@ -98,9 +98,10 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
         params.put(Source.QUERY_PARAMETER_TRANSACTIONID, transactionId);
         return getRepository().getEntityList(Source.class, params);
     }
-    
+
     /**
-     * Retrieves a list of power of attorney created by the specified transaction.
+     * Retrieves a list of power of attorney created by the specified
+     * transaction.
      *
      * @param transactionId Identifier of the transaction.
      */
@@ -113,14 +114,15 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
 
     /**
      * Can be used to create a new source or save any updates to the details of
-     * an existing source. <p>Requires the {@linkplain RolesConstants#SOURCE_SAVE}
-     * role.</p>
+     * an existing source. <p>Requires the
+     * {@linkplain RolesConstants#SOURCE_SAVE} role.</p>
      *
      * @param source The source to create/save
      * @return The source after the save is completed.
      */
     @Override
-    @RolesAllowed(RolesConstants.SOURCE_SAVE)
+    @RolesAllowed({RolesConstants.SOURCE_SAVE, RolesConstants.APPLICATION_CREATE_APPS,
+        RolesConstants.APPLICATION_EDIT_APPS})
     public Source saveSource(Source source) {
         return getRepository().saveEntity(source);
     }
@@ -212,10 +214,17 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
      * always empty.
      */
     @Override
-    @RolesAllowed(RolesConstants.APPLICATION_APPROVE)
+    @RolesAllowed({RolesConstants.APPLICATION_APPROVE, RolesConstants.APPLICATION_SERVICE_COMPLETE,
+        RolesConstants.APPLICATION_VALIDATE})
     public List<ValidationResult> approveTransaction(
             String transactionId, String approvedStatus,
             boolean validateOnly, String languageCode) {
+        
+        if(!this.isInRole(RolesConstants.APPLICATION_APPROVE)) {
+            // Only allow validation if the user dos not have the Approve role. 
+            validateOnly = true; 
+        }
+        
         List<ValidationResult> validationResultList = new ArrayList<ValidationResult>();
         if (!validateOnly) {
             Map<String, Object> params = new HashMap<String, Object>();
@@ -274,7 +283,7 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
         source.resetEntityAction();
         source.setRowVersion(0);
         source.markForSave();
-        
+
 
         // Get the transaction. If transaction does not exist it will be created
         TransactionBasic transaction =
@@ -311,9 +320,9 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
             return null;
         }
 
-        Source source = attachSourceToTransaction(serviceId, 
+        Source source = attachSourceToTransaction(serviceId,
                 powerOfAttorney.getSource().getId(), languageCode);
-        
+
         powerOfAttorney.setSource(source);
         powerOfAttorney.setId(source.getId());
         powerOfAttorney.setRowVersion(0);
@@ -398,11 +407,13 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
     }
 
     /**
-     * Retrieves all Power of attorneys associated with the service. Uses the transaction
-     * associated with the service to determine the attorneys to return.
+     * Retrieves all Power of attorneys associated with the service. Uses the
+     * transaction associated with the service to determine the attorneys to
+     * return.
      *
      * @param serviceId Identifier of the service
-     * @see #getPowerOfAttorneyByTransactionId(java.lang.String) getPowerOfAttorneyByTransactionId
+     * @see #getPowerOfAttorneyByTransactionId(java.lang.String)
+     * getPowerOfAttorneyByTransactionId
      */
     @Override
     public List<PowerOfAttorney> getPowerOfAttorneyByServiceId(String serviceId) {
@@ -417,8 +428,8 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
     }
 
     /**
-     * Retrieves a transaction of bulk operation type by id.
-     * If the transaction is not of bulk operation type, it returns null.
+     * Retrieves a transaction of bulk operation type by id. If the transaction
+     * is not of bulk operation type, it returns null.
      *
      * @param id The transaction identifier.
      */
@@ -426,7 +437,7 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
     public TransactionBulkOperationSource getTransactionBulkOperationById(String id) {
         TransactionBulkOperationSource transaction = getRepository().getEntity(
                 TransactionBulkOperationSource.class, id);
-        if (transaction != null && transaction.isIsBulkOperation()){
+        if (transaction != null && transaction.isIsBulkOperation()) {
             transaction = null;
         }
         return transaction;
@@ -434,9 +445,10 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
 
     /**
      * It saves a transaction initiated by the bulk operation application.
+     *
      * @param transaction
      * @param languageCode
-     * @return 
+     * @return
      */
     @Override
     public List<ValidationResult> saveTransactionBulkOperation(
@@ -446,10 +458,10 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
         transaction = this.saveEntity(transaction);
 
         //It runs the validation
-           List<BrValidation> brValidationList = this.systemEJB.getBrForValidatingTransaction(
-                    TransactionType.BULK_OPERATION_SOURCE, RegistrationStatusType.STATUS_PENDING, 
-                    TransactionType.BULK_OPERATION_SOURCE);
-        
+        List<BrValidation> brValidationList = this.systemEJB.getBrForValidatingTransaction(
+                TransactionType.BULK_OPERATION_SOURCE, RegistrationStatusType.STATUS_PENDING,
+                TransactionType.BULK_OPERATION_SOURCE);
+
         HashMap<String, Serializable> params = new HashMap<String, Serializable>();
 
         //The business rules fired, are supposed to get only one parameter and that is
@@ -459,7 +471,7 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
         //Run the validation
         List<ValidationResult> validationResultList =
                 this.systemEJB.checkRulesGetValidation(brValidationList, languageCode, params);
-        
+
         if (!systemEJB.validationSucceeded(validationResultList)) {
             //If the validation fails the whole transaction is rolledback.
             throw new SOLAValidationException(validationResultList);
@@ -467,6 +479,4 @@ public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
 
         return validationResultList;
     }
-    
-    
 }

@@ -96,7 +96,8 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
      * not have the {@linkplain RolesConstants#PARTY_RIGHTHOLDERS_SAVE} role
      */
     @Override
-    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE})
+    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE, 
+    RolesConstants.APPLICATION_EDIT_APPS, RolesConstants.APPLICATION_CREATE_APPS})
     public Party saveParty(Party party) {
         if (party.isRightHolder() && !isInRole(RolesConstants.PARTY_RIGHTHOLDERS_SAVE)) {
             throw new SOLAAccessException();

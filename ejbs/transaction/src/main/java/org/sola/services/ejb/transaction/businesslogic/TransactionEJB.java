@@ -30,9 +30,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import org.sola.common.DateUtility;
+import org.sola.common.RolesConstants;
 import org.sola.common.SOLAException;
 import org.sola.common.messaging.ServiceMessage;
 import org.sola.services.common.EntityAction;
@@ -178,8 +180,15 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
      * changeStatusOfTransactionObjectsOnApproval
      */
     @Override
+    @RolesAllowed({RolesConstants.APPLICATION_APPROVE, RolesConstants.APPLICATION_SERVICE_COMPLETE, 
+        RolesConstants.APPLICATION_VALIDATE})
     public List<ValidationResult> approveTransaction(
             String requestType, String serviceId, String languageCode, boolean validationOnly) {
+        
+        if (!this.isInRole(RolesConstants.APPLICATION_APPROVE)){
+            // Only allow validation if the user does not have the Approve role. 
+            validationOnly = true; 
+        }
 
         TransactionStatusChanger transaction = this.getTransactionByServiceId(
                 serviceId, false, TransactionStatusChanger.class);
@@ -246,6 +255,8 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
      * <code>true</code> if the transaction is deleted.
      */
     @Override
+    @RolesAllowed({RolesConstants.APPLICATION_REJECT, RolesConstants.APPLICATION_LAPSE, 
+        RolesConstants.APPLICATION_WITHDRAW})
     public boolean rejectTransaction(String serviceId) {
         TransactionBasic transaction =
                 this.getTransactionByServiceId(serviceId, false, TransactionBasic.class);
