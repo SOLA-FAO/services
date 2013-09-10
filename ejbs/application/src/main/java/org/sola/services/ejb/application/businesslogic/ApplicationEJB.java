@@ -168,6 +168,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * @see #calculateLodgementFees(Application) calculateLodgementFees
      */
     @Override
+    @RolesAllowed({RolesConstants.APPLICATION_CREATE_APPS, RolesConstants.APPLICATION_EDIT_APPS})
     public Application calculateFeesAndDates(Application application) {
         if (application == null) {
             return application;
@@ -374,6 +375,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * application during the reporting period.
      */
     @Override
+    @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
     public List<ApplicationLog> getUserActions(String username, Date fromTime, Date toTime) {
         List<ApplicationLog> result = null;
         Map params = new HashMap<String, Object>();
@@ -1168,6 +1170,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     }
 
     @Override
+    @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
     public Application getApplicationByTransactionId(String transactionId) {
         Application application = null;
         TransactionBasic transaction = transactionEJB.getTransactionById(transactionId, TransactionBasic.class);
