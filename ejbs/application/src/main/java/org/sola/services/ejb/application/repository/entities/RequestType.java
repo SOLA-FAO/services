@@ -50,7 +50,8 @@ import org.sola.services.common.repository.entities.AbstractCodeEntity;
 public class RequestType extends AbstractCodeEntity {
     
     public static String CADASTRE_CHANGE = "cadastreChange";
-
+    public static String MAP_EXISTINGPARCEL = "mapExistingParcel";
+    
     @Column(name = "nr_days_to_complete")
     private int nrDaysToComplete;
     @Column(name = "request_category_code")

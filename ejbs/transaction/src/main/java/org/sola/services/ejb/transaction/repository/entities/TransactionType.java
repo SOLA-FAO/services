@@ -37,6 +37,7 @@ package org.sola.services.ejb.transaction.repository.entities;
  */
 public class TransactionType {
     public static final String CADASTRE_CHANGE = "cadastreChange"; 
+    public static final String MAP_EXISTINGPARCEL = "mapExistingParcel";
     public static final String BULK_OPERATION_SPATIAL = "bulkOperationSpatial"; 
     public static final String BULK_OPERATION_SOURCE = "bulkOperationSource"; 
     public static final String REDEFINE_CADASTRE = "redefineCadastre"; 
