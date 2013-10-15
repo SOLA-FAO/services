@@ -1206,10 +1206,15 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
     public List<SysRegCertificates> getSysRegCertificatesByLocation(String searchString) {
         HashMap params = new HashMap();
+        params.put(CommonSqlProvider.PARAM_SELECT_PART, SysRegCertificates.QUERY_SELECT);
+        params.put(CommonSqlProvider.PARAM_WHERE_PART,  SysRegCertificates.QUERY_WHERE_SEARCHBYPARTS);
         params.put("search_string", searchString);
-
-        return getRepository().getEntityList(SysRegCertificates.class,
-                SysRegCertificates.QUERY_WHERE_SEARCHBYPARTS, params);
+        List<SysRegCertificates> sysRegCertificates = getRepository().getEntityList(
+                SysRegCertificates.class, params);
+       
+        return sysRegCertificates;
+//        return getRepository().getEntityList(SysRegCertificates.class,
+//                SysRegCertificates.QUERY_WHERE_SEARCHBYPARTS, params);
     }
     
       /**
@@ -1223,13 +1228,16 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
     public List<SysRegCertificates> getSysRegCertificatesByApplication(String searchString, String nr) {
         HashMap params = new HashMap();
+        params.put(CommonSqlProvider.PARAM_SELECT_PART, SysRegCertificates.QUERY_SELECT);
         params.put(CommonSqlProvider.PARAM_WHERE_PART, SysRegCertificates.QUERY_WHERE_BYNR);
         params.put(SysRegCertificates.QUERY_PARAMETER_NR, nr);
         params.put("search_string", searchString);
-        
-
-        return getRepository().getEntityList(SysRegCertificates.class,
-                SysRegCertificates.QUERY_WHERE_BYNR, params);
+        List<SysRegCertificates> sysRegCertificates = getRepository().getEntityList(
+                SysRegCertificates.class, params);
+       
+        return sysRegCertificates;
+//        return getRepository().getEntityList(SysRegCertificates.class,
+//                SysRegCertificates.QUERY_WHERE_BYNR, params);
     }
 
      /**

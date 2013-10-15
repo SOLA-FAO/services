@@ -24,14 +24,20 @@ public class SysRegCertificates extends AbstractReadOnlyEntity {
 
     public static final String QUERY_PARAMETER_NR = "nr";
     // Where clause
-    public static final String QUERY_WHERE_BYNR = "nr = #{" + QUERY_PARAMETER_NR  + "} "
-            + "AND compare_strings(#{search_string}, name_lastpart)";
-
+//    public static final String QUERY_WHERE_BYNR = "nr = #{" + QUERY_PARAMETER_NR  + "} "
+//            + "AND compare_strings(#{search_string}, name_lastpart)";
+     
+    public static final String QUERY_SELECT = "  distinct(ba_unit_id), nr, name_firstpart, name_lastpart";
+    
+    public static final String QUERY_WHERE_BYNR = " nr = #{" + QUERY_PARAMETER_NR  + "} "
+             + "AND compare_strings(#{search_string}, name_lastpart)"; 
     /**
      * WHERE clause to return current CO's based on search string compared to
      * last part
      */
-    public static final String QUERY_WHERE_SEARCHBYPARTS = "compare_strings(#{search_string}, name_lastpart)";
+//    public static final String QUERY_WHERE_SEARCHBYPARTS = "compare_strings(#{search_string}, name_lastpart)";
+    
+    public static final String QUERY_WHERE_SEARCHBYPARTS = " compare_strings(#{search_string}, name_lastpart)"; 
     
     @Column(name = "nr")
     private String nr;
