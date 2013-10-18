@@ -819,4 +819,19 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         }
         return value;
     }    
+
+    @Override
+    public String getMapCenterLabel(byte[] mapCenterPoint) {
+        String sql = "select cadastre.get_map_center_label(#{map_center_point}) as vl";
+        String paramMapCenterPoint = "map_center_point";
+        Map params = new HashMap();
+        params.put(CommonSqlProvider.PARAM_QUERY, sql);
+        params.put(paramMapCenterPoint, mapCenterPoint);
+        List result = getRepository().executeSql(params);
+        String value = "";
+        if (result != null && result.size()>0 && result.get(0) != null){
+            value = ((HashMap)result.get(0)).get("vl").toString();
+        }
+        return value;
+    }    
 }
