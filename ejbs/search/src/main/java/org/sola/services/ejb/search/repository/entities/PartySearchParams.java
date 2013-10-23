@@ -34,6 +34,7 @@ public class PartySearchParams  extends AbstractReadOnlyEntity {
     private String name;
     private String typeCode;
     private String roleTypeCode;
+    private String locale;
     
     public PartySearchParams(){
     
@@ -62,5 +63,12 @@ public class PartySearchParams  extends AbstractReadOnlyEntity {
     public void setTypeCode(String typeCode) {
         this.typeCode = typeCode;
     }
-    
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
 }

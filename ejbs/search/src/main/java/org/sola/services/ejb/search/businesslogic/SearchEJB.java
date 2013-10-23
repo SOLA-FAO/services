@@ -483,6 +483,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         searchParams.setName(searchParams.getName().trim());
 
         Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, searchParams.getLocale());
         params.put(CommonSqlProvider.PARAM_QUERY, PartySearchResult.SEARCH_QUERY);
         params.put(PartySearchResult.QUERY_PARAM_NAME, searchParams.getName());
         params.put(PartySearchResult.QUERY_PARAM_TYPE_CODE, searchParams.getTypeCode());
