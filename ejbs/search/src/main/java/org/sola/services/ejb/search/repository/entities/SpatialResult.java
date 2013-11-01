@@ -48,9 +48,19 @@ public class SpatialResult extends AbstractReadOnlyEntity {
     private String label;
     @Column(name = "the_geom")
     private byte[] theGeom;
-
+    @Column (name = "filter_category")
+    private String filterCategory;
+    
     public SpatialResult() {
         super();
+    }
+
+    public String getFilterCategory() {
+        return filterCategory;
+    }
+
+    public void setFilterCategory(String filterCategory) {
+        this.filterCategory = filterCategory;
     }
 
     public String getId() {
