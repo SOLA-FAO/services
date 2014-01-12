@@ -20,5 +20,10 @@
             <artifactId>sola-services-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sola-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

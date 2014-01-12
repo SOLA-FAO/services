@@ -73,6 +73,7 @@ public class BrValidation extends AbstractEntity {
     
     public static final String QUERY_WHERE_FOR_PUBLIC_DISPLAY = "target_code='public_display'";
     public static final String QUERY_WHERE_FOR_SPATIAL_UNIT_GROUP = "target_code='spatial_unit_group'";
+    public static final String QUERY_WHERE_FOR_CONSOLIDATION = "target_code='consolidation'";
 
     @Id
     @Column(name = "id")

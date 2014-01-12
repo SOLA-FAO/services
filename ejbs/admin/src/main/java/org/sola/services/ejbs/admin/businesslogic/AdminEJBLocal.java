@@ -25,6 +25,7 @@
  */
 package org.sola.services.ejbs.admin.businesslogic;
 
+import java.io.IOException;
 import java.util.List;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Role;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.User;
@@ -132,4 +133,16 @@ public interface AdminEJBLocal {
      * AdminEJB.getLanguages}
      */
     List<Language> getLanguages(String lang);
+    
+    /**
+     * See {@linkplain AdminEJB#consolidationExtract()
+     * AdminEJB.consolidationExtract}
+     */
+    String consolidationExtract();
+
+    /**
+     * See {@linkplain AdminEJB#consolidationConsolidate(String, String)
+     * AdminEJB.consolidationConsolidate}
+     */
+    String consolidationConsolidate(String languageCode, String fileInServer);
 }

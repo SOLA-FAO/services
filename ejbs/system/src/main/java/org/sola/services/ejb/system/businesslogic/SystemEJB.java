@@ -464,4 +464,15 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
         params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, BrValidation.QUERY_ORDERBY_ORDEROFEXECUTION);
         return getRepository().getEntityList(BrValidation.class, params);
     }
+
+    /**
+     * Retrieves the business rules required to check the correctness of consolidation information.
+     */
+    @Override
+    public List<BrValidation> getBrForConsolidation() {
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, BrValidation.QUERY_WHERE_FOR_CONSOLIDATION);
+        params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, BrValidation.QUERY_ORDERBY_ORDEROFEXECUTION);
+        return getRepository().getEntityList(BrValidation.class, params);
+    }
 }
