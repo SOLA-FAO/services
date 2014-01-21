@@ -410,7 +410,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, locale);
         params.put(CommonSqlProvider.PARAM_WHERE_PART, ApplicationSearchResult.QUERY_WHERE_GET_UNASSIGNED);
         params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, ApplicationSearchResult.QUERY_ORDER_BY);
-        params.put(CommonSqlProvider.PARAM_LIMIT_PART, "100");
+//        params.put(CommonSqlProvider.PARAM_LIMIT_PART, "100");
 
         return getRepository().getEntityList(ApplicationSearchResult.class, params);
     }
@@ -446,7 +446,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         }
 
         params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, ApplicationSearchResult.QUERY_ORDER_BY);
-        params.put(CommonSqlProvider.PARAM_LIMIT_PART, "100");
+//        params.put(CommonSqlProvider.PARAM_LIMIT_PART, "100");
 
         return getRepository().getEntityList(ApplicationSearchResult.class, params);
     }
