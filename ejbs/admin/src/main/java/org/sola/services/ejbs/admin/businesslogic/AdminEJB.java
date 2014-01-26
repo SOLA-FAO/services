@@ -308,7 +308,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     }
 
     /**
-     * Checks if the current user has been assigned one or more of the null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
+     * Checks if the current user has been assigned one or more of the null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
      * {@linkplain RolesConstants#ADMIN_MANAGE_REFDATA} or
      * {@linkplain RolesConstants#ADMIN_MANAGE_SETTINGS} security roles. <p> No
      * role is required to execute this method.</p>
@@ -361,7 +361,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         String extractedRecords = getRepository().getScalar(String.class, params);
         try {
             DataSource ds = new ByteArrayDataSource(extractedRecords, "text/plain; charset=UTF-8");
-            return FileUtility.saveFileFromStream(new DataHandler(ds), fileName);
+            String fileNameInCache = FileUtility.saveFileFromStream(new DataHandler(ds), fileName);
+            return FileUtility.compress(fileNameInCache, systemEJB.getSetting("zip-pass", "zip-pass"));
         } catch (IOException iex) {
             Object[] lstParams = {fileName, iex.getLocalizedMessage()};
             throw new SOLAException(ClientMessage.ERR_FAILED_CREATE_NEW_FILE, lstParams);
@@ -369,41 +370,65 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     }
 
     /**
-     * It takes a file name that is in the server cache folder which is supposed to be 
-     * the consolidated records and makes the consolidation.
-     * 
+     * It takes a file name that is in the server cache folder which is supposed
+     * to be the consolidated records and makes the consolidation.
+     *
      * @param languageCode
      * @param fileInServer
-     * @return 
+     * @return
      */
     @RolesAllowed(RolesConstants.CONSOLIDATION_CONSOLIDATE)
     @Override
     public String consolidationConsolidate(String languageCode, String fileInServer) {
+        String resultScript = "";
         String sqlStatementUpload = "select system.script_to_schema(#{script}) as vl";
         String sqlStatementConsolidate = "select system.consolidation_consolidate(#{current_user}) as vl";
-        String script = new String(FileUtility.readFileFromCache(fileInServer));
+        //Uncompress
+        resultScript = resultScript + "Uncompressing file...";
+        String fileUncompressedName = FileUtility.uncompress(fileInServer, systemEJB.getSetting("zip-pass", "zip-pass"));
+        resultScript = resultScript + "done.\r\n";
+        //Get script
+        resultScript = resultScript + "Retrieving script from uncommpressed file...";
+        String script = new String(FileUtility.readFileFromCache(fileUncompressedName));
+        resultScript = resultScript + "done.\r\n";
+
+        resultScript = resultScript + "Creating consolidation schema...\r\n";
         //The script has commands that can create the consolidation schema
         Map params = new HashMap();
         params.put(CommonSqlProvider.PARAM_QUERY, sqlStatementUpload);
         params.put("script", script);
         getRepository().getScalar(String.class, params);
-        
+        resultScript = resultScript + "Consolidation schema created with success.\r\n";
+
+        resultScript = resultScript + "Validating consolidation schema against the other tables...\r\n";
         //It will check for consistancy before making the consolidation
         List<ValidationResult> validationResultList = validateBeforeConsolidation(languageCode);
-        if (!systemEJB.validationSucceeded(validationResultList)) {
-            //If the validation fails the whole transaction is rolledback.
-            throw new SOLAValidationException(validationResultList);
+        
+        for(ValidationResult vr: validationResultList){
+            String brResult = String.format("    BR:%s\r\n    Severity:%s\r\n    Passed:%s\r\n    Feedback:%s\r\n",
+                    vr.getName(), vr.getSeverity(), vr.isSuccessful(), vr.getFeedback());
+            resultScript = resultScript + brResult;
         }
         
+        if (!systemEJB.validationSucceeded(validationResultList)) {
+            //If the validation fails the whole transaction is rolledback.
+            resultScript = resultScript + "Validation encountered serious errors. The consolidation failed.\r\n";            
+            throw new RuntimeException(resultScript);
+        }else{
+            resultScript = resultScript + "Validation finished with success.\r\n";            
+        }
+
         params = new HashMap();
         params.put(CommonSqlProvider.PARAM_QUERY, sqlStatementConsolidate);
         params.put("current_user", getUser(getUserName()).getId());
-        return getRepository().getScalar(String.class, params);
+        resultScript = resultScript + "Moving records from consolidation schema to the main tables...\r\n";
+        resultScript = resultScript + getRepository().getScalar(String.class, params);
+        return resultScript;
     }
-    
-    private List<ValidationResult> validateBeforeConsolidation(String languageCode){
+
+    private List<ValidationResult> validateBeforeConsolidation(String languageCode) {
         List<BrValidation> brValidationList = this.systemEJB.getBrForConsolidation();
-        List<ValidationResult> validationResultList = 
+        List<ValidationResult> validationResultList =
                 this.systemEJB.checkRulesGetValidation(brValidationList, languageCode, null);
         return validationResultList;
     }
