@@ -212,7 +212,7 @@ public class Development extends AbstractEJBTest{
                         + " this test. Note that subsequent tests may also fail!");
             }
             System.out.println("Saving the application ... ");
-            Application result = instance.createApplication(application);
+            Application result = instance.createApplication(application, "en");
             String applicationId = result.getId();
            
             int appRowVersion = result.getRowVersion();

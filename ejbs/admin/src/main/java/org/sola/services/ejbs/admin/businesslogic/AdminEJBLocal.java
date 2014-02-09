@@ -135,14 +135,14 @@ public interface AdminEJBLocal {
     List<Language> getLanguages(String lang);
     
     /**
-     * See {@linkplain AdminEJB#consolidationExtract()
+     * See {@linkplain AdminEJB#consolidationExtract(boolean, java.lang.String)
      * AdminEJB.consolidationExtract}
      */
-    String consolidationExtract();
+    String consolidationExtract(boolean everything, String password);
 
     /**
-     * See {@linkplain AdminEJB#consolidationConsolidate(String, String)
+     * See {@linkplain AdminEJB#consolidationConsolidate(String, String, String)
      * AdminEJB.consolidationConsolidate}
      */
-    String consolidationConsolidate(String languageCode, String fileInServer);
+    String consolidationConsolidate(String languageCode, String fileInServer, String password);
 }

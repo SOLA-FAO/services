@@ -108,8 +108,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     }
 
     /**
-     * Returns an application based on the id value. <p>Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS}
-     * role.</p>
+     * Returns an application based on the id value. <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
      *
      * @param id The id of the application to retrieve
      * @return The found application or null.
@@ -127,15 +127,16 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     /**
      * Creates a new application record and any new child objects. Sets the
      * initial action for the application (e.g. lodged) using a business rule.
-     * Also sets the lodged date and expected completion date. <p>Requires the {@linkplain RolesConstants#APPLICATION_CREATE_APPS}
-     * role.</p>
+     * Also sets the lodged date and expected completion date. <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_CREATE_APPS} role.</p>
      *
      * @param application The application to insert
+     * @param languageCode 
      * @return The application after the insert.
      */
     @Override
     @RolesAllowed(RolesConstants.APPLICATION_CREATE_APPS)
-    public Application createApplication(Application application) {
+    public Application createApplication(Application application, String languageCode) {
         if (application == null) {
             return application;
         }
@@ -153,6 +154,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
         treatApplicationSources(application);
         application.getContactPerson().setTypeCode(Party.TYPE_CODE_NATURAL_PERSON);
         application = getRepository().saveEntity(application);
+        checkSpatialUnitsStatus(application, languageCode);
 
         return application;
     }
@@ -301,15 +303,16 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     /**
      * Saves changes to the application and child objects. Will also update the
      * completion dates and fees for the application if a new service as been
-     * added. <p>Requires the {@linkplain RolesConstants#APPLICATION_CREATE_APPS}
-     * role.</p>
+     * added. <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_CREATE_APPS} role.</p>
      *
      * @param application
+     * @param languageCode 
      * @return The application after the save is completed.
      */
     @Override
     @RolesAllowed({RolesConstants.APPLICATION_CREATE_APPS, RolesConstants.APPLICATION_EDIT_APPS})
-    public Application saveApplication(Application application) {
+    public Application saveApplication(Application application, String languageCode) {
         if (application == null) {
             return application;
         }
@@ -334,6 +337,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
 
         treatApplicationSources(application);
         application = getRepository().saveEntity(application);
+        checkSpatialUnitsStatus(application, languageCode);
 
         return application;
     }
@@ -457,8 +461,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * Updates the status of the service to the value indicated by the
      * <code>status_to_set</code> in the
      * <code>application.service_action_type</code> table for the
-     * <code>complete</code> code. (i.e. completed) <p>Requires the {@linkplain RolesConstants#APPLICATION_SERVICE_COMPLETE}
-     * role.</p>
+     * <code>complete</code> code. (i.e. completed) <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_SERVICE_COMPLETE} role.</p>
      *
      * @param serviceId The service to perform the action against
      * @param languageCode The language code to use for localization of
@@ -481,8 +485,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * Updates the status of the service to the value indicated by the
      * <code>status_to_set</code> in the
      * <code>application.service_action_type</code> table for the
-     * <code>revert</code> code. (i.e. pending) <p>Requires the {@linkplain RolesConstants#APPLICATION_SERVICE_REVERT}
-     * role.</p>
+     * <code>revert</code> code. (i.e. pending) <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_SERVICE_REVERT} role.</p>
      *
      * @param serviceId The service to perform the action against
      * @param languageCode The language code to use for localization of
@@ -505,8 +509,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * Updates the status of the service to the value indicated by the
      * <code>status_to_set</code> in the
      * <code>application.service_action_type</code> table for the
-     * <code>start</code> code. (i.e. pending) <p>Requires the {@linkplain RolesConstants#APPLICATION_SERVICE_START}
-     * role.</p>
+     * <code>start</code> code. (i.e. pending) <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_SERVICE_START} role.</p>
      *
      * @param serviceId The service to perform the action against
      * @param languageCode The language code to use for localization of
@@ -520,7 +524,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @Override
     @RolesAllowed(RolesConstants.APPLICATION_SERVICE_START)
     public List<ValidationResult> serviceActionStart(String serviceId, String languageCode, int rowVersion) {
-        
+
         RoleVerifier validRole = getRoleVerifier(serviceId);
 
         if (!validRole.isRoleCheck()) {
@@ -533,8 +537,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * Updates the status of the service to the value indicated by the
      * <code>status_to_set</code> in the
      * <code>application.service_action_type</code> table for the
-     * <code>cancel</code> code. (i.e. cancelled) <p>Requires the {@linkplain RolesConstants#APPLICATION_SERVICE_CANCEL}
-     * role.</p>
+     * <code>cancel</code> code. (i.e. cancelled) <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_SERVICE_CANCEL} role.</p>
      *
      * @param serviceId The service to perform the action against
      * @param languageCode The language code to use for localization of
@@ -559,8 +563,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * <code>application.application_action_type</code> table for the
      * <code>withdraw</code> code. (i.e. anulled). Will also delete the
      * transaction records for each service that is associated with the
-     * application.<p>Requires the {@linkplain RolesConstants#APPLICATION_WITHDRAW}
-     * role.</p>
+     * application.<p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_WITHDRAW} role.</p>
      *
      * @param applicationId The application to perform the action against
      * @param languageCode The language code to use for localization of
@@ -585,8 +589,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * <code>application.application_action_type</code> table for the
      * <code>cancel</code> code. (i.e. anulled). Will also delete the
      * transaction records for each service that is associated with the
-     * application.<p>Requires the {@linkplain RolesConstants#APPLICATION_REJECT}
-     * role.</p>
+     * application.<p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_REJECT} role.</p>
      *
      * @param applicationId The application to perform the action against
      * @param languageCode The language code to use for localization of
@@ -609,8 +613,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * Updates the status of the application to the value indicated by the
      * <code>status_to_set</code> in the
      * <code>application.application_action_type</code> table for the
-     * <code>requisition</code> code. (i.e. requisition). <p>Requires the {@linkplain RolesConstants#APPLICATION_REQUISITE}
-     * role.</p>
+     * <code>requisition</code> code. (i.e. requisition). <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_REQUISITE} role.</p>
      *
      * @param applicationId The application to perform the action against
      * @param languageCode The language code to use for localization of
@@ -657,8 +661,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * <code>application.application_action_type</code> table for the
      * <code>approve</code> code. (i.e. approved) if validations are successful.
      * Also updates the status of all services and BA Units and /or Cadastre
-     * Objects linked to those services. <p>Requires the {@linkplain RolesConstants#APPLICATION_APPROVE}
-     * role.</p>
+     * Objects linked to those services. <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_APPROVE} role.</p>
      *
      * @param applicationId The application to perform the action against
      * @param languageCode The language code to use for localization of
@@ -681,8 +685,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * Updates the status of the application to the value indicated by the
      * <code>status_to_set</code> in the
      * <code>application.application_action_type</code> table for the
-     * <code>archive</code> code. (i.e. completed). <p>Requires the {@linkplain RolesConstants#APPLICATION_ARCHIVE}
-     * role.</p>
+     * <code>archive</code> code. (i.e. completed). <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_ARCHIVE} role.</p>
      *
      * @param applicationId The application to perform the action against
      * @param languageCode The language code to use for localization of
@@ -703,8 +707,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
 
     /**
      * Sets the action code on the application to <cpde>dispatch</code> to
-     * indicate the application has been dispatched. <p>Requires the {@linkplain RolesConstants#APPLICATION_DISPATCH}
-     * role.</p>
+     * indicate the application has been dispatched. <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_DISPATCH} role.</p>
      *
      * @param applicationId The application to perform the action against
      * @param languageCode The language code to use for localization of
@@ -751,8 +755,9 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
 
     /**
      * Sets the assignee id on the application to the id of the user specified
-     * as well as setting the action code on the application to <cpde>assign</code>
-     * to indicate the application has been assigned. <p>Requires the {@linkplain RolesConstants#APPLICATION_ASSIGN_TO_OTHERS}
+     * as well as setting the action code on the application to
+     * <cpde>assign</code> to indicate the application has been assigned.
+     * <p>Requires the {@linkplain RolesConstants#APPLICATION_ASSIGN_TO_OTHERS}
      * or the {@linkplain RolesConstants#APPLICATION_ASSIGN_TO_YOURSELF}
      * role.</p>
      *
@@ -785,9 +790,9 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     /**
      * Clears the assignee id on the application and sets the action code on the
      * application to <cpde>unAssign</code> to indicate the application has been
-     * unassigned. <p>Requires the {@linkplain RolesConstants#APPLICATION_UNASSIGN_FROM_OTHERS}
-     * or the {@linkplain RolesConstants#APPLICATION_UNASSIGN_FROM_YOURSELF}
-     * role.</p>
+     * unassigned. <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_UNASSIGN_FROM_OTHERS} or the
+     * {@linkplain RolesConstants#APPLICATION_UNASSIGN_FROM_YOURSELF} role.</p>
      *
      * @param applicationId The application to perform the action against
      * @param languageCode The language code to use for localization of
@@ -818,8 +823,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * Updates the status of the application to the value indicated by the
      * <code>status_to_set</code> in the
      * <code>application.application_action_type</code> table for the
-     * <code>resubmit</code> code. (i.e. lodged). <p>Requires the {@linkplain RolesConstants#APPLICATION_RESUBMIT}
-     * role.</p>
+     * <code>resubmit</code> code. (i.e. lodged). <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_RESUBMIT} role.</p>
      *
      * @param applicationId The application to perform the action against
      * @param languageCode The language code to use for localization of
@@ -946,7 +951,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
 
         ServiceActionType serviceActionType = getRepository().getCode(ServiceActionType.class, actionCode, languageCode);
         List<ValidationResult> validationResultList = this.validateService(service, languageCode, serviceActionType);
-        
+
         if (systemEJB.validationSucceeded(validationResultList)) {
             transactionEJB.changeTransactionStatusFromService(serviceId, serviceActionType.getStatusToSet());
             service.setStatusCode(serviceActionType.getStatusToSet());
@@ -961,8 +966,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
 
     /**
      * Wrapper method that uses the applicationId to load the application object
-     * before calling
-     * {@linkplain #takeActionAgainstApplication(org.sola.services.ejb.application.repository.entities.ApplicationActionTaker,
+     * before calling      {@linkplain #takeActionAgainstApplication(org.sola.services.ejb.application.repository.entities.ApplicationActionTaker,
      * java.lang.String, java.lang.String, int) takeActionAgainstApplication.
      *
      * @param applicationId The identifier of the application to perform the action against
@@ -1194,35 +1198,36 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
         params.put(RoleVerifier.QUERY_PARAM_USERNAME, getUserName());
         return getRepository().getEntity(RoleVerifier.class, params);
     }
-    
-      /**
-     * Returns the list of ba_unit_id for approved systematic registration
-     * that matches the specified search string. 
+
+    /**
+     * Returns the list of ba_unit_id for approved systematic registration that
+     * matches the specified search string.
      *
      * @param searchString The search string to use
-     * @return The list of  ba_unit_id for approved systematic registration
+     * @return The list of ba_unit_id for approved systematic registration
      */
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
     public List<SysRegCertificates> getSysRegCertificatesByLocation(String searchString) {
         HashMap params = new HashMap();
         params.put(CommonSqlProvider.PARAM_SELECT_PART, SysRegCertificates.QUERY_SELECT);
-        params.put(CommonSqlProvider.PARAM_WHERE_PART,  SysRegCertificates.QUERY_WHERE_SEARCHBYPARTS);
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, SysRegCertificates.QUERY_WHERE_SEARCHBYPARTS);
         params.put("search_string", searchString);
         List<SysRegCertificates> sysRegCertificates = getRepository().getEntityList(
                 SysRegCertificates.class, params);
-       
+
         return sysRegCertificates;
 //        return getRepository().getEntityList(SysRegCertificates.class,
 //                SysRegCertificates.QUERY_WHERE_SEARCHBYPARTS, params);
     }
-    
-      /**
-     * Returns the list of ba_unit_id for a specific approved systematic registration
-     * that matches the specified search string. 
+
+    /**
+     * Returns the list of ba_unit_id for a specific approved systematic
+     * registration that matches the specified search string.
      *
      * @param searchString The search string to use
-     * @return The list of  ba_unit_id for a specific approved systematic registration
+     * @return The list of ba_unit_id for a specific approved systematic
+     * registration
      */
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
@@ -1234,14 +1239,15 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
         params.put("search_string", searchString);
         List<SysRegCertificates> sysRegCertificates = getRepository().getEntityList(
                 SysRegCertificates.class, params);
-       
+
         return sysRegCertificates;
 //        return getRepository().getEntityList(SysRegCertificates.class,
 //                SysRegCertificates.QUERY_WHERE_BYNR, params);
     }
 
-     /**
-     * Retrieves a summary of the work performed during the specified reporting period.
+    /**
+     * Retrieves a summary of the work performed during the specified reporting
+     * period.
      *
      * @param fromDate The start of the reporting period
      * @param toDate The end of the reporting period
@@ -1259,5 +1265,23 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
         result = getRepository().getEntityList(WorkSummary.class, queryParams);
         return result;
     }
-    
+
+    private void checkSpatialUnitsStatus(Application application, String languageCode) {
+        if (application.getCadastreObjectList()!= null && application.getCadastreObjectList().isEmpty()) {
+            return;
+        }
+        List<BrValidation> brValidationList =
+                this.systemEJB.getBrForValidatingApplication(ApplicationActionType.ADD_SPATIAL_UNIT);
+
+        HashMap<String, Serializable> params = new HashMap<String, Serializable>();
+        params.put("id", application.getId());
+        //Run the validation
+        List<ValidationResult> resultList = this.systemEJB.checkRulesGetValidation(
+                brValidationList, languageCode, params);
+
+        if (!systemEJB.validationSucceeded(resultList)) {
+            throw new SOLAValidationException(resultList);
+        }
+
+    }
 }

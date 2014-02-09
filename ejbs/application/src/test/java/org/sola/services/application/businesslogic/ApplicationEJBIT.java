@@ -182,7 +182,7 @@ public class ApplicationEJBIT extends AbstractEJBTest {
                 fail("Database does not have any agents in it. Add at least 1 agent to perform"
                         + " this test. Note that subsequent tests may also fail!");
             }
-            Application result = instance.createApplication(application);
+            Application result = instance.createApplication(application, "en");
             applicationId = result.getId();
             appRowVersion = result.getRowVersion();
             System.out.println("ApplicationId = " + applicationId + ", RowVersion = " + appRowVersion);
@@ -225,7 +225,7 @@ public class ApplicationEJBIT extends AbstractEJBTest {
             s.add(ser3);
             result.setServiceList(s);
 
-            result = instance.saveApplication(result);
+            result = instance.saveApplication(result,"en");
             tx.commit();
         } finally {
             if (tx.getStatus() != Status.STATUS_NO_TRANSACTION) {
@@ -273,7 +273,7 @@ public class ApplicationEJBIT extends AbstractEJBTest {
         UserTransaction tx = getUserTransaction();
         try {
             tx.begin();
-            Application result = instance.createApplication(application);
+            Application result = instance.createApplication(application,"en");
             applicationId = result.getId();
             appRowVersion = result.getRowVersion();
             System.out.println("ApplicationId = " + applicationId + ", RowVersion = " + appRowVersion);
@@ -401,7 +401,7 @@ public class ApplicationEJBIT extends AbstractEJBTest {
                     }
                 }
             }
-            instance.saveApplication(result);
+            instance.saveApplication(result, "en");
             //ApplicationTO to = GenericTranslator.toTO(result, ApplicationTO.class);
             //Application testApp = GenericTranslator.fromTO(to, Application.class, result);
             //Application testApp2 = GenericTranslator.fromTO(to, Application.class, null);
@@ -605,7 +605,7 @@ public class ApplicationEJBIT extends AbstractEJBTest {
         try {
             tx.begin();
             System.out.println(">>> Create App");
-            Application result = instance.createApplication(app);
+            Application result = instance.createApplication(app, "en");
             assertNotNull(result);
             assertNotNull(result.getContactPerson());
             assertEquals(1, result.getRowVersion());
@@ -649,7 +649,7 @@ public class ApplicationEJBIT extends AbstractEJBTest {
             ser2.setActionCode("lodged");
 
 
-            Application result2 = instance.saveApplication(result);
+            Application result2 = instance.saveApplication(result, "en");
             assertNotNull(result2);
             assertNotNull(result2.getContactPerson());
             assertEquals(2, result2.getRowVersion());
@@ -673,7 +673,7 @@ public class ApplicationEJBIT extends AbstractEJBTest {
             // to an application. 
             System.out.println(">>> Disassociate Service");
             result2.getServiceList().get(0).setEntityAction(EntityAction.DISASSOCIATE);
-            Application result3 = instance.saveApplication(result2);
+            Application result3 = instance.saveApplication(result2, "en");
             assertNotNull(result3);
             assertNotNull(result3.getContactPerson());
             assertEquals(2, result3.getRowVersion());
@@ -686,7 +686,7 @@ public class ApplicationEJBIT extends AbstractEJBTest {
             System.out.println(">>> Delete Service");
             result3.getServiceList().get(0).setEntityAction(EntityAction.DELETE);
             String serId = result3.getServiceList().get(1).getId();
-            Application result4 = instance.saveApplication(result3);
+            Application result4 = instance.saveApplication(result3, "en");
             assertNotNull(result4);
             assertNotNull(result4.getContactPerson());
             assertEquals(2, result4.getRowVersion());
@@ -718,7 +718,7 @@ public class ApplicationEJBIT extends AbstractEJBTest {
             sources.add(source2);
             result4.setSourceList(sources);
 
-            Application result5 = instance.saveApplication(result4);
+            Application result5 = instance.saveApplication(result4,"en");
             assertNotNull(result5);
             assertNotNull(result5.getContactPerson());
             assertEquals(2, result5.getRowVersion());
@@ -735,7 +735,7 @@ public class ApplicationEJBIT extends AbstractEJBTest {
             result5.getSourceList().get(1).setEntityAction(EntityAction.DISASSOCIATE);
             String sourceId1 = result5.getSourceList().get(0).getId();
             String sourceId2 = result5.getSourceList().get(1).getId();
-            Application result6 = instance.saveApplication(result5);
+            Application result6 = instance.saveApplication(result5,"en");
             assertNotNull(result6);
             assertEquals(2, result6.getRowVersion());
             assertNotNull(result6.getServiceList());

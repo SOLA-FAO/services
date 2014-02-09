@@ -176,7 +176,7 @@ public class ApplicationEJBIT extends AbstractEJBTest {
                 fail("Database does not have any agents in it. Add at least 1 agent to perform"
                         + " this test. Note that subsequent tests may also fail!");
             }
-            Application result = instance.createApplication(application);
+            Application result = instance.createApplication(application, "en");
             applicationId = result.getId();
             appRowVersion = result.getRowVersion();
             System.out.println("ApplicationId = " + applicationId + ", RowVersion = " + appRowVersion);
@@ -222,7 +222,7 @@ public class ApplicationEJBIT extends AbstractEJBTest {
         UserTransaction tx = getUserTransaction();
         try {
             tx.begin();
-            Application result = instance.createApplication(application);
+            Application result = instance.createApplication(application, "en");
             applicationId = result.getId();
             appRowVersion = result.getRowVersion();
             System.out.println("ApplicationId = " + applicationId + ", RowVersion = " + appRowVersion);

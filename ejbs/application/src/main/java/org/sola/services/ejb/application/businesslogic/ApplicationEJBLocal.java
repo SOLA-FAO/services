@@ -53,16 +53,16 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
     Application getApplication(String id);
 
     /**
-     * See {@linkplain ApplicationEJB#createApplication(org.sola.services.ejb.application.repository.entities.Application)
+     * See {@linkplain ApplicationEJB#createApplication(org.sola.services.ejb.application.repository.entities.Application, String)
      * ApplicationEJB.createApplication}.
      */
-    Application createApplication(Application application);
+    Application createApplication(Application application, String languageCode);
 
     /**
-     * See {@linkplain ApplicationEJB#saveApplication(org.sola.services.ejb.application.repository.entities.Application)
+     * See {@linkplain ApplicationEJB#saveApplication(org.sola.services.ejb.application.repository.entities.Application, String)
      * ApplicationEJB.saveApplication}.
      */
-    Application saveApplication(Application application);
+    Application saveApplication(Application application, String languageCode);
 
     /**
      * See {@linkplain ApplicationEJB#getRequestTypes(java.lang.String)

@@ -61,6 +61,7 @@ public class ApplicationActionType extends AbstractCodeEntity {
     public static final String ASSIGN = "assign";
     public static final String UNASSIGN = "unAssign";
     public static final String RESUBMIT = "resubmit";
+    public static final String ADD_SPATIAL_UNIT = "addSpatialUnit";
     
 
     @Column(name = "status_to_set")
