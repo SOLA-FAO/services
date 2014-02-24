@@ -43,7 +43,7 @@ public class CadastreObjectNode extends AbstractReadOnlyEntity {
      * Clause to create a spatial extent based on min and max, x and y values.
      */
     private final static String EXTENT_DEFINITION = "ST_SetSRID("
-            + "ST_MakeBox3D(ST_Point(#{minx}, #{miny}),ST_Point(#{maxx}, #{maxy})), #{srid})";
+            + "ST_3DMakeBox(ST_Point(#{minx}, #{miny}),ST_Point(#{maxx}, #{maxy})), #{srid})";
     /**
      * FROM clause to obtain all CO node coordinates intersecting the given extent
      */
