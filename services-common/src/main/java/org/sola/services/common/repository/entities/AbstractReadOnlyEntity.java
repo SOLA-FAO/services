@@ -35,8 +35,11 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlTransient;
 import org.sola.common.SOLAException;
 import org.sola.common.messaging.ServiceMessage;
+import org.sola.services.common.repository.CommonRepository;
+import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.common.repository.RepositoryUtility;
 
 /**
@@ -60,6 +63,7 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
     /**
      * @return true if the entity was loaded from the database. 
      */
+    @XmlTransient
     public Boolean isLoaded() {
         return loaded;
     }
@@ -76,6 +80,7 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
      * Flags if the entity has been saved to the database or not. 
      * @return true if the entity was not loaded from the database (i.e. !isLoaded()). 
      */
+    @XmlTransient
     public Boolean isNew() {
         return !isLoaded();
     }
