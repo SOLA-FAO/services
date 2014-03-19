@@ -650,7 +650,19 @@ public class AdministrativeEJB extends AbstractEJB
         result = getRepository().executeFunction(queryParams, SysRegStatus.class);
         return result;
     }
+    
+	 @Override
+    @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
+    public List<SysRegGender> getSysRegGender(String searchString, String languageCode) {
+        List<SysRegGender> result;
+        Map queryParams = new HashMap<String, Object>();
+        queryParams.put(CommonSqlProvider.PARAM_QUERY, SysRegGender.QUERY_GETQUERY);
 
+        result = getRepository().executeFunction(queryParams, SysRegGender.class);
+        return result;
+    }
+    
+	
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
     public List<SysRegProgress> getSysRegProgress(SysRegManagementParams params, String languageCode) {
