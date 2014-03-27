@@ -32,9 +32,6 @@
 package org.sola.services.ejb.application.repository.entities;
 
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.sola.services.common.repository.DefaultSorter;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
 
@@ -44,8 +41,6 @@ import org.sola.services.common.repository.entities.AbstractCodeEntity;
  */
 @Table(name = "application_status_type", schema = "application")
 @DefaultSorter(sortString="display_value")
-@XmlRootElement(name = "ApplicationStatusType")
-@XmlAccessorType( XmlAccessType.PROPERTY)
 public class ApplicationStatusType extends AbstractCodeEntity {
 
     public static final String LODGED = "lodged";

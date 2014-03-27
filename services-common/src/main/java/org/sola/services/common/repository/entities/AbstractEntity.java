@@ -30,7 +30,6 @@ package org.sola.services.common.repository.entities;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.annotation.XmlTransient;
 import org.sola.common.DateUtility;
 import org.sola.services.common.EntityAction;
 import org.sola.services.common.repository.RepositoryUtility;
@@ -191,7 +190,6 @@ public abstract class AbstractEntity extends AbstractReadOnlyEntity {
      * @see #toDelete()
      * @see org.sola.services.common.repository.CommonRepositoryImpl#saveEntity
      */
-    @XmlTransient
     public Boolean isRemoved() {
         return removed;
     }
@@ -216,7 +214,6 @@ public abstract class AbstractEntity extends AbstractReadOnlyEntity {
      * @see org.sola.services.common.repository.CommonRepositoryImpl#saveEntity
      * @return
      */
-    @XmlTransient
     public Boolean isSaving() {
         return saving;
     }
@@ -237,7 +234,6 @@ public abstract class AbstractEntity extends AbstractReadOnlyEntity {
      * {@linkplain org.sola.services.common.repository.CommonSqlProvider#buildInsertSql}
      * where there could be fields populated with default values.
      */
-    @XmlTransient
     public boolean isForceRefresh() {
         return forceRefresh;
     }
