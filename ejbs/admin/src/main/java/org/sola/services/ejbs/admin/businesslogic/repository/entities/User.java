@@ -59,6 +59,10 @@ public class User extends AbstractVersionedEntity {
     private boolean active;
     @Column(name = "description")
     private String description;
+    @Column(name = "email")
+    private String email;
+    @Column(name = "activation_code")
+    private String activationCode;
     @Column(name = "passwd", insertable = false, updatable = false)
     private String password;
     @AccessFunctions(onSelect = "(SELECT pword_change_user"
@@ -76,9 +80,26 @@ public class User extends AbstractVersionedEntity {
         return password;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getActivationCode() {
+        return activationCode;
+    }
+
+    public void setActivationCode(String activationCode) {
+        this.activationCode = activationCode;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
+    
     @ChildEntityList(parentIdField = "userId")
     private List<UserGroup> userGroups;
 
