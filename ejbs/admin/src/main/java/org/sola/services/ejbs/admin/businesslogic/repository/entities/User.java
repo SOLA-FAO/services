@@ -41,9 +41,11 @@ import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 public class User extends AbstractVersionedEntity {
 
     public static final String PARAM_USERNAME = "username";
+    public static final String PARAM_EMAIL = "email";
     public static final String PARAM_PASSWORD = "passwd";
     public static final String PARAM_CHANGE_USER = "changeUser";
     public static final String QUERY_WHERE_USERNAME = "username = #{" + PARAM_USERNAME + "}";
+    public static final String QUERY_WHERE_EMAIL = "email = #{" + PARAM_EMAIL + "}";
     public static final String QUERY_SET_PASSWORD = "select system.setPassword(#{"
             + PARAM_USERNAME + "}, #{" + PARAM_PASSWORD + "}, #{" + PARAM_CHANGE_USER + "})";
     @Id
@@ -61,6 +63,8 @@ public class User extends AbstractVersionedEntity {
     private String description;
     @Column(name = "email")
     private String email;
+    @Column(name = "mobile_number")
+    private String mobileNumber;
     @Column(name = "activation_code")
     private String activationCode;
     @Column(name = "passwd", insertable = false, updatable = false)
@@ -82,6 +86,14 @@ public class User extends AbstractVersionedEntity {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
+
+    public void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
     }
 
     public void setEmail(String email) {

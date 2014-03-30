@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.ejbs.admin.businesslogic;
@@ -58,6 +60,7 @@ import org.sola.services.ejbs.admin.businesslogic.repository.entities.Language;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Role;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.User;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Group;
+import org.sola.services.ejbs.admin.businesslogic.repository.entities.UserGroup;
 
 /**
  * Contains business logic methods to administer system settings, users and
@@ -73,8 +76,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     /**
      * Returns the list of all users from the database.
      *
-     * <p>Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY}
-     * role.</p>
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role.</p>
      */
     @RolesAllowed(RolesConstants.ADMIN_MANAGE_SECURITY)
     @Override
@@ -85,14 +88,18 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     /**
      * Returns the details of the user with the specified user name.
      *
-     * <p>Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY}
-     * role.</p>
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role.</p>
      *
      * @param userName The user name of the user to search for.
      */
     @RolesAllowed({RolesConstants.ADMIN_MANAGE_SECURITY, RolesConstants.ADMIN_CHANGE_PASSWORD})
     @Override
     public User getUser(String userName) {
+        return getUserInfo(userName);
+    }
+
+    private User getUserInfo(String userName) {
         Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, User.QUERY_WHERE_USERNAME);
         params.put(User.PARAM_USERNAME, userName);
@@ -100,9 +107,78 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     }
 
     /**
+     * Returns true is user name exists, otherwise false
+     *
+     * @param userName User name to check
+     * @return
+     */
+    @Override
+    public boolean isUserNameExists(String userName) {
+        User user = getUserInfo(userName);
+        return user != null && user.getUserName() != null && !user.getUserName().equals("");
+    }
+
+    /**
+     * Returns true is user name exists, otherwise false
+     *
+     * @param email Email address to check
+     * @return
+     */
+    @Override
+    public boolean isUserEmailExists(String email){
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, User.QUERY_WHERE_EMAIL);
+        params.put(User.PARAM_EMAIL, email);
+        User user = getRepository().getEntity(User.class, params);
+        
+        return user != null && user.getEmail()!= null && !user.getEmail().equals("");
+    }
+    
+    /** 
+     * Returns true if user is active, otherwise false.
+     * @param userName User name
+     * @return  
+     */
+    @Override
+    public boolean isUserActive(String userName){
+        User user = getUserInfo(userName);
+        if(user!=null){
+            return user.isActive();
+        }
+        return false;
+    }
+    
+    /** 
+     * Activates community recorder user
+     * @param userName User name
+     * @param activationCode Activation code
+     * @return 
+     */
+    @Override
+    public boolean activeteCommuninityRecorderUser(String userName, String activationCode){
+        User user = getUserInfo(userName);
+        if(user == null || user.getUserName() == null || user.getUserName().equals("")){
+            return false;
+        }
+        
+        // Check activation code
+        if(user.getActivationCode() == null || !user.getActivationCode().equals(activationCode)){
+            return false;
+        }
+        
+        // Activate user
+        if(!user.isActive()){
+            user.setActive(true);
+            getRepository().saveEntity(user);
+        }
+        return true;
+    }
+    
+    /**
      * Returns the details for the currently authenticated user.
      *
-     * <p>No role is required to execute this method.</p>
+     * <p>
+     * No role is required to execute this method.</p>
      */
     @PermitAll
     @Override
@@ -118,7 +194,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
      * existing user. Cannot be used to change the users password. This can only
      * be done using the
      * {@linkplain #changePassword(java.lang.String, java.lang.String) changePassword}
-     * method. <p>
+     * method.
+     * <p>
      * Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role. </p>
      *
      * @param user The details of the user to save
@@ -131,9 +208,47 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     }
 
     /**
+     * Creates Community Recorder user. CommunityRecorders group will be created 
+     * if it doesn't exist and appropriate roles assigned.
+     * @param user User object to be created as Community Recorder
+     * @return 
+     */
+    @Override
+    public User createCommunityRecorderUser(User user){
+        // Check community group exists
+        Group group = getRepository().getEntity(Group.class, Group.COMMUNITY_RECORDER_GROUP_ID);
+        if(group == null){
+            // Create group and assign roles
+            // TODO: Assign roles
+            group = new Group();
+            group.setId(Group.COMMUNITY_RECORDER_GROUP_ID);
+            group.setName(Group.COMMUNITY_RECORDER_GROUP_NAME);
+            group.setDescription(Group.COMMUNITY_RECORDER_GROUP_DESCRIPTION);
+            getRepository().saveEntity(group);
+        }
+        
+        // Generate activation code
+        // TODO: To be changed 
+        user.setActivationCode("12345");
+        
+        // Create user
+        UserGroup ug = new UserGroup(user.getId(), group.getId());
+        user.setUserGroups(new ArrayList<UserGroup>());
+        user.getUserGroups().add(ug);
+        String passwd = user.getPassword();
+        user = getRepository().saveEntity(user);
+        
+        // Set password
+        changeUserPassword(user.getUserName(), passwd);
+        
+        return user;
+    }
+    
+    /**
      * Returns the list of all security roles in SOLA.
      *
-     * <p>No role is required to execute this method.</p>
+     * <p>
+     * No role is required to execute this method.</p>
      */
     @PermitAll
     @Override
@@ -142,8 +257,9 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     }
 
     /**
-     * Returns the role for the specified role code <p>No role is required to
-     * execute this method.</p>
+     * Returns the role for the specified role code
+     * <p>
+     * No role is required to execute this method.</p>
      *
      * @param roleCode The role code to retrieve
      */
@@ -156,8 +272,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     /**
      * Returns the list of all user groups supported by SOLA.
      *
-     * <p>Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY}
-     * role.</p>
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role.</p>
      */
     @RolesAllowed(RolesConstants.ADMIN_MANAGE_SECURITY)
     @Override
@@ -167,8 +283,9 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
 
     /**
      * Can be used to create a new user group or save any updates to the details
-     * of an existing user group. <p> Requires the
-     * {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role. </p>
+     * of an existing user group.
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role. </p>
      *
      * @param userGroup The details of the user group to save
      * @return The user group after the save is completed
@@ -182,8 +299,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     /**
      * Returns the details for the specified group.
      *
-     * <p>Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY}
-     * role.</p>
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role.</p>
      *
      * @param groupId The identifier of the group to retrieve from the SOLA
      * database
@@ -196,10 +313,12 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
 
     /**
      * Can be used to create a new security role or save any updates to the
-     * details of an existing security role. <p> Note that security roles are
-     * linked to the SOLA code base. Adding a new role also requires updating
-     * code before SOLA will recognize the role</p> <p> Requires the
-     * {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role. </p>
+     * details of an existing security role.
+     * <p>
+     * Note that security roles are linked to the SOLA code base. Adding a new
+     * role also requires updating code before SOLA will recognize the role</p>
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role. </p>
      *
      * @param role The details of the security role to save
      * @return The security role after the save is completed
@@ -213,8 +332,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     /**
      * Returns a summary list of all user groups supported by SOLA.
      *
-     * <p>Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY}
-     * role.</p>
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role.</p>
      */
     @RolesAllowed(RolesConstants.ADMIN_MANAGE_SECURITY)
     @Override
@@ -223,8 +342,9 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     }
 
     /**
-     * Allows the users password to be changed <p> Requires the
-     * {@linkplain RolesConstants#ADMIN_CHANGE_PASSWORD} role. </p>
+     * Allows the users password to be changed
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMIN_CHANGE_PASSWORD} role. </p>
      *
      * @param userName The username to change the password for
      * @param password The users new password
@@ -233,6 +353,10 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     @RolesAllowed({RolesConstants.ADMIN_MANAGE_SECURITY, RolesConstants.ADMIN_CHANGE_PASSWORD})
     @Override
     public boolean changePassword(String userName, String password) {
+        return changeUserPassword(userName, password);
+    }
+    
+    private boolean changeUserPassword(String userName, String password) {
         Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_QUERY, User.QUERY_SET_PASSWORD);
         params.put(User.PARAM_PASSWORD, getPasswordHash(password));
@@ -277,7 +401,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     /**
      * Returns all roles associated to the specified username.
      *
-     * <p> Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role.
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY} role.
      * </p>
      *
      * @param userName The username to use for retrieval of the roles.
@@ -295,7 +420,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     /**
      * Returns the list of all security roles assigned to the current user.
      *
-     * <p>No role is required to execute this method.</p>
+     * <p>
+     * No role is required to execute this method.</p>
      */
     @PermitAll
     @Override
@@ -307,10 +433,12 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     }
 
     /**
-     * Checks if the current user has been assigned one or more of the null null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
+     * Checks if the current user has been assigned one or more of the null null
+     * null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
      * {@linkplain RolesConstants#ADMIN_MANAGE_REFDATA} or
-     * {@linkplain RolesConstants#ADMIN_MANAGE_SETTINGS} security roles. <p> No
-     * role is required to execute this method.</p>
+     * {@linkplain RolesConstants#ADMIN_MANAGE_SETTINGS} security roles.
+     * <p>
+     * No role is required to execute this method.</p>
      *
      * @return true if the user is assigned one of the Admin security roles
      */
@@ -325,7 +453,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
      * Returns the list of languages supported by SOLA for localization in
      * priority order.
      *
-     * <p>No role is required to execute this method.</p>
+     * <p>
+     * No role is required to execute this method.</p>
      *
      * @param lang The language code to use to localize the display value for
      * each language.
@@ -424,10 +553,10 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
             params.put("current_user", getUser(getUserName()).getId());
             resultScript = resultScript + "Moving records from consolidation schema to the main tables...\r\n";
             resultScript = resultScript + getRepository().getScalar(String.class, params);
-        } catch(ZipException ex){
+        } catch (ZipException ex) {
             resultScript = String.format("%s\r\n%s\r\n%s", resultScript, "Uncompressing failed. Perhaps the password is not correct.", failingMessage);
-            throw new RuntimeException(resultScript);            
-        }catch (RuntimeException ex) {
+            throw new RuntimeException(resultScript);
+        } catch (RuntimeException ex) {
             resultScript = String.format("%s\r\n%s\r\n%s", resultScript, ex.getMessage(), failingMessage);
             throw new RuntimeException(resultScript);
         } finally {
@@ -437,8 +566,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
 
     private List<ValidationResult> validateBeforeConsolidation(String languageCode) {
         List<BrValidation> brValidationList = this.systemEJB.getBrForConsolidation();
-        List<ValidationResult> validationResultList =
-                this.systemEJB.checkRulesGetValidation(brValidationList, languageCode, null);
+        List<ValidationResult> validationResultList
+                = this.systemEJB.checkRulesGetValidation(brValidationList, languageCode, null);
         return validationResultList;
     }
 }
