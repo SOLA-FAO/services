@@ -119,7 +119,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     }
 
     /**
-     * Returns true is user name exists, otherwise false
+     * Returns true is email exists, otherwise false
      *
      * @param email Email address to check
      * @return
@@ -132,6 +132,39 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         User user = getRepository().getEntity(User.class, params);
         
         return user != null && user.getEmail()!= null && !user.getEmail().equals("");
+    }
+    
+    /**
+     * Returns true is email exists, excluding provided user name, otherwise false
+     *
+     * @param email Email address to check
+     * @return
+     */
+    @Override
+    public boolean isUserEmailExists(String email, String exludeUserName){
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, User.QUERY_WHERE_EMAIL_EXCLUDE_USERNAME);
+        params.put(User.PARAM_EMAIL, email);
+        params.put(User.PARAM_USERNAME, exludeUserName);
+        User user = getRepository().getEntity(User.class, params);
+        
+        return user != null && user.getEmail()!= null && !user.getEmail().equals("");
+    }
+    
+    /**
+     * Checks if provided user name matches with password. If match is found true will be returned, otherwise false.
+     * @param password Password 
+     * @return
+     */
+    @Override
+    public boolean checkCurrentUserPassword(String password){
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, User.QUERY_WHERE_USERNAME_AND_PASSWORD);
+        params.put(User.PARAM_PASSWORD, this.getPasswordHash(password));
+        params.put(User.PARAM_USERNAME, getUserName());
+        User user = getRepository().getEntity(User.class, params);
+        
+        return user != null && user.getUserName()!= null && !user.getUserName().equals("");
     }
     
     /** 
@@ -207,6 +240,18 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         return getRepository().saveEntity(user);
     }
 
+     /**
+     * Saves current user
+     * @param user User object to be saved
+     * @return 
+     */
+    @Override
+    public User saveCurrentUser(User user) {
+        // Reset user name to be sure it's current user
+        user.setUserName(getUserName());
+        return getRepository().saveEntity(user);
+    }
+    
     /**
      * Creates Community Recorder user. CommunityRecorders group will be created 
      * if it doesn't exist and appropriate roles assigned.
@@ -354,6 +399,17 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     @Override
     public boolean changePassword(String userName, String password) {
         return changeUserPassword(userName, password);
+    }
+    
+    /**
+     * Allows to change current user's password
+     * @param password
+     * @return
+     */
+    @Override
+    public boolean changeCurrentUserPassword(String password)
+    {
+        return changeUserPassword(getUserName(), password);
     }
     
     private boolean changeUserPassword(String userName, String password) {

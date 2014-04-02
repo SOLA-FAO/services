@@ -46,6 +46,8 @@ public class User extends AbstractVersionedEntity {
     public static final String PARAM_CHANGE_USER = "changeUser";
     public static final String QUERY_WHERE_USERNAME = "username = #{" + PARAM_USERNAME + "}";
     public static final String QUERY_WHERE_EMAIL = "email = #{" + PARAM_EMAIL + "}";
+    public static final String QUERY_WHERE_EMAIL_EXCLUDE_USERNAME = "email = #{" + PARAM_EMAIL + "} AND username <> #{" + PARAM_USERNAME + "}";
+    public static final String QUERY_WHERE_USERNAME_AND_PASSWORD = "username = #{" + PARAM_USERNAME + "} AND passwd = #{" + PARAM_PASSWORD + "}";
     public static final String QUERY_SET_PASSWORD = "select system.setPassword(#{"
             + PARAM_USERNAME + "}, #{" + PARAM_PASSWORD + "}, #{" + PARAM_CHANGE_USER + "})";
     @Id

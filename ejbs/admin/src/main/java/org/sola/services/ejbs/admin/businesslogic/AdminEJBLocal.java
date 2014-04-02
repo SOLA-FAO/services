@@ -64,6 +64,26 @@ public interface AdminEJBLocal {
      * @return */
     boolean isUserEmailExists(String email);
     
+    /** See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserEmailExists(java.lang.String, java.lang.String)}
+     * @param email
+     * @param exludeUserName
+     * @return */
+    boolean isUserEmailExists(String email, String exludeUserName);
+    
+    /**
+     * See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#checkCurrentUserPassword(java.lang.String)}
+     * @param password
+     * @return
+     */
+    boolean checkCurrentUserPassword(String password);
+    
+    /**
+     * See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#checkCurrentUserPassword(java.lang.String)}
+     * @param password
+     * @return
+     */
+    boolean changeCurrentUserPassword(String password);
+    
     /** See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserActive(java.lang.String)} */
     boolean isUserActive(String userName);
     
@@ -81,6 +101,12 @@ public interface AdminEJBLocal {
      * AdminEJB.saveUser}
      */
     User saveUser(User user);
+    
+    /**
+     * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#saveCurrentUser(org.sola.services.ejbs.admin.businesslogic.repository.entities.User)
+     * AdminEJB.saveUser}
+     */
+    User saveCurrentUser(User user);
     
     /**
      * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#createCommunityRecorderUser(org.sola.services.ejbs.admin.businesslogic.repository.entities.User)
