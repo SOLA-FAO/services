@@ -25,16 +25,10 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.sola.services.common.contracts;
 
-/**
- *
- * @author soladev
- */
+import javax.xml.bind.annotation.XmlElement;
+
 public abstract class AbstractCodeTO extends AbstractReadWriteTO {
 
     private String code;
@@ -42,6 +36,7 @@ public abstract class AbstractCodeTO extends AbstractReadWriteTO {
     private String description;
     private String status;
 
+    @XmlElement
     public String getCode() {
         return code;
     }
@@ -50,6 +45,7 @@ public abstract class AbstractCodeTO extends AbstractReadWriteTO {
         this.code = code;
     }
 
+    @XmlElement
     public String getDescription() {
         return description;
     }
@@ -58,6 +54,7 @@ public abstract class AbstractCodeTO extends AbstractReadWriteTO {
         this.description = description;
     }
 
+    @XmlElement
     public String getDisplayValue() {
         return displayValue;
     }
@@ -66,6 +63,7 @@ public abstract class AbstractCodeTO extends AbstractReadWriteTO {
         this.displayValue = displayValue;
     }
 
+    @XmlElement
     public String getStatus() {
         return status;
     }

@@ -45,6 +45,10 @@ public class Setting extends AbstractEntity {
     @Column
     private String description;
 
+    public static final String SETTING_MAX_FILE_SIZE = "max-file-size";
+    public static final String SETTING_MAX_UPLOADING_DAILY_LIMIT = "max-uploading-daily-limit";
+    public static final String SETTING_MODERATION_DAYS = "moderation-days";
+    
     public Setting() {
         super();
     }

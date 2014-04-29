@@ -197,4 +197,14 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
      * See {@linkplain SearchEJB#getMapCenterLabel(byte[])}.
      */
     String getMapCenterLabel(byte[] mapCenterPoint);
+    
+    /**
+     * See {@linkplain SearchEJB#getClaimsByBox(org.sola.services.ejb.search.repository.entities.ClaimSpatialSearchParams)}.
+     */
+    List<ClaimSpatialSearchResult> getClaimsByBox(ClaimSpatialSearchParams searchParams);
+    
+    /**
+     * See {@linkplain SearchEJB#getAllClaims()}.
+     */
+    List<ClaimSpatialSearchResult> getAllClaims();
 }

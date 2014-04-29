@@ -158,7 +158,7 @@ public final class FaultUtility {
         return fault;
     }
 
-    private static boolean isOptimisticLocking(Throwable t, String traceInfo) {
+    public static boolean isOptimisticLocking(Throwable t, String traceInfo) {
         return traceInfo.contains("row_has_different_change_time")
                 || hasCause(t, OptimisticLockException.class);
     }

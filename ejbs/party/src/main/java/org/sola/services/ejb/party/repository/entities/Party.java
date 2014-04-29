@@ -32,6 +32,7 @@
 package org.sola.services.ejb.party.repository.entities;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -91,6 +92,8 @@ public class Party extends AbstractVersionedEntity {
     private String typeCode;
     @Column(name = "gender_code")
     private String genderCode;
+    @Column(name="birth_date")
+    private Date birthDate;
     @ExternalEJB(ejbLocalClass = AddressEJBLocal.class,
     loadMethod = "getAddress", saveMethod = "saveAddress")
     @ChildEntity(childIdField = "addressId")
@@ -251,6 +254,14 @@ public class Party extends AbstractVersionedEntity {
 
     public void setGenderCode(String genderCode) {
         this.genderCode = genderCode;
+    }
+
+    public Date getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
     }
 
     public String getIdTypeCode() {

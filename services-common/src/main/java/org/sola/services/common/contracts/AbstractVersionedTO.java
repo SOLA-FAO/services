@@ -31,10 +31,14 @@
  */
 package org.sola.services.common.contracts;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
 /**
  *
  * @author soladev
  */
+@XmlAccessorType(XmlAccessType.NONE)
 public abstract class AbstractVersionedTO extends AbstractReadWriteTO {
 
     private int rowVersion;

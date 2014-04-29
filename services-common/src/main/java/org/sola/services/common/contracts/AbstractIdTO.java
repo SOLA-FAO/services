@@ -31,6 +31,8 @@
  */
 package org.sola.services.common.contracts;
 
+import javax.xml.bind.annotation.XmlElement;
+
 /**
  *
  * @author soladev
@@ -43,6 +45,7 @@ public class AbstractIdTO extends AbstractVersionedTO {
         super();
     }
 
+    @XmlElement
     public String getId() {
         return id;
     }
