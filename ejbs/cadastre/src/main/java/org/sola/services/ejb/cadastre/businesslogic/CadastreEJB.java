@@ -554,4 +554,65 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
     public List<HierarchyLevel> getHierarchyLevels(String languageCode) {
         return getRepository().getCodeList(HierarchyLevel.class, languageCode);
     }
+
+    /**
+     * Retrieves cadastre.level records that are editable.
+     *
+     * @param languageCode The language code to use for localization of display
+     * values.
+     */
+    @Override
+    public List<Level> getLevels(String languageCode) {
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, languageCode);
+        return getRepository().getEntityList(Level.class, Level.WHERE_CONDITION, params);
+    }
+    
+    /**
+     * Gets the list of spatial units that intersect with the
+     * filteringGeometry.
+     *
+     * @param filteringGeometry The filtering geometry
+     * @param hierarchyLevel The level id of the data
+     * @param srid The srid
+     * @return
+     */
+    @Override
+    public List<SpatialUnit> getSpatialUnits(
+            byte[] filteringGeometry, String levelId, Integer srid) {
+        HashMap<String, Serializable> params = new HashMap<String, Serializable>();
+        params.put("filtering_geometry", filteringGeometry);
+        params.put("srid", srid);
+        params.put("level_id", levelId);
+
+        return getRepository().getEntityList(
+                SpatialUnit.class, SpatialUnit.WHERE_CONDITION, params);
+    }
+
+    /**
+     * Saves the changes in the spatial unit.
+     *
+     * @param items
+     * @param languageCode
+     */
+    @Override
+    public void saveSpatialUnits(List<SpatialUnit> items, String languageCode) {
+        if (items.isEmpty()) {
+            return;
+        }
+        for (SpatialUnit item : items) {
+            getRepository().saveEntity(item);
+        }
+    }
+
+    /**
+     * Retrieves a list of spatial units matching the list of ids
+     * provided.
+     *
+     * @param ids A list of spatial unit ids to use for retrieval.
+     */
+    @Override
+    public List<SpatialUnit> getSpatialUnitsByIds(List<String> ids) {
+        return getRepository().getEntityListByIds(SpatialUnit.class, ids);
+    }
 }
