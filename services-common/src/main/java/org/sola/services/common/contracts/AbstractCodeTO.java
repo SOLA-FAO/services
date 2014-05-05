@@ -34,7 +34,6 @@ public abstract class AbstractCodeTO extends AbstractReadWriteTO {
     private String description;
     private String status;
 
-    //@XmlElement
     public String getCode() {
         return code;
     }
@@ -43,7 +42,6 @@ public abstract class AbstractCodeTO extends AbstractReadWriteTO {
         this.code = code;
     }
 
-   // @XmlElement
     public String getDescription() {
         return description;
     }
@@ -52,7 +50,6 @@ public abstract class AbstractCodeTO extends AbstractReadWriteTO {
         this.description = description;
     }
 
-    //@XmlElement
     public String getDisplayValue() {
         return displayValue;
     }
@@ -61,7 +58,6 @@ public abstract class AbstractCodeTO extends AbstractReadWriteTO {
         this.displayValue = displayValue;
     }
 
-    //@XmlElement
     public String getStatus() {
         return status;
     }

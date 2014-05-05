@@ -43,7 +43,6 @@ public class AbstractIdTO extends AbstractVersionedTO {
         super();
     }
 
-   // @XmlElement
     public String getId() {
         return id;
     }

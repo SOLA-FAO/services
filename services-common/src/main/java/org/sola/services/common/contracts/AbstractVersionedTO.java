@@ -31,11 +31,12 @@
  */
 package org.sola.services.common.contracts;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 /**
  *
  * @author soladev
  */
-//@XmlAccessorType(XmlAccessType.NONE)
 public abstract class AbstractVersionedTO extends AbstractReadWriteTO {
 
     private int rowVersion;
@@ -50,6 +51,7 @@ public abstract class AbstractVersionedTO extends AbstractReadWriteTO {
      * @see org.sola.services.common.repository.entities.AbstractVersionedEntity#equals
      * @return 
      */
+    @JsonIgnore
     public int getRowVersion() {
         return rowVersion;
     }
@@ -58,6 +60,7 @@ public abstract class AbstractVersionedTO extends AbstractReadWriteTO {
         this.rowVersion = rowversion;
     }
 
+    @JsonIgnore
     public String getRowId() {
         return rowId;
     }
