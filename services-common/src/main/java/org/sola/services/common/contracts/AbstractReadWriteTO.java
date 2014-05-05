@@ -31,8 +31,6 @@
  */
 package org.sola.services.common.contracts;
 
-import javax.xml.bind.annotation.XmlTransient;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.sola.services.common.EntityAction;
 
 /**
@@ -41,12 +39,12 @@ import org.sola.services.common.EntityAction;
  */
 public abstract class AbstractReadWriteTO extends AbstractTO {
   
-    @XmlTransient
-    @JsonIgnore
+    //@XmlTransient
+    //@JsonIgnore
     private EntityAction entityAction = null;
 
-    @XmlTransient
-    @JsonIgnore
+    //@XmlTransient
+    //@JsonIgnore
     public EntityAction getEntityAction() {
         return entityAction;
     }

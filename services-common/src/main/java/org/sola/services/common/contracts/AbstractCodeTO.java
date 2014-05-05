@@ -27,8 +27,6 @@
  */
 package org.sola.services.common.contracts;
 
-import javax.xml.bind.annotation.XmlElement;
-
 public abstract class AbstractCodeTO extends AbstractReadWriteTO {
 
     private String code;
@@ -36,7 +34,7 @@ public abstract class AbstractCodeTO extends AbstractReadWriteTO {
     private String description;
     private String status;
 
-    @XmlElement
+    //@XmlElement
     public String getCode() {
         return code;
     }
@@ -45,7 +43,7 @@ public abstract class AbstractCodeTO extends AbstractReadWriteTO {
         this.code = code;
     }
 
-    @XmlElement
+   // @XmlElement
     public String getDescription() {
         return description;
     }
@@ -54,7 +52,7 @@ public abstract class AbstractCodeTO extends AbstractReadWriteTO {
         this.description = description;
     }
 
-    @XmlElement
+    //@XmlElement
     public String getDisplayValue() {
         return displayValue;
     }
@@ -63,7 +61,7 @@ public abstract class AbstractCodeTO extends AbstractReadWriteTO {
         this.displayValue = displayValue;
     }
 
-    @XmlElement
+    //@XmlElement
     public String getStatus() {
         return status;
     }
