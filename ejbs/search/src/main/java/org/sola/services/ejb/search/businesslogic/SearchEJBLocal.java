@@ -207,4 +207,9 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
      * See {@linkplain SearchEJB#getAllClaims()}.
      */
     List<ClaimSpatialSearchResult> getAllClaims();
+    
+    /**
+     * See {@linkplain SearchEJB#searchClaims(org.sola.services.ejb.search.repository.entities.ClaimSearchParams)}.
+     */
+    List<ClaimSearchResult> searchClaims(ClaimSearchParams searchParams);
 }

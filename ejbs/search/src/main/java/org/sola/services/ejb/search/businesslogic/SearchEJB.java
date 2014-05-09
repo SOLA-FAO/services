@@ -33,8 +33,10 @@ import java.util.*;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import org.sola.common.DateUtility;
 import org.sola.common.RolesConstants;
 import org.sola.common.SOLAException;
+import org.sola.common.StringUtility;
 import org.sola.common.messaging.ServiceMessage;
 import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.repository.CommonSqlProvider;
@@ -873,5 +875,31 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     @Override
     public List<ClaimSpatialSearchResult> getAllClaims() {
         return getRepository().getEntityList(ClaimSpatialSearchResult.class);
+    }
+
+    @Override
+    public List<ClaimSearchResult> searchClaims(ClaimSearchParams searchParams) {
+        Map params = new HashMap<String, Object>();
+
+        // prepare params
+        searchParams.setLodgementDateFrom(DateUtility.minimizeDate(searchParams.getLodgementDateFrom()));
+        searchParams.setLodgementDateTo(DateUtility.maximizeDate(searchParams.getLodgementDateTo()));
+        searchParams.setDescription(StringUtility.empty(searchParams.getDescription()));
+        searchParams.setClaimantName(StringUtility.empty(searchParams.getClaimantName()));
+        searchParams.setStatusCode(StringUtility.empty(searchParams.getStatusCode()));
+        searchParams.setRecorderName(StringUtility.empty(searchParams.getRecorderName()));
+        searchParams.setLanguageCode(StringUtility.empty(searchParams.getLanguageCode()));
+        
+        // put params into map
+        params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH);
+        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, searchParams.getLanguageCode());
+        params.put(ClaimSearchResult.PARAM_DATE_FROM, searchParams.getLodgementDateFrom());
+        params.put(ClaimSearchResult.PARAM_DATE_TO, searchParams.getLodgementDateTo());
+        params.put(ClaimSearchResult.PARAM_DESCRIPTION, searchParams.getDescription());
+        params.put(ClaimSearchResult.PARAM_NAME, searchParams.getClaimantName());
+        params.put(ClaimSearchResult.PARAM_RECORDER, searchParams.getRecorderName());
+        params.put(ClaimSearchResult.PARAM_STATUS_CODE, searchParams.getStatusCode());
+        
+        return getRepository().getEntityList(ClaimSearchResult.class, params);
     }
 }

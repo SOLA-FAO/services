@@ -98,6 +98,33 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     public User getUser(String userName) {
         return getUserInfo(userName);
     }
+    
+    /** 
+     * Returns full user's name (first and last name)
+     * @param userName User name (login)
+     * @return 
+     */
+    @Override
+    public String getUserFullName(String userName){
+        User user = getUserInfo(userName);
+        String fullName = "";
+        
+        if(user == null){
+            return "";
+        }
+        
+        if(user.getFirstName() != null){
+            fullName = user.getFirstName();
+        }
+        
+        if(user.getLastName() != null){
+            if(fullName.length() > 0)
+                fullName += " " + user.getLastName();
+            else
+                fullName = user.getLastName();
+        }
+        return fullName;
+    }
 
     private User getUserInfo(String userName) {
         Map params = new HashMap<String, Object>();

@@ -103,6 +103,11 @@ public interface AdminEJBLocal {
     User saveUser(User user);
     
     /**
+     * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#getUserFullName(java.lang.String)
+     */
+    String getUserFullName(String userName);
+    
+    /**
      * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#saveCurrentUser(org.sola.services.ejbs.admin.businesslogic.repository.entities.User)
      * AdminEJB.saveUser}
      */
