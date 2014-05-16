@@ -31,9 +31,11 @@
  */
 package org.sola.services.ejb.search.repository.entities;
 
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.sola.services.common.repository.ChildEntityList;
 import org.sola.services.common.repository.Localized;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 
@@ -80,6 +82,8 @@ public class ConfigMapLayer extends AbstractReadOnlyEntity {
     private String securityPassword;
     @Column(name = "use_in_public_display")
     private boolean useInPublicDisplay;
+    @ChildEntityList(parentIdField = "nameLayer")
+    private List<ConfigMapLayerMetadata> metadataList;
 
     public ConfigMapLayer() {
         super();
@@ -211,6 +215,14 @@ public class ConfigMapLayer extends AbstractReadOnlyEntity {
 
     public void setUseInPublicDisplay(boolean useInPublicDisplay) {
         this.useInPublicDisplay = useInPublicDisplay;
+    }
+
+    public List<ConfigMapLayerMetadata> getMetadataList() {
+        return metadataList;
+    }
+
+    public void setMetadataList(List<ConfigMapLayerMetadata> metadataList) {
+        this.metadataList = metadataList;
     }
     
     

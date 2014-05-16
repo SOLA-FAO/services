@@ -212,4 +212,9 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
      * See {@linkplain SearchEJB#searchClaims(org.sola.services.ejb.search.repository.entities.ClaimSearchParams)}.
      */
     List<ClaimSearchResult> searchClaims(ClaimSearchParams searchParams);
+    
+    /**
+     * See {@linkplain SearchEJB#getPlanCadastreObjects(String)}.
+     */
+    List<SpatialResult> getPlanCadastreObjects(String cadastreObjectId);
 }

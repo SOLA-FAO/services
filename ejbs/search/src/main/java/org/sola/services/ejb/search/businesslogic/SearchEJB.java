@@ -902,4 +902,13 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         
         return getRepository().getEntityList(ClaimSearchResult.class, params);
     }
+
+    @Override
+    public List<SpatialResult> getPlanCadastreObjects(String cadastreObjectId) {
+        Map params = new HashMap<String, Object>();
+        params.put(SpatialResult.PARAM_CADASTRE_OBJECT_ID, cadastreObjectId);
+        params.put(CommonSqlProvider.PARAM_QUERY, SpatialResult.QUERY_GET_PLAN_CADASTRE_OBJECTS);
+        return getRepository().getEntityList(SpatialResult.class, params);
+    }
+    
 }
