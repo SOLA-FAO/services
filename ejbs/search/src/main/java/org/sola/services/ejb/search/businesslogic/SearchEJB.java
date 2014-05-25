@@ -877,6 +877,34 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         return getRepository().getEntityList(ClaimSpatialSearchResult.class);
     }
 
+    
+    /**
+     * Returns {@link ClaimSearchResult} by x and y coordinates.
+     *
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param langCode Language code
+     * @return
+     */
+    @Override
+    public ClaimSearchResult getClaimByCoordinates(String x, String y, String langCode) {
+        if(StringUtility.isEmpty(x) || StringUtility.isEmpty(y))
+            return null;
+        
+        String point = "POINT(" + x + " " + y + ")";
+        HashMap params = new HashMap();
+        params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_BY_POINT);
+        params.put(ClaimSearchResult.PARAM_POINT, point);
+        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, langCode);
+        return getRepository().getEntity(ClaimSearchResult.class, params);
+    }
+    
+    /**
+     * Searched and returns list of {@link ClaimSearchResult}.
+     *
+     * @param searchParams Search parameters
+     * @return
+     */
     @Override
     public List<ClaimSearchResult> searchClaims(ClaimSearchParams searchParams) {
         Map params = new HashMap<String, Object>();

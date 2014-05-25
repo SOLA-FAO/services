@@ -82,6 +82,8 @@ public class ConfigMapLayer extends AbstractReadOnlyEntity {
     private String securityPassword;
     @Column(name = "use_in_public_display")
     private boolean useInPublicDisplay;
+    @Column(name = "use_for_ot")
+    private boolean useForOpenTenure;
     @ChildEntityList(parentIdField = "nameLayer")
     private List<ConfigMapLayerMetadata> metadataList;
 
@@ -224,6 +226,12 @@ public class ConfigMapLayer extends AbstractReadOnlyEntity {
     public void setMetadataList(List<ConfigMapLayerMetadata> metadataList) {
         this.metadataList = metadataList;
     }
-    
-    
+
+    public boolean isUseForOpenTenure() {
+        return useForOpenTenure;
+    }
+
+    public void setUseForOpenTenure(boolean useForOpenTenure) {
+        this.useForOpenTenure = useForOpenTenure;
+    }
 }

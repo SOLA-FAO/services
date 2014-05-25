@@ -204,6 +204,11 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
     List<ClaimSpatialSearchResult> getClaimsByBox(ClaimSpatialSearchParams searchParams);
     
     /**
+     * See {@linkplain SearchEJB#getClaimsByCoordinates(String, String)}.
+     */
+    ClaimSearchResult getClaimByCoordinates(String x, String y, String langCode);
+    
+    /**
      * See {@linkplain SearchEJB#getAllClaims()}.
      */
     List<ClaimSpatialSearchResult> getAllClaims();

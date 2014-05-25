@@ -36,16 +36,21 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
     public static final String PARAM_DATE_FROM = "dateFrom";
     public static final String PARAM_DATE_TO = "dateTo";
     public static final String PARAM_RECORDER = "recorderName";
-    
-    public static final String QUERY_SEARCH
-            = "select c.id, c.nr, c.lodgement_date, c.challenge_expiry_date, c.decision_date, c.description, \n"
+    public static final String PARAM_POINT = "pointParam";
+    private static final String SELECT_PART = 
+            "select c.id, c.nr, c.lodgement_date, c.challenge_expiry_date, c.decision_date, c.description, \n"
             + "c.claimant_id, (cl.name || ' ' || coalesce(cl.last_name, '')) as claimant_name,\n"
             + "c.challenged_claim_id, c.status_code, get_translation(cs.display_value, #{" 
             + CommonSqlProvider.PARAM_LANGUAGE_CODE + "}) as status_name\n"
             + "\n"
             + "from (opentenure.claim c inner join opentenure.claim_status cs ON c.status_code = cs.code) \n"
             + "left join opentenure.claimant cl ON c.claimant_id = cl.id\n"
-            + "\n"
+            + "\n";
+    
+    public static final String QUERY_SEARCH_BY_POINT = SELECT_PART
+            + "WHERE c.challenged_claim_id is null and ST_Contains(c.mapped_geometry, ST_GeomFromText(#{" + PARAM_POINT + "}, St_SRID(c.mapped_geometry)));";
+    
+    public static final String QUERY_SEARCH = SELECT_PART
             + "where position(lower(#{" + PARAM_NAME + "}) in lower(cl.name || ' ' || COALESCE(cl.last_name, ''))) > 0 and\n"
             + "position(lower(#{" + PARAM_DESCRIPTION + "}) in lower(COALESCE(c.description, ''))) > 0 and \n"
             + "(c.status_code = #{" + PARAM_STATUS_CODE + "} or #{" + PARAM_STATUS_CODE + "} = '') and \n"
