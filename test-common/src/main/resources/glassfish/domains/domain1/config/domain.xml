@@ -40,11 +40,11 @@ option applies only if the new code is made subject to such option by the copyri
             <property name="serverName" value="${glassfish.jdbc-connection-pool.server}"></property>
             <property name="user" value="${glassfish.jdbc-connection-pool.username}"></property>
             <property name="password" value="${glassfish.jdbc-connection-pool.password}"></property>-->
-            <property name="databaseName" value="sola"></property>
-            <property name="portNumber" value="5432"></property>
-            <property name="serverName" value="ubtserver"></property>
+            <property name="databaseName" value="sola_original"></property>
+            <property name="portNumber" value="5433"></property>
+            <property name="serverName" value="localhost"></property>
             <property name="user" value="postgres"></property>
-            <property name="password" value="PRGS143"></property>
+            <property name="password" value="Welcome1"></property>
         </jdbc-connection-pool>
         <jdbc-resource pool-name="sola" description="" jndi-name="jdbc/sola"></jdbc-resource>
     </resources>

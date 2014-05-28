@@ -28,8 +28,8 @@ public class ClaimSpatialSearchResult extends AbstractReadOnlyEntity {
     
     public static final String WHERE_SEARCH_BY_BOX
             = "mapped_geometry is not null and "
-            + "ST_Intersects(mapped_geometry, ST_Envelope(#{" 
-            + PARAM_ENVELOPE + "}::geometry))";
+            + "ST_Intersects(mapped_geometry, ST_Envelope(st_geomfromtext(#{" 
+            + PARAM_ENVELOPE + "}, ST_Srid(mapped_geometry))))";
 
     public ClaimSpatialSearchResult() {
         super();

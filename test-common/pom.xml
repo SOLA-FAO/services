@@ -26,7 +26,7 @@
         <!-- If any of the data values above are changed, or any of the configuration files are
         updated, this value must be incremented to ensure the new values and configuration are
         used when executing tests -->
-        <sola-test-common.configuration.version>v032</sola-test-common.configuration.version>
+        <sola-test-common.configuration.version>v033</sola-test-common.configuration.version>
     </properties>
 
     <dependencies>

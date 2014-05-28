@@ -38,6 +38,7 @@ import org.sola.services.ejb.system.br.Result;
 import org.sola.services.ejb.system.repository.entities.Br;
 import org.sola.services.ejb.system.repository.entities.BrReport;
 import org.sola.services.ejb.system.repository.entities.BrValidation;
+import org.sola.services.ejb.system.repository.entities.EmailTask;
 import org.sola.services.ejb.system.repository.entities.Setting;
 
 /**
@@ -157,4 +158,21 @@ public interface SystemEJBLocal extends AbstractEJBLocal {
      */
     List<BrValidation> getBrForConsolidation();
     
+    /**
+     * See {@linkplain SystemEJB#getEmailsToSend()
+     * SystemEJB.getEmailsToSend
+     */
+    List<EmailTask> getEmailsToSend();
+    
+    /**
+     * See {@linkplain SystemEJB#saveEmailTask(EmailTask)
+     * SystemEJB.saveEmailTask
+     */
+    EmailTask saveEmailTask(EmailTask emailTask);
+    
+    /**
+     * See {@linkplain SystemEJB#getEmailTask(String)
+     * SystemEJB.getEmailTask
+     */
+    EmailTask getEmailTask(String id);
 }

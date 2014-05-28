@@ -477,4 +477,34 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
         params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, BrValidation.QUERY_ORDERBY_ORDEROFEXECUTION);
         return getRepository().getEntityList(BrValidation.class, params);
     }
+
+    /**
+     * Returns all emails that need to be send at the current time.
+     */
+    @Override
+    public List<EmailTask> getEmailsToSend() {
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, EmailTask.WHERE_BY_NOW);
+        return getRepository().getEntityList(EmailTask.class, params);
+    }
+
+    /**
+     * Saves email task.
+     * @param emailTask Email task to save
+     * @return 
+     */
+    @Override
+    public EmailTask saveEmailTask(EmailTask emailTask) {
+        return getRepository().saveEntity(emailTask);
+    }
+    
+    /**
+     * Saves email task.
+     * @param id Email task ID
+     * @return 
+     */
+    @Override
+    public EmailTask getEmailTask(String id){
+        return  getRepository().getEntity(EmailTask.class, id);
+    }
 }
