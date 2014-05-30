@@ -25,6 +25,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import org.sola.common.ConfigConstants;
 import org.sola.common.DateUtility;
 import org.sola.common.StringUtility;
@@ -44,9 +46,6 @@ public class Mailer implements MailerLocal {
     private SystemEJBLocal systemEJB;
     @Resource
     TimerService timerService;
-
-    @Resource(name = "mail/sola")
-    private Session mailSession;
 
     private String adminAddress = "";
     private String adminName = "";
@@ -69,36 +68,67 @@ public class Mailer implements MailerLocal {
     @PostConstruct
     @Override
     public void init() {
-        serviceInterval = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SERVICE_INTERVAL, "10"));
-        if (systemEJB.getSetting(ConfigConstants.EMAIL_ENABLE_SERVICE, "0").equals("1")) {
-            enableService = true;
-        }
-        if (systemEJB.getSetting(ConfigConstants.EMAIL_BODY_FORMAT, "html").equals("text")) {
-            htmlFormat = false;
-        }
-
-        adminAddress = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_ADDRESS, adminAddress);
-        adminName = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_NAME, adminName);
-        failedSendBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_FAILED_SEND_BODY, failedSendBody);
-        failedSendSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_FAILED_SEND_SUBJECT, failedSendBody);
-        sendInterval1 = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SEND_INTERVAL1, "1"));
-        sendInterval2 = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SEND_INTERVAL2, "120"));
-        sendInterval3 = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SEND_INTERVAL3, "1440"));
-        sendAttempts1 = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SEND_ATTEMPTS1, "2"));
-        sendAttempts2 = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SEND_ATTEMPTS2, "2"));
-        sendAttempts3 = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SEND_ATTEMPTS3, "1"));
-        totalAttempts = sendAttempts1 + sendAttempts2 + sendAttempts3;
-
+        // Tests to determine if the mail session details are configured correctly or not. 
+        getMailSession();
+        serviceInterval = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SERVICE_INTERVAL, "600"));
         long periodMs = (long) serviceInterval * 1000;
         final TimerConfig timerConfig = new TimerConfig();
         timerConfig.setPersistent(false);
         timerService.createIntervalTimer(periodMs, periodMs, timerConfig);
     }
 
+    /**
+     * Configures the mailer settings based on the values in the system.settings table. 
+     */
+    private void configureMailer() {
+        enableService = systemEJB.getSetting(ConfigConstants.EMAIL_ENABLE_SERVICE, "0").equals("1"); 
+        if (enableService) {
+            htmlFormat = systemEJB.getSetting(ConfigConstants.EMAIL_BODY_FORMAT, "html").equals("text"); 
+            adminAddress = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_ADDRESS, adminAddress);
+            adminName = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_NAME, adminName);
+            failedSendBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_FAILED_SEND_BODY, failedSendBody);
+            failedSendSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_FAILED_SEND_SUBJECT, failedSendBody);
+            sendInterval1 = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SEND_INTERVAL1, "1"));
+            sendInterval2 = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SEND_INTERVAL2, "120"));
+            sendInterval3 = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SEND_INTERVAL3, "1440"));
+            sendAttempts1 = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SEND_ATTEMPTS1, "2"));
+            sendAttempts2 = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SEND_ATTEMPTS2, "2"));
+            sendAttempts3 = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SEND_ATTEMPTS3, "1"));
+            totalAttempts = sendAttempts1 + sendAttempts2 + sendAttempts3;
+        }
+    }
+
+    /**
+     * Retrieves the latest configuration for the mail session using a context lookup. 
+     *
+     * @return mailSession or null if no mail session is configured.
+     */
+    private Session getMailSession() {
+        Session mailSession = null;
+        String jndiSessionName = "mail/sola";
+        try {
+            InitialContext ic = new InitialContext();
+            mailSession = (Session) ic.lookup(jndiSessionName);
+        } catch (NamingException ex) {
+            LogUtility.log("Failed to retrieve mail session. Check JavaMail "
+                    + "session mail/sola is configured correctly on Glassfish. ", ex);
+        }
+        return mailSession;
+    }
+
     @Timeout
     public void processEmails(Timer timer) {
         try {
+            // Refresh the configuration of the mailer in case some details have been
+            // altered since the last run. 
+            configureMailer();
             if (!enableService) {
+                return;
+            }
+
+            Session mailSession = getMailSession();
+
+            if (mailSession == null) {
                 return;
             }
 
@@ -164,7 +194,7 @@ public class Mailer implements MailerLocal {
 
                     Transport.send(msg);
                     deleteEmail(email);
-                    
+
                 } catch (Exception e) {
                     MessagingException ee;
                     LogUtility.log("Email message has been failed to send with the following error: " + e.getLocalizedMessage(), Level.SEVERE);
