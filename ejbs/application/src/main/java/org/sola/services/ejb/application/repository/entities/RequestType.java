@@ -37,6 +37,7 @@ import javax.persistence.Column;
 import javax.persistence.Table;
 import org.sola.services.common.repository.ChildEntityList;
 import org.sola.services.common.repository.DefaultSorter;
+import org.sola.services.common.repository.Localized;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
 
 /**
@@ -72,6 +73,9 @@ public class RequestType extends AbstractCodeEntity {
     private String rrrTypeCode;
     @ChildEntityList(parentIdField = "requestTypeCode")
     private List<RequestTypeRequiresSourceType> sourceTypeCodes;
+    @Localized
+    @Column(name = "display_group_name")
+    private String displayGroupName;
 
     public RequestType() {
         super();
@@ -155,5 +159,13 @@ public class RequestType extends AbstractCodeEntity {
 
     public void setSourceTypeCodes(List<RequestTypeRequiresSourceType> sourceTypeCodes) {
         this.sourceTypeCodes = sourceTypeCodes;
+    }
+
+    public String getDisplayGroupName() {
+        return displayGroupName;
+    }
+
+    public void setDisplayGroupName(String displayGroupName) {
+        this.displayGroupName = displayGroupName;
     }
 }
