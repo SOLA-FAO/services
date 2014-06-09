@@ -70,7 +70,8 @@ public class Mailer implements MailerLocal {
     public void init() {
         // Tests to determine if the mail session details are configured correctly or not. 
         getMailSession();
-        serviceInterval = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SERVICE_INTERVAL, "600"));
+        configureMailer();
+        serviceInterval = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SERVICE_INTERVAL, "10"));
         long periodMs = (long) serviceInterval * 1000;
         final TimerConfig timerConfig = new TimerConfig();
         timerConfig.setPersistent(false);
@@ -119,16 +120,13 @@ public class Mailer implements MailerLocal {
     @Timeout
     public void processEmails(Timer timer) {
         try {
-            // Refresh the configuration of the mailer in case some details have been
-            // altered since the last run. 
-            configureMailer();
+            
             if (!enableService) {
                 return;
             }
-
             Session mailSession = getMailSession();
-
             if (mailSession == null) {
+                LogUtility.log("mailSession not configured. Check mail/sola on Glassfish.");
                 return;
             }
 
