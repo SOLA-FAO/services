@@ -70,7 +70,8 @@ public class Mailer implements MailerLocal {
     public void init() {
         // Tests to determine if the mail session details are configured correctly or not. 
         getMailSession();
-        serviceInterval = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SERVICE_INTERVAL, "600"));
+        configureMailer();
+        serviceInterval = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SERVICE_INTERVAL, "10"));
         long periodMs = (long) serviceInterval * 1000;
         final TimerConfig timerConfig = new TimerConfig();
         timerConfig.setPersistent(false);
@@ -83,7 +84,7 @@ public class Mailer implements MailerLocal {
     private void configureMailer() {
         enableService = systemEJB.getSetting(ConfigConstants.EMAIL_ENABLE_SERVICE, "0").equals("1"); 
         if (enableService) {
-            htmlFormat = systemEJB.getSetting(ConfigConstants.EMAIL_BODY_FORMAT, "html").equals("text"); 
+            htmlFormat = systemEJB.getSetting(ConfigConstants.EMAIL_BODY_FORMAT, "html").equals("html"); 
             adminAddress = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_ADDRESS, adminAddress);
             adminName = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_NAME, adminName);
             failedSendBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_FAILED_SEND_BODY, failedSendBody);
@@ -119,9 +120,6 @@ public class Mailer implements MailerLocal {
     @Timeout
     public void processEmails(Timer timer) {
         try {
-            // Refresh the configuration of the mailer in case some details have been
-            // altered since the last run. 
-            configureMailer();
             if (!enableService) {
                 return;
             }

@@ -63,6 +63,7 @@ public final class LocalInfo {
      */
     public static String USER_NAME = "Local.UserName";
     public static String TRANSACTION_ID = "Local.TransactionId";
+    public static String BASE_URL = "Local.BaseUrl";
 
     /**
      * @return The Transaction Synchronization Registry from the JEE container or null if it is not
@@ -108,6 +109,16 @@ public final class LocalInfo {
         set(USER_NAME, userName, true, true);
     }
 
+    /** Returns base URL of Web application. */
+    public static String getBaseUrl() {
+        return get(BASE_URL, String.class);
+    }
+
+    /** Sets base URL for Web application. */
+    public static void setBaseUrl(String url) {
+        set(BASE_URL, url, true);
+    }
+    
     public static String getTransactionId() {
         return get(TRANSACTION_ID, String.class);
     }

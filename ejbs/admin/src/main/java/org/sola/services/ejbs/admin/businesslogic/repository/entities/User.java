@@ -27,6 +27,7 @@
  */
 package org.sola.services.ejbs.admin.businesslogic.repository.entities;
 
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -73,15 +74,17 @@ public class User extends AbstractVersionedEntity {
     private String password;
     @AccessFunctions(onSelect = "(SELECT pword_change_user"
             + " FROM system.user_pword_expiry"
-            + " WHERE uname = username)")
+            + " WHERE uname = username limit 1)")
     @Column(name = "pword_change_user", insertable = false, updatable = false)
     private String lastPwordChangeUser;
     @AccessFunctions(onSelect = "(SELECT pword_expiry_days"
             + " FROM system.user_pword_expiry"
-            + " WHERE uname = username)")
+            + " WHERE uname = username limit 1)")
     @Column(name = "pword_expiry_days", insertable = false, updatable = false)
     private Integer pwordExpiryDays;
-
+    @Column(name="activation_expiration")
+    Date activationExpiration;
+    
     public String getPassword() {
         return password;
     }
@@ -194,5 +197,13 @@ public class User extends AbstractVersionedEntity {
 
     public void setPwordExpiryDays(Integer pwordExpiryDays) {
         this.pwordExpiryDays = pwordExpiryDays;
+    }
+
+    public Date getActivationExpiration() {
+        return activationExpiration;
+    }
+
+    public void setActivationExpiration(Date activationExpiration) {
+        this.activationExpiration = activationExpiration;
     }
 }

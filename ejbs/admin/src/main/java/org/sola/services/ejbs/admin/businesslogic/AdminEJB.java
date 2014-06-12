@@ -30,13 +30,14 @@
 package org.sola.services.ejbs.admin.businesslogic;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.annotation.security.PermitAll;
@@ -45,16 +46,21 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.mail.util.ByteArrayDataSource;
 import net.lingala.zip4j.exception.ZipException;
+import org.sola.common.ConfigConstants;
+import org.sola.common.DateUtility;
+import org.sola.common.EmailVariables;
 import org.sola.common.FileUtility;
 import org.sola.common.RolesConstants;
 import org.sola.common.SOLAException;
+import org.sola.common.StringUtility;
 import org.sola.common.messaging.ClientMessage;
+import org.sola.services.common.LocalInfo;
 import org.sola.services.common.br.ValidationResult;
 import org.sola.services.common.ejbs.AbstractEJB;
-import org.sola.services.common.faults.SOLAValidationException;
 import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
 import org.sola.services.ejb.system.repository.entities.BrValidation;
+import org.sola.services.ejb.system.repository.entities.EmailTask;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.GroupSummary;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Language;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Role;
@@ -98,30 +104,32 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     public User getUser(String userName) {
         return getUserInfo(userName);
     }
-    
-    /** 
+
+    /**
      * Returns full user's name (first and last name)
+     *
      * @param userName User name (login)
-     * @return 
+     * @return
      */
     @Override
-    public String getUserFullName(String userName){
+    public String getUserFullName(String userName) {
         User user = getUserInfo(userName);
         String fullName = "";
-        
-        if(user == null){
+
+        if (user == null) {
             return "";
         }
-        
-        if(user.getFirstName() != null){
+
+        if (user.getFirstName() != null) {
             fullName = user.getFirstName();
         }
-        
-        if(user.getLastName() != null){
-            if(fullName.length() > 0)
+
+        if (user.getLastName() != null) {
+            if (fullName.length() > 0) {
                 fullName += " " + user.getLastName();
-            else
+            } else {
                 fullName = user.getLastName();
+            }
         }
         return fullName;
     }
@@ -152,88 +160,94 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
      * @return
      */
     @Override
-    public boolean isUserEmailExists(String email){
+    public boolean isUserEmailExists(String email) {
         Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, User.QUERY_WHERE_EMAIL);
         params.put(User.PARAM_EMAIL, email);
         User user = getRepository().getEntity(User.class, params);
-        
-        return user != null && user.getEmail()!= null && !user.getEmail().equals("");
+
+        return user != null && user.getEmail() != null && !user.getEmail().equals("");
     }
-    
+
     /**
-     * Returns true is email exists, excluding provided user name, otherwise false
+     * Returns true is email exists, excluding provided user name, otherwise
+     * false
      *
      * @param email Email address to check
      * @return
      */
     @Override
-    public boolean isUserEmailExists(String email, String exludeUserName){
+    public boolean isUserEmailExists(String email, String exludeUserName) {
         Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, User.QUERY_WHERE_EMAIL_EXCLUDE_USERNAME);
         params.put(User.PARAM_EMAIL, email);
         params.put(User.PARAM_USERNAME, exludeUserName);
         User user = getRepository().getEntity(User.class, params);
-        
-        return user != null && user.getEmail()!= null && !user.getEmail().equals("");
+
+        return user != null && user.getEmail() != null && !user.getEmail().equals("");
     }
-    
+
     /**
-     * Checks if provided user name matches with password. If match is found true will be returned, otherwise false.
-     * @param password Password 
+     * Checks if provided user name matches with password. If match is found
+     * true will be returned, otherwise false.
+     *
+     * @param password Password
      * @return
      */
     @Override
-    public boolean checkCurrentUserPassword(String password){
+    public boolean checkCurrentUserPassword(String password) {
         Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, User.QUERY_WHERE_USERNAME_AND_PASSWORD);
         params.put(User.PARAM_PASSWORD, this.getPasswordHash(password));
         params.put(User.PARAM_USERNAME, getUserName());
         User user = getRepository().getEntity(User.class, params);
-        
-        return user != null && user.getUserName()!= null && !user.getUserName().equals("");
+
+        return user != null && user.getUserName() != null && !user.getUserName().equals("");
     }
-    
-    /** 
+
+    /**
      * Returns true if user is active, otherwise false.
+     *
      * @param userName User name
-     * @return  
+     * @return
      */
     @Override
-    public boolean isUserActive(String userName){
+    public boolean isUserActive(String userName) {
         User user = getUserInfo(userName);
-        if(user!=null){
+        if (user != null) {
             return user.isActive();
         }
         return false;
     }
-    
-    /** 
+
+    /**
      * Activates community recorder user
+     *
      * @param userName User name
      * @param activationCode Activation code
-     * @return 
+     * @return
      */
     @Override
-    public boolean activeteCommuninityRecorderUser(String userName, String activationCode){
+    public boolean activeteCommuninityRecorderUser(String userName, String activationCode) {
         User user = getUserInfo(userName);
-        if(user == null || user.getUserName() == null || user.getUserName().equals("")){
+        if (user == null || user.getUserName() == null || user.getUserName().equals("")) {
             return false;
         }
-        
+
         // Check activation code
-        if(user.getActivationCode() == null || !user.getActivationCode().equals(activationCode)){
+        if (user.getActivationCode() == null || !user.getActivationCode().equals(activationCode)) {
             return false;
         }
-        
+
         // Activate user
-        if(!user.isActive()){
+        if (!user.isActive()) {
             user.setActive(true);
+            user.setActivationExpiration(null);
             getRepository().saveEntity(user);
         }
         return true;
     }
-    
+
     /**
      * Returns the details for the currently authenticated user.
      *
@@ -267,10 +281,11 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         return getRepository().saveEntity(user);
     }
 
-     /**
+    /**
      * Saves current user
+     *
      * @param user User object to be saved
-     * @return 
+     * @return
      */
     @Override
     public User saveCurrentUser(User user) {
@@ -278,18 +293,19 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         user.setUserName(getUserName());
         return getRepository().saveEntity(user);
     }
-    
+
     /**
-     * Creates Community Recorder user. CommunityRecorders group will be created 
+     * Creates Community Recorder user. CommunityRecorders group will be created
      * if it doesn't exist and appropriate roles assigned.
+     *
      * @param user User object to be created as Community Recorder
-     * @return 
+     * @return
      */
     @Override
-    public User createCommunityRecorderUser(User user){
+    public User createCommunityRecorderUser(User user) {
         // Check community group exists
         Group group = getRepository().getEntity(Group.class, Group.COMMUNITY_RECORDER_GROUP_ID);
-        if(group == null){
+        if (group == null) {
             // Create group and assign roles
             // TODO: Assign roles
             group = new Group();
@@ -298,24 +314,68 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
             group.setDescription(Group.COMMUNITY_RECORDER_GROUP_DESCRIPTION);
             getRepository().saveEntity(group);
         }
-        
+
         // Generate activation code
-        // TODO: To be changed 
-        user.setActivationCode("12345");
-        
+        String code = UUID.randomUUID().toString().substring(0, 8);
+        int timeOut = Integer.valueOf(systemEJB.getSetting(ConfigConstants.ACCOUNT_ACTIVATION_TIMEOUT, "70"));
+
+        user.setActivationCode(code);
+        user.setActivationExpiration(DateUtility.addTime(Calendar.getInstance().getTime(), timeOut, Calendar.HOUR));
+
         // Create user
         UserGroup ug = new UserGroup(user.getId(), group.getId());
         user.setUserGroups(new ArrayList<UserGroup>());
         user.getUserGroups().add(ug);
         String passwd = user.getPassword();
         user = getRepository().saveEntity(user);
-        
+
         // Set password
         changeUserPassword(user.getUserName(), passwd);
-        
+
+        // Send email
+        if (systemEJB.getSetting(ConfigConstants.EMAIL_ENABLE_SERVICE, "0").equals("1") && !StringUtility.isEmpty(user.getEmail())) {
+            String adminAddress = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_ADDRESS, "");
+            String adminName = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_NAME, "");
+            String msgBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_REG_BODY, "");
+            String msgSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_REG_SUBJECT, "");
+            String activationPage = StringUtility.empty(LocalInfo.getBaseUrl());
+            activationPage += "/user/regactivation.xhtml";
+            String activationUrl = activationPage + "?user=" + user.getUserName() + "&code=" + code;
+
+            msgBody = msgBody.replace(EmailVariables.FULL_USER_NAME, user.getFirstName());
+            msgBody = msgBody.replace(EmailVariables.USER_NAME, user.getUserName());
+            msgBody = msgBody.replace(EmailVariables.ACTIVATION_LINK, activationUrl);
+            msgBody = msgBody.replace(EmailVariables.ACTIVATION_PAGE, activationPage);
+            msgBody = msgBody.replace(EmailVariables.ACTIVATION_CODE, code);
+
+            EmailTask task = new EmailTask();
+            task.setId(UUID.randomUUID().toString());
+            task.setBody(msgBody);
+            task.setRecipient(user.getEmail());
+            task.setRecipientName(StringUtility.empty(user.getFirstName()) + " " + StringUtility.empty(user.getLastName()));
+            task.setSubject(msgSubject);
+
+            systemEJB.saveEmailTask(task);
+
+            if (!adminAddress.equals("")) {
+                // Send notification to admin
+                String msgAdminBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_USER_REG_BODY, "");
+                String msgAdminSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_USER_REG_SUBJECT, "");
+                msgAdminBody = msgAdminBody.replace(EmailVariables.USER_NAME, user.getUserName());
+
+                task = new EmailTask();
+                task.setId(UUID.randomUUID().toString());
+                task.setBody(msgAdminBody);
+                task.setRecipient(adminAddress);
+                task.setRecipientName(adminName);
+                task.setSubject(msgAdminSubject);
+
+                systemEJB.saveEmailTask(task);
+            }
+        }
         return user;
     }
-    
+
     /**
      * Returns the list of all security roles in SOLA.
      *
@@ -427,18 +487,18 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     public boolean changePassword(String userName, String password) {
         return changeUserPassword(userName, password);
     }
-    
+
     /**
      * Allows to change current user's password
+     *
      * @param password
      * @return
      */
     @Override
-    public boolean changeCurrentUserPassword(String password)
-    {
+    public boolean changeCurrentUserPassword(String password) {
         return changeUserPassword(getUserName(), password);
     }
-    
+
     private boolean changeUserPassword(String userName, String password) {
         Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_QUERY, User.QUERY_SET_PASSWORD);
@@ -479,7 +539,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
                     }
                     sb.append(hex);
                 }
-                
+
                 hashString = sb.toString();
 
             } catch (Exception e) {
@@ -527,7 +587,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
 
     /**
      * Checks if the current user has been assigned one or more of the null null
-     * null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
+     * null null null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
      * {@linkplain RolesConstants#ADMIN_MANAGE_REFDATA} or
      * {@linkplain RolesConstants#ADMIN_MANAGE_SETTINGS} security roles.
      * <p>

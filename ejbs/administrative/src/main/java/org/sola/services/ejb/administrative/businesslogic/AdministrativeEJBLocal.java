@@ -75,7 +75,7 @@ public interface AdministrativeEJBLocal extends AbstractSolaTransactionEJBLocal 
      * AdministrativeEJB.getRRRTypes}
      */
     List<RrrType> getRRRTypes(String languageCode);
-
+   
     /**
      * see {@linkplain AdministrativeEJB#getSourceBaUnitRelationTypes(java.lang.String)
      * AdministrativeEJB.getSourceBaUnitRelationTypes}
