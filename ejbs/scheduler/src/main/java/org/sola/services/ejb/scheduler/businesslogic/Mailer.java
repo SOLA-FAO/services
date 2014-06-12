@@ -123,10 +123,9 @@ public class Mailer implements MailerLocal {
             if (!enableService) {
                 return;
             }
-
             Session mailSession = getMailSession();
-
             if (mailSession == null) {
+                LogUtility.log("mailSession not configured. Check mail/sola on Glassfish.");
                 return;
             }
 
