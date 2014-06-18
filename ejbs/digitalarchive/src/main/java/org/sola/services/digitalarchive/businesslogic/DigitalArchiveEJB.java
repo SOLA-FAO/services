@@ -60,7 +60,7 @@ import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
  * folder of the user account running the Glassfish instance.</p>
  */
 @Stateless
-@EJB(name = "java:global/SOLA/DigitalArchiveEJBLocal", beanInterface = DigitalArchiveEJBLocal.class)
+@EJB(name = "java:global/SOLA_SL/DigitalArchiveEJBLocal", beanInterface = DigitalArchiveEJBLocal.class)
 public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBLocal {
 
     @EJB

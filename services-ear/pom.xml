@@ -4,12 +4,12 @@
     <parent>
         <artifactId>sola-services</artifactId>
         <groupId>org.sola</groupId>
-        <version>1402a-SNAPSHOT</version>
+        <version>sl-SNAPSHOT</version>
     </parent>
     <groupId>org.sola.services</groupId>
     <artifactId>sola-services-ear</artifactId>
     <packaging>ear</packaging>
-    <version>1402a-SNAPSHOT</version>
+    <version>sl-SNAPSHOT</version>
     <name>Services EAR</name>
     <build>
         <finalName>${project.artifactId}</finalName>
@@ -69,7 +69,7 @@
                         <webModule>
                             <groupId>${project.groupId}.boundary</groupId>
                             <artifactId>sola-web-services</artifactId>
-                            <contextRoot>sola/webservices</contextRoot>
+                            <contextRoot>sola_sl/webservices</contextRoot>
                         </webModule>
                     </modules>
                 </configuration>

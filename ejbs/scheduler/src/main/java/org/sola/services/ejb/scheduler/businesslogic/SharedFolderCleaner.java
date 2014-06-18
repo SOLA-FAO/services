@@ -135,7 +135,7 @@ public class SharedFolderCleaner implements SharedFolderCleanerLocal {
      */
     @Timeout
     public void cleanUpTimeout(Timer timer) {
-        configureService();
+       // configureService();
         if (cleanFolder) {
             cleanUp();
         } else {

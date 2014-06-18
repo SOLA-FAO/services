@@ -57,7 +57,7 @@ import org.sola.services.ejb.transaction.repository.entities.TransactionBasic;
  * application schema.
  */
 @Stateless
-@EJB(name = "java:global/SOLA/ApplicationEJBLocal", beanInterface = ApplicationEJBLocal.class)
+@EJB(name = "java:global/SOLA_SL/ApplicationEJBLocal", beanInterface = ApplicationEJBLocal.class)
 public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
 
     @EJB

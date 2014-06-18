@@ -37,7 +37,7 @@ import org.sola.services.ejb.address.repository.entities.Address;
  * EJB to manage data in the address schema. Supports retrieving and saving addresses.
  */
 @Stateless
-@EJB(name = "java:global/SOLA/AddressEJBLocal", beanInterface = AddressEJBLocal.class)
+@EJB(name = "java:global/SOLA_SL/AddressEJBLocal", beanInterface = AddressEJBLocal.class)
 public class AddressEJB extends AbstractEJB implements AddressEJBLocal {
 
     /**

@@ -51,7 +51,7 @@ import org.sola.services.ejb.system.repository.entities.*;
  * System EJB - Provides access to SOLA System data including business rules
  */
 @Stateless
-@EJB(name = "java:global/SOLA/SystemEJBLocal", beanInterface = SystemEJBLocal.class)
+@EJB(name = "java:global/SOLA_SL/SystemEJBLocal", beanInterface = SystemEJBLocal.class)
 public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
 
     @EJB

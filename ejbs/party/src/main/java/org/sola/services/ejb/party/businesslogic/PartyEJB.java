@@ -44,7 +44,7 @@ import org.sola.services.ejb.party.repository.entities.*;
  * EJB to manage data in the party schema. Supports retrieving and saving party details.
  */
 @Stateless
-@EJB(name = "java:global/SOLA/PartyEJBLocal", beanInterface = PartyEJBLocal.class)
+@EJB(name = "java:global/SOLA_SL/PartyEJBLocal", beanInterface = PartyEJBLocal.class)
 public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
 
     /**

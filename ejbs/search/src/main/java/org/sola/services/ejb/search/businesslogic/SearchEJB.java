@@ -68,7 +68,7 @@ import org.sola.services.ejb.search.spatial.ResultForSelectionInfo;
  * treated as read only. It must not be used to persist data changes.</p>
  */
 @Stateless
-@EJB(name = "java:global/SOLA/SearchEJBLocal", beanInterface = SearchEJBLocal.class)
+@EJB(name = "java:global/SOLA_SL/SearchEJBLocal", beanInterface = SearchEJBLocal.class)
 public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
 
     /**
