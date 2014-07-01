@@ -274,7 +274,7 @@ public class RepositoryUtility {
     public static <T extends AbstractEJBLocal> T tryGetEJB(Class<T> ejbLocalClass) {
         T ejb = null;
 
-        String ejbLookupName = "java:global/SOLA/" + ejbLocalClass.getSimpleName();
+        String ejbLookupName = "java:global/SOLA_SL/" + ejbLocalClass.getSimpleName();
         try {
             InitialContext ic = new InitialContext();
             ejb = (T) ic.lookup(ejbLookupName);

@@ -4,15 +4,15 @@
     <parent>
         <artifactId>sola-services</artifactId>
         <groupId>org.sola</groupId>
-        <version>sl-SNAPSHOT</version>
+        <version>sl-001</version>
     </parent>
     <groupId>org.sola.services</groupId>
     <artifactId>sola-services-ear</artifactId>
     <packaging>ear</packaging>
-    <version>sl-SNAPSHOT</version>
+    <version>sl-001</version>
     <name>Services EAR</name>
     <build>
-        <finalName>${project.artifactId}</finalName>
+        <finalName>sola-sl-services-ear</finalName>
         <plugins>
             <plugin>
                 <!-- Use this plugin to provide extra control for packing into the EAR file -->
