@@ -74,6 +74,16 @@
             <b>sourceList</b>
         </field>
     </mapping> 
+      <mapping> <!-- BaUnitNotation -->
+        <class-a>org.sola.services.boundary.transferobjects.administrative.BaUnitNotationTO</class-a>
+        <class-b>org.sola.services.ejb.administrative.repository.entities.BaUnitNotation</class-b>
+        <field custom-converter="org.sola.common.mapping.NonCumulativeListConverter"
+               custom-converter-param="org.sola.services.ejb.source.repository.entities.Source,
+               org.sola.services.boundary.transferobjects.casemanagement.SourceTO">
+            <a>sourceList</a>
+            <b>sourceList</b>
+        </field>
+    </mapping> 
     <mapping> <!-- RRR Share-->
         <class-a>org.sola.services.boundary.transferobjects.administrative.RrrShareTO</class-a>
         <class-b>org.sola.services.ejb.administrative.repository.entities.RrrShare</class-b>

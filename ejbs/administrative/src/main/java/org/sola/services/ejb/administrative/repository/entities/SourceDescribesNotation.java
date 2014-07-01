@@ -25,30 +25,46 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.sola.services.common.ejbs;
+package org.sola.services.ejb.administrative.repository.entities;
 
-import java.util.List;
-import org.sola.services.common.repository.DatabaseConnectionManager;
-import org.sola.services.common.repository.entities.AbstractCodeEntity;
-import org.sola.services.common.repository.entities.AbstractEntity;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 
 /**
- *
+ * Entity representing the administrative.source_describes_notation association table (i.e many to 
+ * many table) between notation and source. 
  * @author soladev
  */
-public interface AbstractEJBLocal {
+@Table(schema = "administrative", name = "source_describes_notation")
+public class SourceDescribesNotation extends AbstractVersionedEntity {
+
+    @Id
+    @Column(name = "notation_id")
+    private String notationId;
+    @Id
+    @Column(name = "source_id")
+    private String sourceId;
+
+    public SourceDescribesNotation() {
+        super();
+    }
+
+    public String getNotationId() {
+        return notationId;
+    }
+
+    public void setNotationId(String notationId) {
+        this.notationId = notationId;
+    }
+
+    public String getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(String sourceId) {
+        this.sourceId = sourceId;
+    }
     
-    // Supports mocking of the DatabaseConnectionManager used by the EJB repository
-    void setDbConnectionManager(DatabaseConnectionManager dbConnection); 
-    <T extends AbstractCodeEntity> T getCodeEntity(Class<T> codeEntityClass, String code);
-    <T extends AbstractCodeEntity> T getCodeEntity(Class<T> codeEntityClass, String code, String lang);
-    <T extends AbstractCodeEntity> T saveCodeEntity(T codeEntity);
-    <T extends AbstractCodeEntity> List<T> getCodeEntityList(Class<T> codeEntityClass, String lang);
-    <T extends AbstractCodeEntity> List<T> getCodeEntityList(Class<T> codeEntityClass);
-    <T extends AbstractEntity> T saveEntity(T entityObject);
-    <T extends AbstractEntity> T getEntityById(Class<T> entityClass, String id);
 }

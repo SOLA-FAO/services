@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.common.ejbs;
@@ -73,6 +75,7 @@ import org.sola.services.common.repository.entities.AbstractEntity;
     RolesConstants.ADMINISTRATIVE_BA_UNIT_SAVE,
     RolesConstants.ADMINISTRATIVE_BA_UNIT_PRINT_CERT,
     RolesConstants.ADMINISTRATIVE_BA_UNIT_SEARCH,
+    RolesConstants.ADMINISTRATIVE_NOTATION_SAVE,
     RolesConstants.SOURCE_TRANSACTIONAL,
     RolesConstants.SOURCE_SAVE,
     RolesConstants.SOURCE_SEARCH,
@@ -156,9 +159,10 @@ public abstract class AbstractEJB implements AbstractEJBLocal {
     }
 
     /**
-     * This method is invoked after the container has completed resource injection for the EJB. To
-     * perform additional tasks as part of the postConstruct process in descendent EJB's, override
-     * the postConstruct method.
+     * This method is invoked after the container has completed resource
+     * injection for the EJB. To perform additional tasks as part of the
+     * postConstruct process in descendent EJB's, override the postConstruct
+     * method.
      */
     @PostConstruct
     private void onPostConstruct() {
@@ -168,9 +172,10 @@ public abstract class AbstractEJB implements AbstractEJBLocal {
     }
 
     /**
-     * This method has no implementation and can be overridden in descendent EJB classes to perform
-     * setup actions following the injection of resources into the EJB. Note that in accordance with
-     * EJB postConstruct rules, this methods cannot throw a checked exception. Refer to
+     * This method has no implementation and can be overridden in descendent EJB
+     * classes to perform setup actions following the injection of resources
+     * into the EJB. Note that in accordance with EJB postConstruct rules, this
+     * methods cannot throw a checked exception. Refer to
      * download.oracle.com/javaee/6/api/javax/annotation/PostConstruct.html
      */
     protected void postConstruct() {
@@ -198,21 +203,22 @@ public abstract class AbstractEJB implements AbstractEJBLocal {
     }
 
     /**
-     * This method has no implementation and can be overridden in descendent EJB classes to perform
-     * actions just prior to invoking the EJB method.
+     * This method has no implementation and can be overridden in descendent EJB
+     * classes to perform actions just prior to invoking the EJB method.
      */
     protected void beforeInvoke(InvocationContext ctx) throws Exception {
     }
 
     /**
-     * This method has no implementation and can be overridden in descendent EJB classes to perform
-     * actions just after invoking the EJB method.
+     * This method has no implementation and can be overridden in descendent EJB
+     * classes to perform actions just after invoking the EJB method.
      */
     protected void afterInvoke(InvocationContext ctx) throws Exception {
     }
 
     /**
-     * Performs clean up tasks such as removing all LocalInfo references before destroying the EJB.
+     * Performs clean up tasks such as removing all LocalInfo references before
+     * destroying the EJB.
      */
     @PreDestroy
     private void onPreDestroy() {
@@ -221,8 +227,9 @@ public abstract class AbstractEJB implements AbstractEJBLocal {
     }
 
     /**
-     * This method has no implementation and can be overridden in descendent EJB classes to perform
-     * cleanup actions just prior to destroying the EJB object.
+     * This method has no implementation and can be overridden in descendent EJB
+     * classes to perform cleanup actions just prior to destroying the EJB
+     * object.
      */
     protected void preDestroy() {
     }
@@ -293,6 +300,19 @@ public abstract class AbstractEJB implements AbstractEJBLocal {
 
     @Override
     public <T extends AbstractEntity> T saveEntity(T entityObject) {
-        return this.getRepository().saveEntity(entityObject);
+        T result = null;
+        if (entityObject != null) {
+            result = this.getRepository().saveEntity(entityObject);
+        }
+        return result;
+    }
+
+    @Override
+    public <T extends AbstractEntity> T getEntityById(Class<T> entityClass, String id) {
+        T result = null;
+        if (entityClass != null && id != null) {
+            result = this.getRepository().getEntity(entityClass, id);
+        }
+        return result;
     }
 }
