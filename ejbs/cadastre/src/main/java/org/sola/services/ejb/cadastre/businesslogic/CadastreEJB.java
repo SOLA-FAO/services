@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.ejb.cadastre.businesslogic;
@@ -56,6 +58,24 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
 
     @EJB
     private SystemEJBLocal systemEJB;
+
+    /**
+     * Sets the entity package for the EJB to
+     * CadastreObject.class.getPackage().getName(). This is used to restrict the
+     * save and retrieval of Code Entities.
+     *
+     * @see AbstractEJB#getCodeEntity(java.lang.Class, java.lang.String,
+     * java.lang.String) AbstractEJB.getCodeEntity
+     * @see AbstractEJB#getCodeEntityList(java.lang.Class, java.lang.String)
+     * AbstractEJB.getCodeEntityList
+     * @see
+     * AbstractEJB#saveCodeEntity(org.sola.services.common.repository.entities.AbstractCodeEntity)
+     * AbstractEJB.saveCodeEntity
+     */
+    @Override
+    protected void postConstruct() {
+        setEntityPackage(CadastreObject.class.getPackage().getName());
+    }
 
     /**
      * Retrieves all cadastre.land_use_type code values.
@@ -227,8 +247,8 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
         }
         HashMap params = new HashMap();
         params.put("transaction_id", transactionId);
-        List<CadastreObjectStatusChanger> involvedCoList =
-                getRepository().getEntityList(CadastreObjectStatusChanger.class, filter, params);
+        List<CadastreObjectStatusChanger> involvedCoList
+                = getRepository().getEntityList(CadastreObjectStatusChanger.class, filter, params);
         for (CadastreObjectStatusChanger involvedCo : involvedCoList) {
             involvedCo.setStatusCode(statusCode);
             getRepository().saveEntity(involvedCo);
@@ -237,10 +257,12 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
 
     /**
      * Retrieves the list of Cadastre Object Targets associated with the
-     * transaction. <p>Cadastre Object Targets are used to link the cadastre
-     * object to new transactions that may occur on the cadastre object after it
-     * has been initially created - for example the transaction to extinguish
-     * the cadastre object.</p>
+     * transaction.
+     * <p>
+     * Cadastre Object Targets are used to link the cadastre object to new
+     * transactions that may occur on the cadastre object after it has been
+     * initially created - for example the transaction to extinguish the
+     * cadastre object.</p>
      *
      * @param transactionId The identifier of the transaction
      */
@@ -372,8 +394,9 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
 
     /**
      * Retrieves all Cadastre Object Node Targets associated to the transaction.
-     * <p>A Cadastre Object Node Target</p> is used to identify the nodes that
-     * have been added, moved or removed as part of a redefinition transaction.
+     * <p>
+     * A Cadastre Object Node Target</p> is used to identify the nodes that have
+     * been added, moved or removed as part of a redefinition transaction.
      * </p>
      *
      * @param transactionId The identifier of the transaction
@@ -415,19 +438,19 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
     @Override
     @RolesAllowed({RolesConstants.APPLICATION_APPROVE, RolesConstants.APPLICATION_SERVICE_COMPLETE})
     public void approveCadastreRedefinition(String transactionId) {
-        List<CadastreObjectTargetRedefinition> targetObjectList =
-                this.getCadastreObjectRedefinitionTargetsByTransaction(transactionId);
+        List<CadastreObjectTargetRedefinition> targetObjectList
+                = this.getCadastreObjectRedefinitionTargetsByTransaction(transactionId);
 
         if (!this.isInRole(RolesConstants.CADASTRE_PARCEL_SAVE)) {
             // Along with one of the above 2 roles, the user must also have the Save Parcel role 
             // to run this method. 
             throw new SOLAException(ServiceMessage.EXCEPTION_INSUFFICIENT_RIGHTS);
         }
-        
+
         for (CadastreObjectTargetRedefinition targetObject : targetObjectList) {
-            CadastreObjectStatusChanger cadastreObject =
-                    this.getRepository().getEntity(CadastreObjectStatusChanger.class,
-                    targetObject.getCadastreObjectId());
+            CadastreObjectStatusChanger cadastreObject
+                    = this.getRepository().getEntity(CadastreObjectStatusChanger.class,
+                            targetObject.getCadastreObjectId());
             cadastreObject.setGeomPolygon(targetObject.getGeomPolygon());
             cadastreObject.setTransactionId(transactionId);
             cadastreObject.setApprovalDatetime(null);
@@ -503,8 +526,8 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
         //Check afterwards if any condition is brokken by using the BR mechanism
         //Retrieve BRs that has to be checked
         List<BrValidation> brList = systemEJB.getBrForSpatialUnitGroupTransaction();
-        List<ValidationResult> validationResults =
-                systemEJB.checkRulesGetValidation(brList, languageCode, null);
+        List<ValidationResult> validationResults
+                = systemEJB.checkRulesGetValidation(brList, languageCode, null);
 
         if (!systemEJB.validationSucceeded(validationResults)) {
             throw new SOLAValidationException(validationResults);
@@ -567,10 +590,9 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
         params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, languageCode);
         return getRepository().getEntityList(Level.class, Level.WHERE_CONDITION, params);
     }
-    
+
     /**
-     * Gets the list of spatial units that intersect with the
-     * filteringGeometry.
+     * Gets the list of spatial units that intersect with the filteringGeometry.
      *
      * @param filteringGeometry The filtering geometry
      * @param hierarchyLevel The level id of the data
@@ -606,8 +628,7 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
     }
 
     /**
-     * Retrieves a list of spatial units matching the list of ids
-     * provided.
+     * Retrieves a list of spatial units matching the list of ids provided.
      *
      * @param ids A list of spatial unit ids to use for retrieval.
      */

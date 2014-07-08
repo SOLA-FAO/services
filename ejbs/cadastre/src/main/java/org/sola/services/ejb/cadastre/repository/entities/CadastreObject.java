@@ -127,6 +127,10 @@ public class CadastreObject extends AbstractVersionedEntity {
     @ChildEntityList(parentIdField = "cadastreObjectId", childIdField = "addressId",
     manyToManyClass = AddressForCadastreObject.class)
     private List<Address> addressList;
+    @Column()
+    private String description;
+    @Column(name = "state_land_status_code")
+    private String stateLandStatusCode;
     
     public String getLandUseCode() {
         return landUseCode;
@@ -239,6 +243,22 @@ public class CadastreObject extends AbstractVersionedEntity {
 
     public void setAddressList(List<Address> addressList) {
         this.addressList = addressList;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getStateLandStatusCode() {
+        return stateLandStatusCode;
+    }
+
+    public void setStateLandStatusCode(String stateLandStatusCode) {
+        this.stateLandStatusCode = stateLandStatusCode;
     }
 
     /**

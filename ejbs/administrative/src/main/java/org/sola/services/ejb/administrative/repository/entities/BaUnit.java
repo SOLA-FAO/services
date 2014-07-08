@@ -1,34 +1,37 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.ejb.administrative.repository.entities;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -57,26 +60,26 @@ public class BaUnit extends AbstractVersionedEntity {
     public static final String QUERY_PARAMETER_FIRSTPART = "firstPart";
     public static final String QUERY_PARAMETER_LASTPART = "lastPart";
     public static final String QUERY_PARAMETER_ID = "id";
+    public static final String QUERY_PARAMETER_TYPE_CODE = "typeCode";
     public static final String QUERY_PARAMETER_COLIST = "colist";
     public static final String QUERY_WHERE_BYTRANSACTIONID = "transaction_id = "
             + "#{" + QUERY_PARAMETER_TRANSACTIONID + "} or id in "
             + "(select ba_unit_id from administrative.ba_unit_target where "
             + "transaction_id = #{" + QUERY_PARAMETER_TRANSACTIONID + "})";
-    public static final String QUERY_WHERE_BY_TRANSACTION_ID_EXTENDED =
-            "transaction_id = #{" + QUERY_PARAMETER_TRANSACTIONID + "} OR id IN "
+    public static final String QUERY_WHERE_BY_TRANSACTION_ID_EXTENDED
+            = "transaction_id = #{" + QUERY_PARAMETER_TRANSACTIONID + "} OR id IN "
             + "(SELECT rrr.ba_unit_id FROM administrative.rrr rrr  "
             + "WHERE rrr.transaction_id = #{" + QUERY_PARAMETER_TRANSACTIONID + "} "
             + "UNION "
             + "SELECT n.ba_unit_id FROM administrative.notation n "
-            + "WHERE n.ba_unit_id IS NOT NULL AND n.transaction_id = #{" 
+            + "WHERE n.ba_unit_id IS NOT NULL AND n.transaction_id = #{"
             + QUERY_PARAMETER_TRANSACTIONID + "})";
-    public static final String QUERY_WHERE_BYPROPERTYCODE =
-            "name_firstpart = #{" + QUERY_PARAMETER_FIRSTPART + "} AND "
+    public static final String QUERY_WHERE_BYPROPERTYCODE
+            = "name_firstpart = #{" + QUERY_PARAMETER_FIRSTPART + "} AND "
             + "name_lastpart = #{" + QUERY_PARAMETER_LASTPART + "}";
-    public static final String QUERY_WHERE_BYBAUNITID =
-            "id = #{" + QUERY_PARAMETER_ID + "}";
-            
-    
+    public static final String QUERY_WHERE_BYBAUNITID
+            = "id = #{" + QUERY_PARAMETER_ID + "}";
+
     @Id
     @Column(name = "id")
     private String id;
@@ -97,27 +100,29 @@ public class BaUnit extends AbstractVersionedEntity {
     @ChildEntityList(parentIdField = "baUnitId")
     private List<BaUnitNotation> baUnitNotationList;
     @ExternalEJB(ejbLocalClass = SourceEJBLocal.class,
-    loadMethod = "getSources", saveMethod = "saveSource")
+            loadMethod = "getSources", saveMethod = "saveSource")
     @ChildEntityList(parentIdField = "baUnitId", childIdField = "sourceId",
-    manyToManyClass = SourceDescribesBaUnit.class)
+            manyToManyClass = SourceDescribesBaUnit.class)
     private List<Source> sourceList;
     @ExternalEJB(ejbLocalClass = CadastreEJBLocal.class,
-    loadMethod = "getCadastreObjects", saveMethod = "saveCadastreObject")
+            loadMethod = "getCadastreObjects", saveMethod = "saveCadastreObject")
     @ChildEntityList(parentIdField = "baUnitId", childIdField = "spatialUnitId",
-    manyToManyClass = BaUnitContainsSpatialUnit.class)
+            manyToManyClass = BaUnitContainsSpatialUnit.class)
     private List<CadastreObject> cadastreObjectList;
     private Boolean locked;
     @ChildEntityList(parentIdField = "baUnitId")
     private List<ChildBaUnitInfo> childBaUnits;
     @ChildEntityList(parentIdField = "baUnitId")
     private List<ParentBaUnitInfo> parentBaUnits;
-    @Column(insertable=false, updatable=false, name = "pending_action_code")
+    @Column(insertable = false, updatable = false, name = "pending_action_code")
     @AccessFunctions(onSelect = "administrative.get_ba_unit_pending_action(id)")
     private String pendingActionCode;
-    @Column(insertable=false, updatable=false, name = "calculated_area_size")
+    @Column(insertable = false, updatable = false, name = "calculated_area_size")
     @AccessFunctions(onSelect = "administrative.get_calculated_area_size_action(#{" + QUERY_PARAMETER_COLIST + "})")
     private BigDecimal calculatedAreaSize;
-    
+    @Column()
+    private String description;
+
     public BigDecimal getCalculatedAreaSize() {
         return calculatedAreaSize;
     }
@@ -125,7 +130,7 @@ public class BaUnit extends AbstractVersionedEntity {
     public void setCalculatedAreaSize(BigDecimal calculatedAreaSize) {
         this.calculatedAreaSize = calculatedAreaSize;
     }
-    
+
     public BaUnit() {
         super();
     }
@@ -203,6 +208,14 @@ public class BaUnit extends AbstractVersionedEntity {
         this.typeCode = typeCode;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public List<BaUnitNotation> getBaUnitNotationList() {
         return baUnitNotationList;
     }
@@ -258,8 +271,8 @@ public class BaUnit extends AbstractVersionedEntity {
     public void setPendingActionCode(String pendingActionCode) {
         this.pendingActionCode = pendingActionCode;
     }
-    
-     public Boolean isLocked() {
+
+    public Boolean isLocked() {
         if (locked == null) {
             locked = false;
             Transaction transaction = getTransaction();
@@ -275,7 +288,10 @@ public class BaUnit extends AbstractVersionedEntity {
         String result = "";
         SystemEJBLocal systemEJB = RepositoryUtility.tryGetEJB(SystemEJBLocal.class);
         if (systemEJB != null) {
-            Result newNumberResult = systemEJB.checkRuleGetResultSingle("generate-baunit-nr", null);
+            // Pass the type code to the business rule when determining the number to generate. 
+            HashMap<String, Serializable> params = new HashMap<String, Serializable>();
+            params.put(QUERY_PARAMETER_TYPE_CODE, getTypeCode());
+            Result newNumberResult = systemEJB.checkRuleGetResultSingle("generate-baunit-nr", params);
             if (newNumberResult != null && newNumberResult.getValue() != null) {
                 result = newNumberResult.getValue().toString();
             }
