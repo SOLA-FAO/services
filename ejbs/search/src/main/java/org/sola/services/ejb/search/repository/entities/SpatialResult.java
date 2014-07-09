@@ -47,7 +47,7 @@ public class SpatialResult extends AbstractReadOnlyEntity {
             + "cast(adject.id = #{" + PARAM_CADASTRE_OBJECT_ID + "} as varchar) as filter_category\n" +
        "from cadastre.cadastre_object main, cadastre.cadastre_object adject\n" +
        "where main.id= #{" + PARAM_CADASTRE_OBJECT_ID + "} and st_dwithin(main.geom_polygon, adject.geom_polygon, 0.1)"
-            + " and st_area(main.geom_polygon) < st_area(main.geom_polygon)*5";
+            + " order by 4 desc, st_area(adject.geom_polygon) asc";
 
     @Id
     @Column(name = "id")

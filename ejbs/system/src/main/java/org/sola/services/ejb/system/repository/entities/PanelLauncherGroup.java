@@ -27,79 +27,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.sola.services.ejb.administrative.repository.entities;
+package org.sola.services.ejb.system.repository.entities;
 
-import javax.persistence.Column;
 import javax.persistence.Table;
 import org.sola.services.common.repository.DefaultSorter;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
 
 /**
- * Entity representing the administrative.rrr_type code table.
- *
+ * Entity representing the system.panel_launcher_group table.
+
  * @author soladev
  */
-@Table(name = "rrr_type", schema = "administrative")
+@Table(name = "panel_launcher_group", schema = "system")
 @DefaultSorter(sortString = "display_value")
-public class RrrType extends AbstractCodeEntity {
+public class PanelLauncherGroup extends AbstractCodeEntity {
 
-    @Column(name = "rrr_group_type_code")
-    private String rrrGroupTypeCode;
-    @Column(name = "is_primary")
-    private boolean primary;
-    @Column(name = "share_check")
-    private boolean shareCheck;
-    @Column(name = "party_required")
-    private boolean partyRequired;
-    @Column(name = "rrr_panel_code")
-    private String rrrPanelCode;
-
-    public RrrType() {
+    public PanelLauncherGroup() {
         super();
-    }
-
-    public boolean isPartyRequired() {
-        return partyRequired;
-    }
-
-    public void setPartyRequired(boolean partyRequired) {
-        this.partyRequired = partyRequired;
-    }
-
-    public boolean isPrimary() {
-        return primary;
-    }
-
-    public void setPrimary(boolean primary) {
-        this.primary = primary;
-    }
-
-    public boolean isShareCheck() {
-        return shareCheck;
-    }
-
-    public void setShareCheck(boolean shareCheck) {
-        this.shareCheck = shareCheck;
-    }
-
-    public String getRrrGroupTypeCode() {
-        return rrrGroupTypeCode;
-    }
-
-    public void setRrrGroupTypeCode(String rrrGroupTypeCode) {
-        this.rrrGroupTypeCode = rrrGroupTypeCode;
-    }
-
-    public String getRrrPanelCode() {
-        return rrrPanelCode;
-    }
-
-    public void setRrrPanelCode(String rrrPanelCode) {
-        this.rrrPanelCode = rrrPanelCode;
     }
 
 }

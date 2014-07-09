@@ -27,11 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.sola.services.ejb.administrative.repository.entities;
+package org.sola.services.ejb.system.repository.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
@@ -39,67 +35,57 @@ import org.sola.services.common.repository.DefaultSorter;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
 
 /**
- * Entity representing the administrative.rrr_type code table.
- *
+ * Entity representing the system.config_panel_launcher table.
+
  * @author soladev
  */
-@Table(name = "rrr_type", schema = "administrative")
+@Table(name = "config_panel_launcher", schema = "system")
 @DefaultSorter(sortString = "display_value")
-public class RrrType extends AbstractCodeEntity {
+public class ConfigPanelLauncher extends AbstractCodeEntity {
 
-    @Column(name = "rrr_group_type_code")
-    private String rrrGroupTypeCode;
-    @Column(name = "is_primary")
-    private boolean primary;
-    @Column(name = "share_check")
-    private boolean shareCheck;
-    @Column(name = "party_required")
-    private boolean partyRequired;
-    @Column(name = "rrr_panel_code")
-    private String rrrPanelCode;
+    @Column(name = "panel_class")
+    private String panelClass;
+    @Column(name = "card_name")
+    private String cardName;
+    @Column(name = "message_code")
+    private String messageCode;
+    @Column(name = "launch_group")
+    private String launchGroupCode;
 
-    public RrrType() {
+    public ConfigPanelLauncher() {
         super();
     }
 
-    public boolean isPartyRequired() {
-        return partyRequired;
+    public String getPanelClass() {
+        return panelClass;
     }
 
-    public void setPartyRequired(boolean partyRequired) {
-        this.partyRequired = partyRequired;
+    public void setPanelClass(String panelClass) {
+        this.panelClass = panelClass;
     }
 
-    public boolean isPrimary() {
-        return primary;
+    public String getCardName() {
+        return cardName;
     }
 
-    public void setPrimary(boolean primary) {
-        this.primary = primary;
+    public void setCardName(String cardName) {
+        this.cardName = cardName;
     }
 
-    public boolean isShareCheck() {
-        return shareCheck;
+    public String getMessageCode() {
+        return messageCode;
     }
 
-    public void setShareCheck(boolean shareCheck) {
-        this.shareCheck = shareCheck;
+    public void setMessageCode(String messageCode) {
+        this.messageCode = messageCode;
     }
 
-    public String getRrrGroupTypeCode() {
-        return rrrGroupTypeCode;
+    public String getLaunchGroupCode() {
+        return launchGroupCode;
     }
 
-    public void setRrrGroupTypeCode(String rrrGroupTypeCode) {
-        this.rrrGroupTypeCode = rrrGroupTypeCode;
+    public void setLaunchGroupCode(String launchGroupCode) {
+        this.launchGroupCode = launchGroupCode;
     }
-
-    public String getRrrPanelCode() {
-        return rrrPanelCode;
-    }
-
-    public void setRrrPanelCode(String rrrPanelCode) {
-        this.rrrPanelCode = rrrPanelCode;
-    }
-
+    
 }
