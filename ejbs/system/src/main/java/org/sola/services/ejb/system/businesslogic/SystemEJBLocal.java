@@ -175,4 +175,10 @@ public interface SystemEJBLocal extends AbstractEJBLocal {
      * SystemEJB.getEmailTask
      */
     EmailTask getEmailTask(String id);
+    
+    /** See {@link SystemEJB#sendEmail(String, String, String, String) }*/
+    void sendEmail(String recipientName, String recipientAddress, String body, String subject);
+    
+    /** See {@link SystemEJB#isEmailServiceEnabled() }*/
+    boolean isEmailServiceEnabled();
 }

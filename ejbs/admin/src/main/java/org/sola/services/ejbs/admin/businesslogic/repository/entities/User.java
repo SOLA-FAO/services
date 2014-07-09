@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.ejbs.admin.businesslogic.repository.entities;
@@ -43,10 +45,12 @@ public class User extends AbstractVersionedEntity {
 
     public static final String PARAM_USERNAME = "username";
     public static final String PARAM_EMAIL = "email";
+    public static final String PARAM_ACTIVATION_CODE = "activationCode";
     public static final String PARAM_PASSWORD = "passwd";
     public static final String PARAM_CHANGE_USER = "changeUser";
     public static final String QUERY_WHERE_USERNAME = "username = #{" + PARAM_USERNAME + "}";
     public static final String QUERY_WHERE_EMAIL = "email = #{" + PARAM_EMAIL + "}";
+    public static final String QUERY_WHERE_ACTIVATION_CODE = "activation_code = #{" + PARAM_ACTIVATION_CODE + "}";
     public static final String QUERY_WHERE_EMAIL_EXCLUDE_USERNAME = "email = #{" + PARAM_EMAIL + "} AND username <> #{" + PARAM_USERNAME + "}";
     public static final String QUERY_WHERE_USERNAME_AND_PASSWORD = "username = #{" + PARAM_USERNAME + "} AND passwd = #{" + PARAM_PASSWORD + "}";
     public static final String QUERY_SET_PASSWORD = "select system.setPassword(#{"
@@ -82,9 +86,9 @@ public class User extends AbstractVersionedEntity {
             + " WHERE uname = username limit 1)")
     @Column(name = "pword_expiry_days", insertable = false, updatable = false)
     private Integer pwordExpiryDays;
-    @Column(name="activation_expiration")
+    @Column(name = "activation_expiration")
     Date activationExpiration;
-    
+
     public String getPassword() {
         return password;
     }
@@ -116,7 +120,7 @@ public class User extends AbstractVersionedEntity {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
     @ChildEntityList(parentIdField = "userId")
     private List<UserGroup> userGroups;
 
@@ -165,6 +169,21 @@ public class User extends AbstractVersionedEntity {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getFullName() {
+        String fullName = "";
+        if (getFirstName() != null && getFirstName().length() > 0) {
+            fullName = getFirstName();
+        }
+        if (getLastName() != null && getLastName().length() > 0) {
+            if (fullName.length() > 0) {
+                fullName += " " + getLastName();
+            } else {
+                fullName = getLastName();
+            }
+        }
+        return fullName;
     }
 
     public String getUserName() {

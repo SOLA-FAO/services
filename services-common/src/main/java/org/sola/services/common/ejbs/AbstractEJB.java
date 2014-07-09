@@ -89,7 +89,9 @@ import org.sola.services.common.repository.entities.AbstractEntity;
     RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION,
     RolesConstants.ADMIN_CHANGE_PASSWORD,
     RolesConstants.CS_ACCESS_CS,
-    RolesConstants.CS_MODERATE_CLAIM
+    RolesConstants.CS_MODERATE_CLAIM,
+    RolesConstants.CS_RECORD_CLAIM,
+    RolesConstants.CS_REVIEW_CLAIM
 })
 public abstract class AbstractEJB implements AbstractEJBLocal {
 

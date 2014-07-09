@@ -87,6 +87,9 @@ public interface AdminEJBLocal {
     /** See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserActive(java.lang.String)} */
     boolean isUserActive(String userName);
     
+    /** See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserActiveByEmail(java.lang.String)} */
+    boolean isUserActiveByEmail(String email);
+    
     /** See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#activeteCommuninityRecorderUser(java.lang.String, java.lang.String) }*/
     boolean activeteCommuninityRecorderUser(String userName, String activationCode);
     
@@ -124,6 +127,12 @@ public interface AdminEJBLocal {
      * AdminEJB.changePassword}
      */
     boolean changePassword(String userName, String password);
+    
+    /**
+     * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#changePasswordByRestoreCode(java.lang.String, java.lang.String)
+     * AdminEJB.changePassword}
+     */
+    boolean changePasswordByRestoreCode(String restoreCode, String password);
 
     /**
      * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#getRoles()
@@ -202,4 +211,19 @@ public interface AdminEJBLocal {
      * AdminEJB.consolidationConsolidate}
      */
     String consolidationConsolidate(String languageCode, String fileInServer, String password);
+    
+    /**
+     * See {@linkplain AdminEJB#restoreUserPassword(String)}
+     */
+    void restoreUserPassword(String email);
+    
+    /**
+     * See {@linkplain AdminEJB#getUserByActivationCode(String)}
+     */
+    User getUserByActivationCode(String activationCode);
+
+    /**
+     * See {@linkplain AdminEJB#getUserInfo(String)}
+     */
+    User getUserInfo(String userName);
 }

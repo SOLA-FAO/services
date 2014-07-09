@@ -54,6 +54,7 @@ import org.sola.common.RolesConstants;
 import org.sola.common.SOLAException;
 import org.sola.common.StringUtility;
 import org.sola.common.messaging.ClientMessage;
+import org.sola.services.common.EntityAction;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.br.ValidationResult;
 import org.sola.services.common.ejbs.AbstractEJB;
@@ -134,7 +135,14 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         return fullName;
     }
 
-    private User getUserInfo(String userName) {
+    /**
+     * Returns the details of the user with the specified user name.
+     * Should be used only between EJBs, not exposing this method outside. It has no security roles.
+     * @param userName The user name of the user to search for.
+     * @return 
+     */
+    @Override
+    public User getUserInfo(String userName) {
         Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, User.QUERY_WHERE_USERNAME);
         params.put(User.PARAM_USERNAME, userName);
@@ -161,12 +169,15 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
      */
     @Override
     public boolean isUserEmailExists(String email) {
+        User user = getUserByEmail(email);
+        return user != null && user.getEmail() != null && !user.getEmail().equals("");
+    }
+    
+    private User getUserByEmail(String email) {
         Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, User.QUERY_WHERE_EMAIL);
         params.put(User.PARAM_EMAIL, email);
-        User user = getRepository().getEntity(User.class, params);
-
-        return user != null && user.getEmail() != null && !user.getEmail().equals("");
+        return getRepository().getEntity(User.class, params);
     }
 
     /**
@@ -220,6 +231,21 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         return false;
     }
 
+    /**
+     * Returns true if user is active, otherwise false.
+     *
+     * @param email User email address
+     * @return
+     */
+    @Override
+    public boolean isUserActiveByEmail(String email){
+        User user = getUserByEmail(email);
+        if (user != null) {
+            return user.isActive();
+        }
+        return false;
+    }
+    
     /**
      * Activates community recorder user
      *
@@ -307,7 +333,6 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         Group group = getRepository().getEntity(Group.class, Group.COMMUNITY_RECORDER_GROUP_ID);
         if (group == null) {
             // Create group and assign roles
-            // TODO: Assign roles
             group = new Group();
             group.setId(Group.COMMUNITY_RECORDER_GROUP_ID);
             group.setName(Group.COMMUNITY_RECORDER_GROUP_NAME);
@@ -333,7 +358,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         changeUserPassword(user.getUserName(), passwd);
 
         // Send email
-        if (systemEJB.getSetting(ConfigConstants.EMAIL_ENABLE_SERVICE, "0").equals("1") && !StringUtility.isEmpty(user.getEmail())) {
+        if (systemEJB.isEmailServiceEnabled() && !StringUtility.isEmpty(user.getEmail())) {
             String adminAddress = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_ADDRESS, "");
             String adminName = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_NAME, "");
             String msgBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_REG_BODY, "");
@@ -348,14 +373,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
             msgBody = msgBody.replace(EmailVariables.ACTIVATION_PAGE, activationPage);
             msgBody = msgBody.replace(EmailVariables.ACTIVATION_CODE, code);
 
-            EmailTask task = new EmailTask();
-            task.setId(UUID.randomUUID().toString());
-            task.setBody(msgBody);
-            task.setRecipient(user.getEmail());
-            task.setRecipientName(StringUtility.empty(user.getFirstName()) + " " + StringUtility.empty(user.getLastName()));
-            task.setSubject(msgSubject);
-
-            systemEJB.saveEmailTask(task);
+            systemEJB.sendEmail(user.getFullName(), user.getEmail(), msgBody, msgSubject);
 
             if (!adminAddress.equals("")) {
                 // Send notification to admin
@@ -363,14 +381,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
                 String msgAdminSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_USER_REG_SUBJECT, "");
                 msgAdminBody = msgAdminBody.replace(EmailVariables.USER_NAME, user.getUserName());
 
-                task = new EmailTask();
-                task.setId(UUID.randomUUID().toString());
-                task.setBody(msgAdminBody);
-                task.setRecipient(adminAddress);
-                task.setRecipientName(adminName);
-                task.setSubject(msgAdminSubject);
-
-                systemEJB.saveEmailTask(task);
+                systemEJB.sendEmail(adminName, adminAddress, msgAdminBody, msgAdminSubject);
             }
         }
         return user;
@@ -488,6 +499,23 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         return changeUserPassword(userName, password);
     }
 
+    /**
+     * Allows to change user's password by restore password code
+     * 
+     * @param restoreCode Password restore code
+     * @param password New user password
+     * @return true if the change is successful.
+     */
+    @Override
+    public boolean changePasswordByRestoreCode(String restoreCode, String password){
+        User user = getUserByActivationCode(restoreCode);
+        if(user == null)
+            return false;
+        user.setActivationCode(null);
+        getRepository().saveEntity(user);
+        return changeUserPassword(user.getUserName(), password);
+    }
+    
     /**
      * Allows to change current user's password
      *
@@ -722,5 +750,48 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         List<ValidationResult> validationResultList
                 = this.systemEJB.checkRulesGetValidation(brValidationList, languageCode, null);
         return validationResultList;
+    }
+
+    /** 
+     * Restores user password by generating activation code and sending 
+     * a link to the user for changing the password. 
+     * @param email User's email
+     */
+    @Override
+    public void restoreUserPassword(String email){
+        User user = getUserByEmail(email);
+        if(user == null || StringUtility.isEmpty(user.getEmail()) || !user.isActive())
+            return;
+        
+        String code = UUID.randomUUID().toString();
+
+        user.setActivationCode(code);
+        user.setEntityAction(EntityAction.UPDATE);
+        getRepository().saveEntity(user);
+
+        // Send email
+        if (systemEJB.isEmailServiceEnabled() && !StringUtility.isEmpty(user.getEmail())) {
+            String msgBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_PASSWD_RESTORE_BODY, "");
+            String msgSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_PASSWD_RESTORE_SUBJECT, "");
+            String restoreUrl = StringUtility.empty(LocalInfo.getBaseUrl()) + "/user/pwdrestore.xhtml?code=" + code;
+
+            msgBody = msgBody.replace(EmailVariables.FULL_USER_NAME, user.getFirstName());
+            msgBody = msgBody.replace(EmailVariables.PASSWORD_RESTORE_LINK, restoreUrl);
+
+            systemEJB.sendEmail(user.getFullName(), user.getEmail(), msgBody, msgSubject);
+        }
+    }
+    
+    /**
+     * Returns user by activation code
+     * @param activationCode Activation code
+     * @return 
+     */
+    @Override
+    public User getUserByActivationCode(String activationCode){
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, User.QUERY_WHERE_ACTIVATION_CODE);
+        params.put(User.PARAM_ACTIVATION_CODE, activationCode);
+        return getRepository().getEntity(User.class, params);
     }
 }

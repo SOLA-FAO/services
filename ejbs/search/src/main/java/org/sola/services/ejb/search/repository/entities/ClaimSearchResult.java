@@ -48,7 +48,7 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
             + "\n";
     
     public static final String QUERY_SEARCH_BY_POINT = SELECT_PART
-            + "WHERE ST_Contains(c.mapped_geometry, ST_GeomFromText(#{" + PARAM_POINT + "}, St_SRID(c.mapped_geometry)));";
+            + "WHERE ST_Contains(c.mapped_geometry, ST_GeomFromText(#{" + PARAM_POINT + "}, St_SRID(c.mapped_geometry))) AND c.status_code NOT IN ('rejected','withdrawn')";
     
     public static final String QUERY_SEARCH = SELECT_PART
             + "where position(lower(#{" + PARAM_NAME + "}) in lower(p.name || ' ' || COALESCE(p.last_name, ''))) > 0 and\n"

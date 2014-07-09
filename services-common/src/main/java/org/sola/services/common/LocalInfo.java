@@ -111,12 +111,12 @@ public final class LocalInfo {
 
     /** Returns base URL of Web application. */
     public static String getBaseUrl() {
-        return get(BASE_URL, String.class);
+        return get(BASE_URL, String.class, true);
     }
 
     /** Sets base URL for Web application. */
     public static void setBaseUrl(String url) {
-        set(BASE_URL, url, true);
+        set(BASE_URL, url, true, true);
     }
     
     public static String getTransactionId() {
