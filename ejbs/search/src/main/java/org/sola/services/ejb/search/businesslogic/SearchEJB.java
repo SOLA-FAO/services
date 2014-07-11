@@ -736,7 +736,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
 
         params.put(CommonSqlProvider.PARAM_QUERY,
                 SearchSqlProvider.buildSearchBaUnitSql(searchParams.getNameFirstPart(),
-                        searchParams.getNameLastPart(), searchParams.getOwnerName()));
+                searchParams.getNameLastPart(), searchParams.getOwnerName()));
         params.put(BaUnitSearchResult.QUERY_PARAM_OWNER_NAME, searchParams.getOwnerName());
         params.put(BaUnitSearchResult.QUERY_PARAM_NAME_FIRSTPART, searchParams.getNameFirstPart());
         params.put(BaUnitSearchResult.QUERY_PARAM_NAME_LASTPART, searchParams.getNameLastPart());
@@ -862,11 +862,11 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(CommonSqlProvider.PARAM_LIMIT_PART, searchParams.getLimit());
         params.put(ClaimSpatialSearchResult.PARAM_ENVELOPE,
                 String.format(ClaimSpatialSearchResult.ENVELOPE,
-                        searchParams.getMinX(), searchParams.getMinY(),
-                        searchParams.getMaxX(), searchParams.getMaxY()));
+                searchParams.getMinX(), searchParams.getMinY(),
+                searchParams.getMaxX(), searchParams.getMaxY()));
         return getRepository().getEntityList(ClaimSpatialSearchResult.class, params);
     }
-    
+
     /**
      * Returns list of {@link ClaimSpatialSearchResult} representing all claims.
      *
@@ -877,7 +877,6 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         return getRepository().getEntityList(ClaimSpatialSearchResult.class);
     }
 
-    
     /**
      * Returns {@link ClaimSearchResult} by x and y coordinates.
      *
@@ -888,9 +887,10 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      */
     @Override
     public ClaimSearchResult getClaimByCoordinates(String x, String y, String langCode) {
-        if(StringUtility.isEmpty(x) || StringUtility.isEmpty(y))
+        if (StringUtility.isEmpty(x) || StringUtility.isEmpty(y)) {
             return null;
-        
+        }
+
         String point = "POINT(" + x + " " + y + ")";
         HashMap params = new HashMap();
         params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_BY_POINT);
@@ -898,7 +898,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, langCode);
         return getRepository().getEntity(ClaimSearchResult.class, params);
     }
-    
+
     /**
      * Searched and returns list of {@link ClaimSearchResult}.
      *
@@ -917,7 +917,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         searchParams.setStatusCode(StringUtility.empty(searchParams.getStatusCode()));
         searchParams.setRecorderName(StringUtility.empty(searchParams.getRecorderName()));
         searchParams.setLanguageCode(StringUtility.empty(searchParams.getLanguageCode()));
-        
+
         // put params into map
         params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH);
         params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, searchParams.getLanguageCode());
@@ -927,7 +927,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(ClaimSearchResult.PARAM_NAME, searchParams.getClaimantName());
         params.put(ClaimSearchResult.PARAM_RECORDER, searchParams.getRecorderName());
         params.put(ClaimSearchResult.PARAM_STATUS_CODE, searchParams.getStatusCode());
-        
+
         return getRepository().getEntityList(ClaimSearchResult.class, params);
     }
 
@@ -938,5 +938,15 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(CommonSqlProvider.PARAM_QUERY, SpatialResult.QUERY_GET_PLAN_CADASTRE_OBJECTS);
         return getRepository().getEntityList(SpatialResult.class, params);
     }
-    
+
+    @Override
+    public byte[] transform(byte[] wkbGeom, int srid) {
+        Map params = new HashMap();
+        params.put(
+                CommonSqlProvider.PARAM_QUERY, 
+                "select st_asewkb(st_transform(#{geom}, #{srid}))");
+        params.put("srid", srid);
+        params.put("geom", wkbGeom);
+        return getRepository().getScalar(byte[].class, params);
+    }
 }
