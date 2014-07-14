@@ -564,7 +564,6 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     public List<ConfigMapLayer> getConfigMapLayerList(String languageCode) {
         Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, languageCode);
-        params.put(CommonSqlProvider.PARAM_WHERE_PART, ConfigMapLayer.QUERY_WHERE_ACTIVE);
         params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, ConfigMapLayer.QUERY_ORDER_BY);
         return getRepository().getEntityList(ConfigMapLayer.class, params);
     }
