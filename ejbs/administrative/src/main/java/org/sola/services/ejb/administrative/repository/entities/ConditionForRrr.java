@@ -54,6 +54,9 @@ public class ConditionForRrr extends AbstractVersionedEntity {
     @Column(name="condition_unit")
     private String conditionUnit;
     
+    @Column(name="custom_condition_name")
+    private String customConditionName; 
+    
     public ConditionForRrr(){
         super();
     }
@@ -104,5 +107,13 @@ public class ConditionForRrr extends AbstractVersionedEntity {
 
     public void setRrrId(String rrrId) {
         this.rrrId = rrrId;
+    }
+
+    public String getCustomConditionName() {
+        return customConditionName;
+    }
+
+    public void setCustomConditionName(String customConditionName) {
+        this.customConditionName = customConditionName;
     }
 }
