@@ -46,13 +46,14 @@ import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 @Table(name = "config_map_layer", schema = "system")
 public class ConfigMapLayer extends AbstractReadOnlyEntity {
 
-    public static final String QUERY_WHERE_ACTIVE = "active";
     public static final String QUERY_ORDER_BY = "item_order";
     @Id
     @Column(name = "name")
     private String id;
     @Column(name = "type_code")
     private String typeCode;
+    @Column(name = "active")
+    private boolean active;
     @Column(name = "url")
     private String url;
     @Column(name = "wms_layers")
@@ -97,6 +98,14 @@ public class ConfigMapLayer extends AbstractReadOnlyEntity {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public String getPojoQueryName() {
