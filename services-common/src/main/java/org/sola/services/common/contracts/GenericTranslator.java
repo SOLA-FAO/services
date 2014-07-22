@@ -50,7 +50,7 @@ public final class GenericTranslator {
      * mapping file used by SOLA Services. <p>Lighthouse Bug Fixes: <ul><li>#178 - Added extra
      * mapping config file for services</li></ul></p>
      */
-    private static Mapper getMapper() {
+    public static Mapper getMapper() {
         String serviceMappingConfigFile = GenericTranslator.class.getResource(SERVICE_MAPPING_CONFIG).toString();
         return MappingManager.getMapper(new GenericTranslatorListener(), serviceMappingConfigFile);
     }
