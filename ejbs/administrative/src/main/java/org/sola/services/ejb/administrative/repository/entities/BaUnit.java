@@ -122,6 +122,9 @@ public class BaUnit extends AbstractVersionedEntity {
     private BigDecimal calculatedAreaSize;
     @Column()
     private String description;
+    @Column(insertable = false, updatable = false, name= "land_use_code")
+    @AccessFunctions(onSelect = "administrative.get_land_use_code(id)")
+    private String landUseCode;
 
     public BigDecimal getCalculatedAreaSize() {
         return calculatedAreaSize;
@@ -214,6 +217,14 @@ public class BaUnit extends AbstractVersionedEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getLandUseCode() {
+        return landUseCode;
+    }
+
+    public void setLandUseCode(String landUseCode) {
+        this.landUseCode = landUseCode;
     }
 
     public List<BaUnitNotation> getBaUnitNotationList() {

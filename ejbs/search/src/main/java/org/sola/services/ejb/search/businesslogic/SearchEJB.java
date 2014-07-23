@@ -722,24 +722,18 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     public List<BaUnitSearchResult> searchBaUnits(BaUnitSearchParams searchParams) {
         Map params = new HashMap<String, Object>();
 
-        if (searchParams.getNameFirstPart() != null
-                && searchParams.getNameFirstPart().trim().isEmpty()) {
-            searchParams.setNameFirstPart(null);
-        }
-        if (searchParams.getNameLastPart() != null
-                && searchParams.getNameLastPart().trim().isEmpty()) {
-            searchParams.setNameLastPart(null);
-        }
-        if (searchParams.getOwnerName() != null && searchParams.getOwnerName().trim().isEmpty()) {
-            searchParams.setOwnerName(null);
-        }
-
         params.put(CommonSqlProvider.PARAM_QUERY,
-                SearchSqlProvider.buildSearchBaUnitSql(searchParams.getNameFirstPart(),
-                        searchParams.getNameLastPart(), searchParams.getOwnerName()));
+                SearchSqlProvider.buildSearchBaUnitSql(searchParams));
         params.put(BaUnitSearchResult.QUERY_PARAM_OWNER_NAME, searchParams.getOwnerName());
         params.put(BaUnitSearchResult.QUERY_PARAM_NAME_FIRSTPART, searchParams.getNameFirstPart());
         params.put(BaUnitSearchResult.QUERY_PARAM_NAME_LASTPART, searchParams.getNameLastPart());
+        params.put(BaUnitSearchResult.QUERY_PARAM_DOCUMENT_REF, searchParams.getDocumentNumber());
+        params.put(BaUnitSearchResult.QUERY_PARAM_INTEREST_REF, searchParams.getInterestRefNum());
+        params.put(BaUnitSearchResult.QUERY_PARAM_LOCALITY, searchParams.getLocality());
+        params.put(BaUnitSearchResult.QUERY_PARAM_PARCEL_LAND_USE, searchParams.getLandUseTypeCode());
+        params.put(BaUnitSearchResult.QUERY_PARAM_PARCEL_NAME_FIRSTPART, searchParams.getParcelNumber());
+        params.put(BaUnitSearchResult.QUERY_PARAM_PARCEL_NAME_LASTPART, searchParams.getPlanNumber());
+        params.put(BaUnitSearchResult.QUERY_PARAM_PROPERTY_MANAGER, searchParams.getPropertyManager());
         return getRepository().getEntityList(BaUnitSearchResult.class, params);
     }
 
@@ -866,7 +860,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
                         searchParams.getMaxX(), searchParams.getMaxY()));
         return getRepository().getEntityList(ClaimSpatialSearchResult.class, params);
     }
-    
+
     /**
      * Returns list of {@link ClaimSpatialSearchResult} representing all claims.
      *
@@ -877,7 +871,6 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         return getRepository().getEntityList(ClaimSpatialSearchResult.class);
     }
 
-    
     /**
      * Returns {@link ClaimSearchResult} by x and y coordinates.
      *
@@ -888,9 +881,10 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      */
     @Override
     public ClaimSearchResult getClaimByCoordinates(String x, String y, String langCode) {
-        if(StringUtility.isEmpty(x) || StringUtility.isEmpty(y))
+        if (StringUtility.isEmpty(x) || StringUtility.isEmpty(y)) {
             return null;
-        
+        }
+
         String point = "POINT(" + x + " " + y + ")";
         HashMap params = new HashMap();
         params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_BY_POINT);
@@ -898,7 +892,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, langCode);
         return getRepository().getEntity(ClaimSearchResult.class, params);
     }
-    
+
     /**
      * Searched and returns list of {@link ClaimSearchResult}.
      *
@@ -917,7 +911,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         searchParams.setStatusCode(StringUtility.empty(searchParams.getStatusCode()));
         searchParams.setRecorderName(StringUtility.empty(searchParams.getRecorderName()));
         searchParams.setLanguageCode(StringUtility.empty(searchParams.getLanguageCode()));
-        
+
         // put params into map
         params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH);
         params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, searchParams.getLanguageCode());
@@ -927,7 +921,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(ClaimSearchResult.PARAM_NAME, searchParams.getClaimantName());
         params.put(ClaimSearchResult.PARAM_RECORDER, searchParams.getRecorderName());
         params.put(ClaimSearchResult.PARAM_STATUS_CODE, searchParams.getStatusCode());
-        
+
         return getRepository().getEntityList(ClaimSearchResult.class, params);
     }
 
@@ -938,5 +932,5 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(CommonSqlProvider.PARAM_QUERY, SpatialResult.QUERY_GET_PLAN_CADASTRE_OBJECTS);
         return getRepository().getEntityList(SpatialResult.class, params);
     }
-    
+
 }
