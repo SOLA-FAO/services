@@ -4,12 +4,12 @@
     <parent>
         <artifactId>sola-ejbs</artifactId>
         <groupId>org.sola.services</groupId>
-        <version>sl-004</version>
+        <version>sl-005</version>
     </parent>
 
     <groupId>org.sola.services.ejbs</groupId>
     <artifactId>sola-digital-archive</artifactId>
-    <version>sl-004</version>
+    <version>sl-005</version>
     <packaging>ejb</packaging>
     
     <name>EJB Digital archive</name>

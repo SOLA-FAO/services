@@ -4,12 +4,12 @@
     <parent>
         <artifactId>sola-services</artifactId>
         <groupId>org.sola</groupId>
-        <version>sl-004</version>
+        <version>sl-005</version>
     </parent>
     <groupId>org.sola.services</groupId>
     <artifactId>sola-services-ear</artifactId>
     <packaging>ear</packaging>
-    <version>sl-004</version>
+    <version>sl-005</version>
     <name>Services EAR</name>
     <build>
         <finalName>sola-sl-services-ear</finalName>
