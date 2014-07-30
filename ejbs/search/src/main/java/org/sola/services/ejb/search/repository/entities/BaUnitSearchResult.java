@@ -45,6 +45,7 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
     public static final String QUERY_PARAM_LOCALITY = "locality";
     public static final String QUERY_PARAM_DOCUMENT_REF = "documentRef";
     public static final String QUERY_PARAM_PROPERTY_MANAGER = "propManager";
+    public static final String QUERY_PARAM_DESCRIPTION = "description";
     public static final String QUERY_ORDER_BY = "prop.name_firstpart, prop.name_lastpart";
 
     @Id
@@ -62,7 +63,7 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
     private String rightholders;
     @Column
     private String description;
-    @Column(name= "land_use_code")
+    @Column(name = "land_use_code")
     private String landUseCode;
     @Column
     private String parcels;
@@ -71,7 +72,13 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
     @Column(name = "prop_man")
     private String propertyManager;
     @Column(name = "type_code")
-    private String typeCode; 
+    private String typeCode;
+    @Column(name = "active_jobs")
+    private String activeJobs;
+    @Column(name = "action_status")
+    private String actionStatusCode;
+    @Column(name = "notation_text")
+    private String notationText;
 
     public BaUnitSearchResult() {
         super();
@@ -171,5 +178,29 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
 
     public void setTypeCode(String typeCode) {
         this.typeCode = typeCode;
+    }
+
+    public String getActiveJobs() {
+        return activeJobs;
+    }
+
+    public void setActiveJobs(String activeJobs) {
+        this.activeJobs = activeJobs;
+    }
+
+    public String getActionStatusCode() {
+        return actionStatusCode;
+    }
+
+    public void setActionStatusCode(String actionStatusCode) {
+        this.actionStatusCode = actionStatusCode;
+    }
+
+    public String getNotationText() {
+        return notationText;
+    }
+
+    public void setNotationText(String notationText) {
+        this.notationText = notationText;
     }
 }

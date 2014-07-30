@@ -33,8 +33,12 @@
  */
 package org.sola.services.ejb.search.repository;
 
+import org.apache.ibatis.jdbc.SqlBuilder;
 import static org.apache.ibatis.jdbc.SqlBuilder.*;
 import org.sola.common.StringUtility;
+import org.sola.services.common.repository.CommonSqlProvider;
+import org.sola.services.ejb.search.repository.entities.ApplicationSearchParams;
+import org.sola.services.ejb.search.repository.entities.ApplicationSearchResult;
 import org.sola.services.ejb.search.repository.entities.BaUnitSearchParams;
 import org.sola.services.ejb.search.repository.entities.BaUnitSearchResult;
 
@@ -394,16 +398,9 @@ public class SearchSqlProvider {
     }
 
     /**
-     * Uses the BA Unit Search parameters to build an appropriate SQL Query.
-     * This method does not inject the search parameter values into the SQL as
-     * that would prevent the database from performing statement caching.
-     *
-     * @param params The name first part search parameter value
-     * @return SQL String
+     * Initializes the select query used to retrieve property summary details.
      */
-    public static String buildSearchBaUnitSql(BaUnitSearchParams params) {
-        boolean criteriaProvided = false;
-        String sql;
+    private static void initPropertySummaryQuery() {
         BEGIN();
         SELECT("DISTINCT prop.id");
         SELECT("prop.name");
@@ -431,8 +428,26 @@ public class SearchSqlProvider {
                 + "AND addr2.id = sua2.address_id "
                 + ") AS locality");
         SELECT("administrative.get_land_use_code(prop.id) AS land_use_code");
-        SELECT("NULL AS prop_man");
+        SELECT("(SELECT (COALESCE(pm.name, '') || ' ' || COALESCE(pm.last_name, ''))"
+                + " FROM administrative.ba_unit_as_party bap, party.party pm"
+                + " WHERE bap.ba_unit_id = prop.id"
+                + " AND   pm.id = bap.party_id LIMIT 1) AS prop_man");
         FROM("administrative.ba_unit prop");
+    }
+
+    /**
+     * Uses the BA Unit Search parameters to build an appropriate SQL Query.
+     * This method does not inject the search parameter values into the SQL as
+     * that would prevent the database from performing statement caching.
+     *
+     * @param params The name first part search parameter value
+     * @return SQL String
+     */
+    public static String buildSearchBaUnitSql(BaUnitSearchParams params) {
+        boolean criteriaProvided = false;
+        String sql;
+
+        initPropertySummaryQuery();
 
         if (params.isSearchType(BaUnitSearchParams.SEARCH_TYPE_STATE_LAND)) {
             // State Land Search
@@ -484,7 +499,7 @@ public class SearchSqlProvider {
             criteriaProvided = true;
             WHERE("administrative.is_linked_document(prop.id, #{" + BaUnitSearchResult.QUERY_PARAM_DOCUMENT_REF + "})");
         }
-        
+
         if (!StringUtility.isEmpty(params.getParcelNumber()) || !StringUtility.isEmpty(params.getPlanNumber())
                 || !StringUtility.isEmpty(params.getLandUseTypeCode()) || !StringUtility.isEmpty(params.getLocality())) {
             criteriaProvided = true;
@@ -523,7 +538,18 @@ public class SearchSqlProvider {
 
         if (!StringUtility.isEmpty(params.getPropertyManager())) {
             criteriaProvided = true;
-            // TBC
+            FROM("administrative.ba_unit_as_party bap");
+            FROM("party.party pman");
+            WHERE("bap.ba_unit_id = prop.id");
+            WHERE("pman.id = bap.party_id");
+            WHERE("compare_strings(#{" + BaUnitSearchResult.QUERY_PARAM_PROPERTY_MANAGER + "}, "
+                    + "COALESCE(pman.name, '') || ' ' || COALESCE(pman.last_name, '') || ' ' || COALESCE(pman.alias, ''))");
+        }
+
+        if (!StringUtility.isEmpty(params.getDescription())) {
+            criteriaProvided = true;
+            WHERE("compare_strings(#{" + BaUnitSearchResult.QUERY_PARAM_DESCRIPTION
+                    + "}, COALESCE(prop.description, ''))");
         }
 
         if (!criteriaProvided) {
@@ -532,6 +558,204 @@ public class SearchSqlProvider {
             WHERE("1 = 2");
         }
         ORDER_BY(BaUnitSearchResult.QUERY_ORDER_BY + " LIMIT 100");
+        sql = SQL();
+        return sql;
+    }
+
+    /**
+     * Creates an SQL query to retrieve the properties with required actions for
+     * display for the on the SLDashboardPanel.
+     *
+     * @return SQL String
+     */
+    public static String buildPropertyToActionSql() {
+        String sql;
+
+        initPropertySummaryQuery();
+        SELECT("(SELECT string_agg(COALESCE(a.nr, ''), '::::') "
+                + "FROM application.application a "
+                + "WHERE a.status_code IN ('lodged', 'approved', 'requisitioned') "
+                + "AND a.id IN ( "
+                + "   SELECT ap.application_id "
+                + "   FROM application.application_property ap"
+                + "   WHERE ap.ba_unit_id = prop.id "
+                + "   UNION"
+                + "   SELECT s.application_id "
+                + "   FROM application.service s, "
+                + "        transaction.transaction t "
+                + "   WHERE t.id = prop.transaction_id "
+                + "   AND   s.id = t.from_service_id "
+                + "   AND   s.status_code IN ('lodged', 'pending')) "
+                + ") AS active_jobs");
+        SELECT("note.status_code AS action_status");
+        SELECT("note.notation_text");
+        FROM("administrative.notation note");
+        WHERE("note.id IN (SELECT n.id "
+                + "FROM  administrative.notation n "
+                + "WHERE n.ba_unit_id = prop.id "
+                + "AND   n.status_code IN ('actionReqd', 'actionReqdUrgent', 'onHold') "
+                + "ORDER BY CASE n.status_code WHEN 'actionReqdUrgent' THEN 1 "
+                + "                            WHEN 'actionReqd' THEN 2 "
+                + "                            ELSE 3 END LIMIT 1)");
+        ORDER_BY("note.status_code, prop.name_lastpart LIMIT 100");
+        sql = SQL();
+        return sql;
+    }
+
+    /**
+     * Initializes the select query used to retrieve job summary details. This
+     * query omits the assignee_name field so this can be included in the main
+     * build SQL method.
+     */
+    private static void initJobSummaryQuery() {
+        BEGIN();
+        SELECT("DISTINCT app.id");
+        SELECT("app.nr");
+        SELECT("app.status_code AS status");
+        SELECT("app.lodging_datetime");
+        SELECT("app.expected_completion_date");
+        SELECT("app.assigned_datetime");
+        SELECT("app.assignee_id");
+        SELECT("app.agent_id");
+        SELECT("app.contact_person_id");
+        SELECT("app.fee_paid");
+        SELECT("app.rowversion");
+        SELECT("app.change_user");
+        SELECT("app.rowidentifier");
+        SELECT("app.description");
+        SELECT("(SELECT string_agg(tmp.display_value, ',') FROM "
+                + "(SELECT get_translation(display_value, #{" + CommonSqlProvider.PARAM_LANGUAGE_CODE + "}) as display_value  "
+                + "FROM application.service aps INNER JOIN application.request_type rt ON aps.request_type_code = rt.code  "
+                + "WHERE aps.application_id = app.id ORDER BY aps.service_order) tmp) AS service_list");
+        SELECT("(SELECT (COALESCE(pa.name, '') || ' ' || COALESCE(pa.last_name, ''))"
+                + " FROM party.party pa"
+                + " WHERE pa.id = app.agent_id ) AS agent");
+        SELECT("(SELECT (COALESCE(pc.name, '') || ' ' || COALESCE(pc.last_name, ''))"
+                + " FROM party.party pc"
+                + " WHERE pc.id = app.contact_person_id ) AS contact_person");
+        FROM("application.application app");
+    }
+
+    /**
+     * Uses the Application Search parameters to build an appropriate SQL Query
+     * to search for Jobs in the system. This method does not inject the search
+     * parameter values into the SQL as that would prevent the database from
+     * performing statement caching.
+     *
+     * @param params The application search parameters
+     * @return SQL String
+     */
+    public static String buildSearchJobsSql(ApplicationSearchParams params) {
+        boolean criteriaProvided = false;
+        String sql;
+
+        initJobSummaryQuery();
+
+        SELECT("(SELECT (COALESCE(u.first_name, '') || ' ' || COALESCE(u.last_name, ''))"
+                + " FROM system.appuser u"
+                + " WHERE u.id = app.assignee_id ) AS assignee_name");
+
+        if (!StringUtility.isEmpty(params.getNr())) {
+            criteriaProvided = true;
+            WHERE("compare_strings(#{" + ApplicationSearchResult.QUERY_PARAM_APP_NR + "}, app.nr)");
+        }
+
+        if (!StringUtility.isEmpty(params.getAgent())) {
+            criteriaProvided = true;
+            FROM("party.party pag");
+            WHERE("pag.id = app.agent_id");
+            WHERE("compare_strings(#{" + ApplicationSearchResult.QUERY_PARAM_AGENT_NAME + "}, "
+                    + "COALESCE(pag.name, '') || ' ' || COALESCE(pag.last_name, '') || ' ' || COALESCE(pag.alias, ''))");
+        }
+
+        if (!StringUtility.isEmpty(params.getContactPerson())) {
+            criteriaProvided = true;
+            FROM("party.party pcp");
+            WHERE("pcp.id = app.contact_person_id");
+            WHERE("compare_strings(#{" + ApplicationSearchResult.QUERY_PARAM_CONTACT_NAME + "}, "
+                    + "COALESCE(pcp.name, '') || ' ' || COALESCE(pcp.last_name, '') || ' ' || COALESCE(pcp.alias, ''))");
+        }
+
+        if (!StringUtility.isEmpty(params.getAssigneeName())) {
+            criteriaProvided = true;
+            FROM("system.appuser usr");
+            WHERE("usr.id = app.assignee_id");
+            WHERE("compare_strings(#{" + ApplicationSearchResult.QUERY_PARAM_ASSIGNEE_NAME + "}, "
+                    + "COALESCE(usr.first_name, '') || ' ' || COALESCE(usr.last_name, ''))");
+        }
+
+        if (params.getFromDate() != null) {
+            criteriaProvided = true;
+            WHERE("app.lodging_datetime >= #{" + ApplicationSearchResult.QUERY_PARAM_FROM_LODGE_DATE + "}");
+        }
+
+        if (params.getToDate() != null) {
+            criteriaProvided = true;
+            WHERE("app.lodging_datetime <= #{" + ApplicationSearchResult.QUERY_PARAM_TO_LODGE_DATE + "}");
+        }
+
+        if (!StringUtility.isEmpty(params.getDocumentReference()) || !StringUtility.isEmpty(params.getDocumentNumber())) {
+            criteriaProvided = true;
+            FROM("application.application_uses_source aus");
+            FROM("source.source src");
+            WHERE("aus.application_id = app.id");
+            WHERE("src.id = aus.source_id");
+            if (!StringUtility.isEmpty(params.getDocumentReference())) {
+                WHERE("compare_strings(#{" + ApplicationSearchResult.QUERY_PARAM_DOCUMENT_REFERENCE + "}, "
+                        + "COALESCE(src.reference_nr, ''))");
+            }
+
+            if (!StringUtility.isEmpty(params.getDocumentNumber())) {
+                criteriaProvided = true;
+                WHERE("compare_strings(#{" + ApplicationSearchResult.QUERY_PARAM_DOCUMENT_NUMBER + "}, "
+                        + "COALESCE(src.la_nr, ''))");
+            }
+        }
+
+        if (!StringUtility.isEmpty(params.getDescription())) {
+            criteriaProvided = true;
+            WHERE("app.description IS NOT NULL");
+            WHERE("compare_strings(#{" + ApplicationSearchResult.QUERY_PARAM_DESCRIPTION + "}, "
+                    + "COALESCE(app.description, ''))");
+        }
+
+        if (!criteriaProvided) {
+            // If the user has not provided any search criteria, prevent the search form
+            // evaluating every job record by adding a false WHERE clause. 
+            WHERE("1 = 2");
+        }
+        ORDER_BY("app.lodging_datetime DESC LIMIT 100");
+        sql = SQL();
+        return sql;
+    }
+
+    /**
+     * Creates an SQL query to retrieve job summary details to display for the
+     * Assigned Jobs table on the SLDashboardPanel. This method does not inject
+     * the search parameter values into the SQL as that would prevent the
+     * database from performing statement caching.
+     *
+     * @param allJobs Flag indicating if all jobs should be returned, or only
+     * those jobs assigned to the user.
+     * @return SQL String
+     */
+    public static String buildAssignedJobsSql(boolean allJobs) {
+        String sql;
+
+        initJobSummaryQuery();
+
+        SELECT("(COALESCE(u.first_name, '') || ' ' || COALESCE(u.last_name, '')) AS assignee_name");
+        FROM("system.appuser u");
+        WHERE("app.status_code IN ('lodged', 'approved', 'requisitioned')");
+        WHERE("app.assignee_id IS NOT NULL");
+        WHERE("u.id = app.assignee_id");
+
+        if (!allJobs) {
+            // Only retrieve the jobs for this user
+            WHERE("u.username = #{" + ApplicationSearchResult.QUERY_PARAM_USER_NAME + "}");
+        }
+
+        ORDER_BY("app.lodging_datetime DESC LIMIT 100");
         sql = SQL();
         return sql;
     }

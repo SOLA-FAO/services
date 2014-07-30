@@ -41,6 +41,8 @@ import org.sola.services.common.repository.*;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 import org.sola.services.ejb.cadastre.businesslogic.CadastreEJBLocal;
 import org.sola.services.ejb.cadastre.repository.entities.CadastreObject;
+import org.sola.services.ejb.party.businesslogic.PartyEJBLocal;
+import org.sola.services.ejb.party.repository.entities.Party;
 import org.sola.services.ejb.source.businesslogic.SourceEJBLocal;
 import org.sola.services.ejb.source.repository.entities.Source;
 import org.sola.services.ejb.system.br.Result;
@@ -122,9 +124,13 @@ public class BaUnit extends AbstractVersionedEntity {
     private BigDecimal calculatedAreaSize;
     @Column()
     private String description;
-    @Column(insertable = false, updatable = false, name= "land_use_code")
+    @Column(insertable = false, updatable = false, name = "land_use_code")
     @AccessFunctions(onSelect = "administrative.get_land_use_code(id)")
     private String landUseCode;
+    @ExternalEJB(ejbLocalClass = PartyEJBLocal.class, loadMethod = "getParties")
+    @ChildEntityList(parentIdField = "baUnitId", childIdField = "partyId",
+            manyToManyClass = BaUnitAsParty.class, readOnly = true)
+    private List<Party> partyList;
 
     public BigDecimal getCalculatedAreaSize() {
         return calculatedAreaSize;
@@ -281,6 +287,14 @@ public class BaUnit extends AbstractVersionedEntity {
 
     public void setPendingActionCode(String pendingActionCode) {
         this.pendingActionCode = pendingActionCode;
+    }
+
+    public List<Party> getPartyList() {
+        return partyList;
+    }
+
+    public void setPartyList(List<Party> partyList) {
+        this.partyList = partyList;
     }
 
     public Boolean isLocked() {

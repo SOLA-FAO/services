@@ -100,6 +100,8 @@ public class Application extends AbstractVersionedEntity {
     private boolean feePaid;
     @Column(name = "receipt_reference")
     private String receiptRef;
+    @Column
+    private String description; 
     @ExternalEJB(ejbLocalClass = PartyEJBLocal.class,
     loadMethod = "getParty", saveMethod = "saveParty")
     @ChildEntity(childIdField = "contactPersonId")
@@ -337,6 +339,14 @@ public class Application extends AbstractVersionedEntity {
 
     public void setCadastreObjectList(List<CadastreObject> cadastreObjectList) {
         this.cadastreObjectList = cadastreObjectList;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

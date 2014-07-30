@@ -29,7 +29,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.sola.services.ejb.party.repository.entities;
+package org.sola.services.ejb.administrative.repository.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -37,38 +37,38 @@ import javax.persistence.Table;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 
 /**
- * Entity representing the party.party_role association table. 
+ * Entity representing the administrative.ba_unit_as_party association table (i.e many to 
+ * many table) between ba_unit and party.party. Used by State Land to capture Property
+ * Manager details for the Property. 
  * @author soladev
  */
-@Table(name="party_role", schema="party")
-public class PartyRole extends AbstractVersionedEntity {
-    
-     public static final String ROLE_LODGING_AGENT = "lodgingAgent"; 
+@Table(schema = "administrative", name = "ba_unit_as_party")
+public class BaUnitAsParty extends AbstractVersionedEntity {
 
+    @Id
+    @Column(name = "ba_unit_id")
+    private String baUnitId;
     @Id
     @Column(name = "party_id")
     private String partyId;
-    @Id
-    @Column(name = "type_code")
-    private String roleCode;
 
-    public PartyRole() {
-        super(); 
+    public BaUnitAsParty() {
+        super();
     }
-   
+
+    public String getBaUnitId() {
+        return baUnitId;
+    }
+
+    public void setBaUnitId(String baUnitId) {
+        this.baUnitId = baUnitId;
+    }
+
     public String getPartyId() {
         return partyId;
     }
 
     public void setPartyId(String partyId) {
         this.partyId = partyId;
-    }
-
-    public String getRoleCode() {
-        return roleCode;
-    }
-
-    public void setRoleCode(String roleCode) {
-        this.roleCode = roleCode;
     }
 }

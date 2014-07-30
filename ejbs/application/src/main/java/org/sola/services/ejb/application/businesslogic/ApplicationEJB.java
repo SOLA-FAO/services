@@ -41,7 +41,6 @@ import org.sola.services.common.faults.SOLAValidationException;
 import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.ejb.administrative.businesslogic.AdministrativeEJBLocal;
 import org.sola.services.ejb.application.repository.entities.*;
-import org.sola.services.ejb.party.repository.entities.Party;
 import org.sola.services.ejb.source.businesslogic.SourceEJBLocal;
 import org.sola.services.ejb.source.repository.entities.Source;
 import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
@@ -49,6 +48,7 @@ import org.sola.services.ejb.system.repository.entities.BrValidation;
 import org.sola.services.ejb.transaction.businesslogic.TransactionEJBLocal;
 import org.sola.services.ejb.transaction.repository.entities.RegistrationStatusType;
 import org.sola.services.ejb.transaction.repository.entities.TransactionBasic;
+import org.sola.services.ejbs.admin.businesslogic.AdminEJBLocal;
 
 /**
  * EJB to manage data in the application schema. Supports retrieving and saving
@@ -68,6 +68,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     private TransactionEJBLocal transactionEJB;
     @EJB
     private AdministrativeEJBLocal administrativeEJB;
+    @EJB
+    private AdminEJBLocal adminEJB; 
 
     /**
      * Sets the entity package for the EJB to
@@ -148,11 +150,14 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
             }
         }
 
-        calculateFeesAndDates(application);
+        // State Land updates. Set the current user as the assigned user.  
+        application.setAssigneeId(adminEJB.getCurrentUser().getId());
+        calculateCompletionDates(application);
+        //calculateFeesAndDates(application);
         treatApplicationSources(application);
-        application.getContactPerson().setTypeCode(Party.TYPE_CODE_NATURAL_PERSON);
+        //application.getContactPerson().setTypeCode(Party.TYPE_CODE_NATURAL_PERSON);
         application = getRepository().saveEntity(application);
-        checkSpatialUnitsStatus(application, languageCode);
+        //checkSpatialUnitsStatus(application, languageCode);
 
         return application;
     }
@@ -331,11 +336,11 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
             }
         }
 
-        calculateLodgementFees(application);
+        //calculateLodgementFees(application);
 
         treatApplicationSources(application);
         application = getRepository().saveEntity(application);
-        checkSpatialUnitsStatus(application, languageCode);
+        //checkSpatialUnitsStatus(application, languageCode);
 
         return application;
     }

@@ -35,6 +35,12 @@
             <a>sourceList</a>
             <b>sourceList</b>
         </field>
+        <field custom-converter="org.sola.common.mapping.NonCumulativeListConverter"
+               custom-converter-param="org.sola.services.ejb.party.repository.entities.Party,
+               org.sola.services.boundary.transferobjects.casemanagement.PartySummaryTO">
+            <a>partyList</a>
+            <b>partyList</b>
+        </field>
     </mapping>  
     <mapping> <!-- Application -->
         <class-a>org.sola.services.boundary.transferobjects.casemanagement.ApplicationTO</class-a>

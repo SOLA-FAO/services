@@ -250,33 +250,24 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      */
     @Override
     @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
-    public List<ApplicationSearchResult> searchApplications(ApplicationSearchParams params) {
-        // Process params
+    public List<ApplicationSearchResult> searchApplications(ApplicationSearchParams searchParams) {
+        // Process params   
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_QUERY,
+                SearchSqlProvider.buildSearchJobsSql(searchParams));
 
-        Map queryParams = new HashMap<String, Object>();
-        queryParams.put(CommonSqlProvider.PARAM_FROM_PART, ApplicationSearchResult.QUERY_FROM);
-
-        queryParams.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, params.getLocale());
-        queryParams.put(ApplicationSearchResult.QUERY_PARAM_CONTACT_NAME,
-                params.getContactPerson() == null ? "" : params.getContactPerson().trim());
-        queryParams.put(ApplicationSearchResult.QUERY_PARAM_AGENT_NAME,
-                params.getAgent() == null ? "" : params.getAgent().trim());
-        queryParams.put(ApplicationSearchResult.QUERY_PARAM_APP_NR,
-                params.getNr() == null ? "" : params.getNr().trim());
-        queryParams.put(ApplicationSearchResult.QUERY_PARAM_FROM_LODGE_DATE,
-                params.getFromDate() == null ? new GregorianCalendar(1, 1, 1).getTime() : params.getFromDate());
-        queryParams.put(ApplicationSearchResult.QUERY_PARAM_TO_LODGE_DATE,
-                params.getToDate() == null ? new GregorianCalendar(2500, 1, 1).getTime() : params.getToDate());
-        queryParams.put(ApplicationSearchResult.QUERY_PARAM_DOCUMENT_NUMBER,
-                params.getDocumentNumber() == null ? "" : params.getDocumentNumber().trim());
-        queryParams.put(ApplicationSearchResult.QUERY_PARAM_DOCUMENT_REFERENCE,
-                params.getDocumentReference() == null ? "" : params.getDocumentReference().trim());
-
-        queryParams.put(CommonSqlProvider.PARAM_WHERE_PART, ApplicationSearchResult.QUERY_WHERE_SEARCH_APPLICATIONS);
-        queryParams.put(CommonSqlProvider.PARAM_ORDER_BY_PART, ApplicationSearchResult.QUERY_ORDER_BY);
-        queryParams.put(CommonSqlProvider.PARAM_LIMIT_PART, "100");
-
-        return getRepository().getEntityList(ApplicationSearchResult.class, queryParams);
+        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, searchParams.getLocale());
+        params.put(ApplicationSearchResult.QUERY_PARAM_APP_NR, searchParams.getNr());
+        params.put(ApplicationSearchResult.QUERY_PARAM_AGENT_NAME, searchParams.getAgent());
+        params.put(ApplicationSearchResult.QUERY_PARAM_CONTACT_NAME, searchParams.getContactPerson());
+        params.put(ApplicationSearchResult.QUERY_PARAM_FROM_LODGE_DATE, searchParams.getFromDate());
+        params.put(ApplicationSearchResult.QUERY_PARAM_TO_LODGE_DATE, searchParams.getToDate());
+        params.put(ApplicationSearchResult.QUERY_PARAM_DOCUMENT_NUMBER, searchParams.getDocumentNumber());
+        params.put(ApplicationSearchResult.QUERY_PARAM_DOCUMENT_REFERENCE, searchParams.getDocumentReference());
+        params.put(ApplicationSearchResult.QUERY_PARAM_ASSIGNEE_NAME, searchParams.getAssigneeName());
+        params.put(ApplicationSearchResult.QUERY_PARAM_ASSIGNEE_NAME, searchParams.getAssigneeName());
+        params.put(ApplicationSearchResult.QUERY_PARAM_DESCRIPTION, searchParams.getDescription());
+        return getRepository().getEntityList(ApplicationSearchResult.class, params);
     }
 
     /**
@@ -734,6 +725,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(BaUnitSearchResult.QUERY_PARAM_PARCEL_NAME_FIRSTPART, searchParams.getParcelNumber());
         params.put(BaUnitSearchResult.QUERY_PARAM_PARCEL_NAME_LASTPART, searchParams.getPlanNumber());
         params.put(BaUnitSearchResult.QUERY_PARAM_PROPERTY_MANAGER, searchParams.getPropertyManager());
+        params.put(BaUnitSearchResult.QUERY_PARAM_DESCRIPTION, searchParams.getDescription());
         return getRepository().getEntityList(BaUnitSearchResult.class, params);
     }
 
@@ -931,6 +923,61 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(SpatialResult.PARAM_CADASTRE_OBJECT_ID, cadastreObjectId);
         params.put(CommonSqlProvider.PARAM_QUERY, SpatialResult.QUERY_GET_PLAN_CADASTRE_OBJECTS);
         return getRepository().getEntityList(SpatialResult.class, params);
+    }
+
+    /**
+     * Returns jobs that have a lodged or approved status and are assigned to
+     * the currently logged in user.
+     *
+     * <p>
+     * If the currently logged in user has the
+     * {@linkplain RolesConstants#APPLICATION_UNASSIGN_FROM_OTHERS} then all
+     * lodged or approved jobs assigned to any user are returned. </p>
+     *
+     * <p>
+     * Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
+     *
+     * @param locale The language code to use for localization of display
+     * values.
+     * @return A maximum of 100 applications that match the search criteria,
+     * sorted by lodgement date DESC.
+     */
+    @Override
+    @RolesAllowed(RolesConstants.DASHBOARD_VIEW_ASSIGNED_APPS)
+    public List<ApplicationSearchResult> getAssignedJobs(String locale) {
+
+        boolean allJobs = isInRole(RolesConstants.APPLICATION_UNASSIGN_FROM_OTHERS);
+
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, locale);
+        params.put(ApplicationSearchResult.QUERY_PARAM_USER_NAME, getUserName());
+        params.put(CommonSqlProvider.PARAM_QUERY, SearchSqlProvider.buildAssignedJobsSql(allJobs));
+
+        return getRepository().getEntityList(ApplicationSearchResult.class, params);
+    }
+
+    /**
+     * Returns properties that have a note recorded against them that requires
+     * some type of action.
+     *
+     * <p>
+     * Requires the {@linkplain RolesConstants#DASHBOARD_VIEW_UNASSIGNED_APPS}
+     * role.</p>
+     *
+     * @param locale The language code to use for localization of display
+     * values.
+     * @return A maximum of 100 properties that match the search criteria,
+     */
+    @Override
+    @RolesAllowed(RolesConstants.DASHBOARD_VIEW_UNASSIGNED_APPS)
+    public List<BaUnitSearchResult> getPropertiesToAction(String locale) {
+
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, locale);
+        params.put(ApplicationSearchResult.QUERY_PARAM_USER_NAME, getUserName());
+        params.put(CommonSqlProvider.PARAM_QUERY, SearchSqlProvider.buildPropertyToActionSql());
+
+        return getRepository().getEntityList(BaUnitSearchResult.class, params);
     }
 
 }

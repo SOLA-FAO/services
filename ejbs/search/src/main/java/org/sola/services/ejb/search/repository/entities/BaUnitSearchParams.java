@@ -46,6 +46,7 @@ public class BaUnitSearchParams extends AbstractEntity {
     private String planNumber;
     private String propertyManager;
     private String interestRefNum;
+    private String description;
 
     public BaUnitSearchParams() {
         super();
@@ -137,6 +138,14 @@ public class BaUnitSearchParams extends AbstractEntity {
 
     public void setInterestRefNum(String interestRefNum) {
         this.interestRefNum = interestRefNum;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**
