@@ -34,7 +34,11 @@ import org.sola.services.common.repository.entities.AbstractEntity;
 
 @Table(name = "setting", schema = "system")
 public class Setting extends AbstractEntity {
-
+    public static final String MAP_WEST = "map-west";
+    public static final String MAP_EAST = "map-east";
+    public static final String MAP_SOUTH = "map-south";
+    public static final String MAP_NORTH = "map-north";
+    
     @Id
     @Column
     private String name;

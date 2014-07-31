@@ -40,6 +40,7 @@ import javax.interceptor.InvocationContext;
 import org.sola.common.RolesConstants;
 import org.sola.common.SOLAException;
 import org.sola.common.messaging.ServiceMessage;
+import org.sola.services.common.EntityAction;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
 import org.sola.services.common.repository.CommonRepository;
@@ -107,6 +108,17 @@ public abstract class AbstractEJB implements AbstractEJBLocal {
         return entityPackage;
     }
 
+    /** Returns entity list size excluding deleted or disassociated */
+    public <T extends AbstractEntity> int getEntityListSize(List<T> entityList) {
+        int cnt = 0;
+        for (AbstractEntity entity : entityList) {
+            if (entity.getEntityAction() == null || (!entity.getEntityAction().equals(EntityAction.DELETE) && !entity.getEntityAction().equals(EntityAction.DISASSOCIATE))) {
+                cnt += 1;
+            }
+        }
+        return cnt;
+    }
+    
     /**
      * Sets name of the entities package.
      */

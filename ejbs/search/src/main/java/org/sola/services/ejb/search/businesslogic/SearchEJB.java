@@ -43,6 +43,7 @@ import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.ejb.search.repository.SearchSqlProvider;
 import org.sola.services.ejb.search.repository.entities.*;
+import static org.sola.services.ejb.search.repository.entities.ClaimSearchResult.PARAM_USERNAME;
 import org.sola.services.ejb.search.spatial.QueryForNavigation;
 import org.sola.services.ejb.search.spatial.QueryForPublicDisplayMap;
 import org.sola.services.ejb.search.spatial.QueryForSelect;
@@ -947,5 +948,45 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put("srid", srid);
         params.put("geom", wkbGeom);
         return getRepository().getScalar(byte[].class, params);
+    }
+
+    @Override
+    public List<ClaimSearchResult> searchAssignedClaims(String langCode) {
+        Map params = new HashMap<String, Object>();
+
+        params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_ASSIGNED_TO_USER);
+        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, langCode);
+        params.put(ClaimSearchResult.PARAM_USERNAME, getUserName());
+        return getRepository().getEntityList(ClaimSearchResult.class, params);
+    }
+
+    @Override
+    public List<ClaimSearchResult> searchClaimsForReview(String langCode, boolean includeAssigned) {
+        Map params = new HashMap<String, Object>();
+
+        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, langCode);
+        
+        if(includeAssigned){
+            params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_FOR_REVIEW_ALL);
+        } else {
+            params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_FOR_REVIEW);
+        }
+        
+        return getRepository().getEntityList(ClaimSearchResult.class, params);
+    }
+
+    @Override
+    public List<ClaimSearchResult> searchClaimsForModeration(String langCode, boolean includeAssigned) {
+        Map params = new HashMap<String, Object>();
+
+        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, langCode);
+        
+        if(includeAssigned){
+            params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_FOR_MODERATION_ALL);
+        } else {
+            params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_FOR_MODERATION);
+        }
+        
+        return getRepository().getEntityList(ClaimSearchResult.class, params);
     }
 }

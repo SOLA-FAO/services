@@ -31,6 +31,7 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
     private String statusName;
 
     public static final String PARAM_NAME = "claimantName";
+    public static final String PARAM_USERNAME = "userName";
     public static final String PARAM_DESCRIPTION = "claimDescription";
     public static final String PARAM_STATUS_CODE = "statusCode";
     public static final String PARAM_DATE_FROM = "dateFrom";
@@ -49,6 +50,21 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
     
     public static final String QUERY_SEARCH_BY_POINT = SELECT_PART
             + "WHERE ST_Contains(c.mapped_geometry, ST_GeomFromText(#{" + PARAM_POINT + "}, St_SRID(c.mapped_geometry))) AND c.status_code NOT IN ('rejected','withdrawn')";
+    
+    public static final String QUERY_SEARCH_ASSIGNED_TO_USER = SELECT_PART
+            + "WHERE c.assignee_name = #{" + PARAM_USERNAME + "} AND c.status_code NOT IN ('rejected','withdrawn','moderated') order by c.lodgement_date desc limit 100;";
+    
+    public static final String QUERY_SEARCH_FOR_REVIEW = SELECT_PART
+            + "WHERE c.assignee_name is null AND c.status_code = 'unmoderated' and c.challenge_expiry_date <= now() order by c.lodgement_date desc limit 100;";
+    
+    public static final String QUERY_SEARCH_FOR_REVIEW_ALL = SELECT_PART
+            + "WHERE c.status_code = 'unmoderated' and c.challenge_expiry_date <= now() order by c.lodgement_date desc limit 100;";
+    
+    public static final String QUERY_SEARCH_FOR_MODERATION = SELECT_PART
+            + "WHERE c.assignee_name is null AND c.status_code = 'reviewed' order by c.lodgement_date desc limit 100;";
+    
+    public static final String QUERY_SEARCH_FOR_MODERATION_ALL = SELECT_PART
+            + "WHERE c.status_code = 'reviewed' order by c.lodgement_date desc limit 100;";
     
     public static final String QUERY_SEARCH = SELECT_PART
             + "where position(lower(#{" + PARAM_NAME + "}) in lower(p.name || ' ' || COALESCE(p.last_name, ''))) > 0 and\n"

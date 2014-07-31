@@ -219,6 +219,21 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
     List<ClaimSearchResult> searchClaims(ClaimSearchParams searchParams);
     
     /**
+     * See {@linkplain SearchEJB#searchAssignedClaims()}.
+     */
+    List<ClaimSearchResult> searchAssignedClaims(String langCode);
+    
+    /**
+     * See {@linkplain SearchEJB#searchClaimsForReview(Boolean)}.
+     */
+    List<ClaimSearchResult> searchClaimsForReview(String langCode, boolean includeAssigned);
+    
+    /**
+     * See {@linkplain SearchEJB#searchClaimsForModeration(Boolean)}.
+     */
+    List<ClaimSearchResult> searchClaimsForModeration(String langCode, boolean includeAssigned);
+        
+    /**
      * See {@linkplain SearchEJB#getPlanCadastreObjects(String)}.
      */
     List<SpatialResult> getPlanCadastreObjects(String cadastreObjectId);
