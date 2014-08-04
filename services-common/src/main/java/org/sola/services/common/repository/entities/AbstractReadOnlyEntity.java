@@ -34,6 +34,7 @@ package org.sola.services.common.repository.entities;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.sql.Array;
 import java.util.Map;
 import org.sola.common.SOLAException;
 import org.sola.common.messaging.ServiceMessage;
@@ -136,6 +137,11 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
                     || short.class.isAssignableFrom(fieldType))) {
                 value = new Short(value.toString());
             }
+            
+            // Ticket #427 - Support retreival of array columns from the database. 
+            if (value != null && Array.class.isAssignableFrom(value.getClass())) {
+                value = ((Array) value).getArray();
+            }
 
             Method setter = this.getClass().getMethod(entityInfo.setterName(), fieldType);
             setter.invoke(this, value);
@@ -147,7 +153,9 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
 
             throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
                     new Object[]{"Unable to set value to " + entityInfo.setterName()
-                        + " for entity " + this.toString(), "Value Type:" + valueType, ex});
+                        + " for entity " + this.toString(),
+                        "Field Type: " + entityInfo.getFieldType().getSimpleName()
+                        + ", Value Type:" + valueType, ex});
         }
 
     }
