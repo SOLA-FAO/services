@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.ejb.search.repository.entities;
@@ -36,23 +38,29 @@ import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 @Table(name = "appuser", schema = "system")
 public class UserSearchResult extends AbstractReadOnlyEntity {
 
-    protected static final String SELECT_QUERY =
-            "SELECT DISTINCT u.id, u.username, u.active, u.first_name, u.last_name, u.description, "
+    public static final String QUERY_PARAM_USER_NAME = "userName";
+    public static final String QUERY_PARAM_FIRST_NAME = "firstName";
+    public static final String QUERY_PARAM_LAST_NAME = "lastName";
+    public static final String QUERY_PARAM_GROUP_ID = "groupId";
+    public static final String QUERY_PARAM_TEAM_ID = "teamId";
+
+    protected static final String SELECT_QUERY
+            = "SELECT DISTINCT u.id, u.username, u.active, u.first_name, u.last_name, u.description, "
             + "(SELECT string_agg(tmp.name, ', ') FROM "
             + "(SELECT name FROM system.appgroup g INNER JOIN system.appuser_appgroup ug2 "
             + "ON g.id = ug2.appgroup_id WHERE ug2.appuser_id = u.id ORDER BY g.name) tmp "
             + ") AS groups_list "
             + "FROM system.appuser u LEFT JOIN system.appuser_appgroup ug ON u.id = ug.appuser_id ";
-    
-    public static final String QUERY_ACTIVE_USERS = UserSearchResult.SELECT_QUERY 
+
+    public static final String QUERY_ACTIVE_USERS = UserSearchResult.SELECT_QUERY
             + "WHERE active = 't' ORDER BY u.last_name";
-    
+
     public static final String QUERY_ADVANCED_USER_SEARCH = UserSearchResult.SELECT_QUERY
             + "WHERE POSITION(LOWER(COALESCE(#{userName}, '')) IN LOWER(COALESCE(username, ''))) > 0 "
             + "AND POSITION(LOWER(COALESCE(#{firstName}, '')) IN LOWER(COALESCE(first_name, ''))) > 0 "
             + "AND POSITION(LOWER(COALESCE(#{lastName}, '')) IN LOWER(COALESCE(last_name, ''))) > 0 "
             + "AND (ug.appgroup_id = #{groupId} OR #{groupId} = '') ORDER BY u.username";
-    
+
     @Id
     @Column(name = "id")
     String id;
@@ -68,6 +76,10 @@ public class UserSearchResult extends AbstractReadOnlyEntity {
     private String description;
     @Column(name = "groups_list")
     private String groupsList;
+    @Column(name = "team_list")
+    private String teamList;
+    @Column(name = "team_ids")
+    private String[] teamIds;
 
     public UserSearchResult() {
         super();
@@ -127,5 +139,21 @@ public class UserSearchResult extends AbstractReadOnlyEntity {
 
     public void setGroupsList(String groupsList) {
         this.groupsList = groupsList;
+    }
+
+    public String getTeamList() {
+        return teamList;
+    }
+
+    public void setTeamList(String teamList) {
+        this.teamList = teamList;
+    }
+
+    public String[] getTeamIds() {
+        return teamIds;
+    }
+
+    public void setTeamIds(String[] teamIds) {
+        this.teamIds = teamIds;
     }
 }

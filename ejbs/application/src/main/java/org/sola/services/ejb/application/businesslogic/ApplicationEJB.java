@@ -766,6 +766,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      *
      * @param applicationId The application to perform the action against
      * @param userId Identifier of the user to assign to the application
+     * @param teamId Identifier of the team to assign the application
      * @param languageCode The language code to use for localization of
      * validation messages.
      * @param rowVersion The current row version of the service
@@ -778,13 +779,14 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @Override
     @RolesAllowed({RolesConstants.APPLICATION_ASSIGN_TO_OTHERS, RolesConstants.APPLICATION_ASSIGN_TO_YOURSELF})
     public List<ValidationResult> applicationActionAssign(
-            String applicationId, String userId, String languageCode, int rowVersion) {
+            String applicationId, String userId, String teamId, String languageCode, int rowVersion) {
         ApplicationActionTaker application =
                 getRepository().getEntity(ApplicationActionTaker.class, applicationId);
         if (application == null) {
             throw new SOLAException(ServiceMessage.EJB_APPLICATION_APPLICATION_NOT_FOUND);
         }
         application.setAssigneeId(userId);
+        application.setAgentId(teamId); // Assumes AgentId is not being used for another purpose. 
         application.setAssignedDatetime(Calendar.getInstance().getTime());
         return this.takeActionAgainstApplication(
                 application, ApplicationActionType.ASSIGN, languageCode, rowVersion);

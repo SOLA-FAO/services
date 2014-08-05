@@ -42,6 +42,10 @@ import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.faults.SOLAValidationException;
 import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.ejb.administrative.repository.entities.*;
+import org.sola.services.ejb.cadastre.repository.entities.CadastreObject;
+import org.sola.services.ejb.party.businesslogic.PartyEJBLocal;
+import org.sola.services.ejb.party.repository.entities.Party;
+import org.sola.services.ejb.source.repository.entities.Source;
 import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
 import org.sola.services.ejb.system.repository.entities.BrValidation;
 import org.sola.services.ejb.transaction.businesslogic.TransactionEJBLocal;
@@ -63,6 +67,8 @@ public class AdministrativeEJB extends AbstractEJB
     private SystemEJBLocal systemEJB;
     @EJB
     private TransactionEJBLocal transactionEJB;
+    @EJB
+    private PartyEJBLocal partyEJB;
 
     /**
      * Sets the entity package for the EJB to
@@ -208,7 +214,7 @@ public class AdministrativeEJB extends AbstractEJB
     /**
      * Saves any updates to an existing BA Unit. Can also be used to create a
      * new BA Unit, however this method does not set any default values on the
-     * BA Unit like null null null null     {@linkplain #createBaUnit(java.lang.String, org.sola.services.ejb.administrative.repository.entities.BaUnit)
+     * BA Unit like null null null null null null null null null null null null     {@linkplain #createBaUnit(java.lang.String, org.sola.services.ejb.administrative.repository.entities.BaUnit)
      * createBaUnit}. Will also create a new Transaction record for the BA Unit
      * if the Service is not already associated to a Transaction.
      *
@@ -707,5 +713,43 @@ public class AdministrativeEJB extends AbstractEJB
         queryParams.put(SysRegProgress.QUERY_PARAMETER_LASTPART, params.getNameLastpart());
         result = getRepository().executeFunction(queryParams, SysRegProgress.class);
         return result;
+    }
+
+    /**
+     * Sets the team for a list of property records. To remove all teams from
+     * the property, set teamId to NULL.
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMINISTRATIVE_BA_UNIT_SAVE} or
+     * {@linkplain RolesConstants#ADMINISTRATIVE_ASSIGN_TEAM} role.</p>
+     *
+     * @param properties THe list of properties to update
+     * @param teamId The id of the team to set. If NULL, the current team
+     * assigned to the properties is removed.
+     */
+    @Override
+    @RolesAllowed({RolesConstants.ADMINISTRATIVE_ASSIGN_TEAM, RolesConstants.ADMINISTRATIVE_BA_UNIT_SAVE})
+    public void assignTeam(List<BaUnitBasic> properties, String teamId) {
+        if (properties != null && properties.size() > 0) {
+            Party team = partyEJB.getParty(teamId);
+            getRepository().setLoadInhibitors(new Class<?>[]{Rrr.class, BaUnitNotation.class,
+                Source.class, CadastreObject.class, ChildBaUnitInfo.class, ParentBaUnitInfo.class});
+            for (BaUnitBasic prop : properties) {
+                BaUnit baUnit = getBaUnitById(prop.getId());
+                baUnit.setRowVersion(prop.getRowVersion());
+                if (baUnit.getPartyList() == null) {
+                    baUnit.setPartyList(new ArrayList<Party>());
+                }
+                if (baUnit.getPartyList().size() > 0) {
+                    for (Party p : baUnit.getPartyList()) {
+                        p.setEntityAction(EntityAction.DISASSOCIATE);
+                    }
+                }
+                if (team != null) {
+                    baUnit.getPartyList().add(team);
+                }
+                getRepository().saveEntity(baUnit);
+            }
+            getRepository().clearLoadInhibitors();
+        }
     }
 }

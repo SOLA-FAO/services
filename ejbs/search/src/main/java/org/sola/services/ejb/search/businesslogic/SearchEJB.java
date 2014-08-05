@@ -361,28 +361,14 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     @Override
     @RolesAllowed(RolesConstants.ADMIN_MANAGE_SECURITY)
     public List<UserSearchResult> searchUsers(UserSearchParams searchParams) {
-        if (searchParams.getGroupId() == null) {
-            searchParams.setGroupId("");
-        }
-
-        if (searchParams.getUserName() == null) {
-            searchParams.setUserName("");
-        }
-
-        if (searchParams.getFirstName() == null) {
-            searchParams.setFirstName("");
-        }
-
-        if (searchParams.getLastName() == null) {
-            searchParams.setLastName("");
-        }
 
         Map params = new HashMap<String, Object>();
-        params.put(CommonSqlProvider.PARAM_QUERY, UserSearchResult.QUERY_ADVANCED_USER_SEARCH);
-        params.put("userName", searchParams.getUserName());
-        params.put("firstName", searchParams.getFirstName());
-        params.put("lastName", searchParams.getLastName());
-        params.put("groupId", searchParams.getGroupId());
+        params.put(CommonSqlProvider.PARAM_QUERY, SearchSqlProvider.buildSearchUsersSql(searchParams));
+        params.put(UserSearchResult.QUERY_PARAM_USER_NAME, searchParams.getUserName());
+        params.put(UserSearchResult.QUERY_PARAM_FIRST_NAME, searchParams.getFirstName());
+        params.put(UserSearchResult.QUERY_PARAM_LAST_NAME, searchParams.getLastName());
+        params.put(UserSearchResult.QUERY_PARAM_GROUP_ID, searchParams.getGroupId());
+        params.put(UserSearchResult.QUERY_PARAM_TEAM_ID, searchParams.getTeamId());
         return getRepository().getEntityList(UserSearchResult.class, params);
     }
 
@@ -455,7 +441,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     @Override
     public List<UserSearchResult> getActiveUsers() {
         Map params = new HashMap<String, Object>();
-        params.put(CommonSqlProvider.PARAM_QUERY, UserSearchResult.QUERY_ACTIVE_USERS);
+        params.put(CommonSqlProvider.PARAM_QUERY, SearchSqlProvider.buildGetActiveUsersSql());
         return getRepository().getEntityList(UserSearchResult.class, params);
     }
 

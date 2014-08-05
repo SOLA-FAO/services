@@ -33,7 +33,6 @@
  */
 package org.sola.services.ejb.search.repository;
 
-import org.apache.ibatis.jdbc.SqlBuilder;
 import static org.apache.ibatis.jdbc.SqlBuilder.*;
 import org.sola.common.StringUtility;
 import org.sola.services.common.repository.CommonSqlProvider;
@@ -41,6 +40,8 @@ import org.sola.services.ejb.search.repository.entities.ApplicationSearchParams;
 import org.sola.services.ejb.search.repository.entities.ApplicationSearchResult;
 import org.sola.services.ejb.search.repository.entities.BaUnitSearchParams;
 import org.sola.services.ejb.search.repository.entities.BaUnitSearchResult;
+import org.sola.services.ejb.search.repository.entities.UserSearchParams;
+import org.sola.services.ejb.search.repository.entities.UserSearchResult;
 
 /**
  *
@@ -409,6 +410,7 @@ public class SearchSqlProvider {
         SELECT("prop.status_code");
         SELECT("prop.description");
         SELECT("prop.type_code");
+        SELECT("prop.rowversion");
         SELECT("(SELECT string_agg(COALESCE(p1.name, '') || ' ' || COALESCE(p1.last_name, ''), '::::') "
                 + "FROM administrative.rrr rrr1, administrative.party_for_rrr pr1, party.party p1 "
                 + "WHERE rrr1.ba_unit_id = prop.id "
@@ -759,4 +761,107 @@ public class SearchSqlProvider {
         sql = SQL();
         return sql;
     }
+
+    /**
+     * Initializes the select query used to retrieve user summary details.
+     */
+    private static void initUserSummaryQuery() {
+        BEGIN();
+        SELECT("DISTINCT u.id");
+        SELECT("u.username");
+        SELECT("u.active");
+        SELECT("u.first_name");
+        SELECT("u.last_name");
+        SELECT("u.description");
+        SELECT("(SELECT string_agg(tmp.gname, ', ') FROM "
+                + "(SELECT g.name  AS gname "
+                + "FROM system.appgroup g, system.appuser_appgroup ug "
+                + "WHERE g.id = ug.appgroup_id AND ug.appuser_id = u.id "
+                + "ORDER BY g.name) tmp) "
+                + "AS groups_list");
+        SELECT("(SELECT string_agg(tmp.tname, ', ') FROM "
+                + "(SELECT TRIM(COALESCE(p.name, '') || ' ' || COALESCE(p.last_name, '')) AS tname "
+                + " FROM party.party p, system.appuser_team t "
+                + " WHERE t.appuser_id = u.id AND p.id = t.party_id "
+                + " ORDER BY tname) tmp ) "
+                + " AS team_list");
+        SELECT("(SELECT array_agg(tmp.tid) FROM "
+                + "(SELECT TRIM(COALESCE(p.name, '') || ' ' || COALESCE(p.last_name, '')) AS tname, "
+                + " p.id as tid "
+                + " FROM party.party p, system.appuser_team t "
+                + " WHERE t.appuser_id = u.id AND p.id = t.party_id "
+                + " ORDER BY tname) tmp ) "
+                + " AS team_ids");
+        FROM("system.appuser u");
+    }
+
+    /**
+     * Uses the User Search parameters to build an appropriate SQL Query to
+     * search for Users in the system. This method does not inject the search
+     * parameter values into the SQL as that would prevent the database from
+     * performing statement caching.
+     *
+     * @param params The user search parameters
+     * @return SQL String
+     */
+    public static String buildSearchUsersSql(UserSearchParams params) {
+        boolean criteriaProvided = false;
+        String sql;
+
+        initUserSummaryQuery();
+
+        if (!StringUtility.isEmpty(params.getUserName())) {
+            criteriaProvided = true;
+            WHERE("compare_strings(#{" + UserSearchResult.QUERY_PARAM_USER_NAME + "}, u.username)");
+        }
+
+        if (!StringUtility.isEmpty(params.getFirstName())) {
+            criteriaProvided = true;
+            WHERE("compare_strings(#{" + UserSearchResult.QUERY_PARAM_FIRST_NAME + "}, u.first_name)");
+        }
+
+        if (!StringUtility.isEmpty(params.getLastName())) {
+            criteriaProvided = true;
+            WHERE("compare_strings(#{" + UserSearchResult.QUERY_PARAM_LAST_NAME + "}, u.last_name)");
+        }
+
+        if (!StringUtility.isEmpty(params.getGroupId())) {
+            criteriaProvided = true;
+            FROM("system.appuser_appgroup grp");
+            WHERE("grp.appuser_id = u.id");
+            WHERE("grp.appgroup_id = #{" + UserSearchResult.QUERY_PARAM_GROUP_ID + "}");
+        }
+
+        if (!StringUtility.isEmpty(params.getTeamId())) {
+            criteriaProvided = true;
+            FROM("system.appuser_team team");
+            WHERE("team.appuser_id = u.id");
+            WHERE("team.party_id = #{" + UserSearchResult.QUERY_PARAM_TEAM_ID + "}");
+        }
+
+        if (!criteriaProvided) {
+            // Return all users anyway
+        }
+        ORDER_BY("u.last_name, u.first_name");
+        sql = SQL();
+        return sql;
+    }
+
+    /**
+     * Builds an appropriate SQL Query to retrieve all active users from the
+     * system
+     *
+     * @param params The user search parameters
+     * @return SQL String
+     */
+    public static String buildGetActiveUsersSql() {
+        String sql;
+
+        initUserSummaryQuery();
+        WHERE("u.active = 't'");
+        ORDER_BY("u.last_name, u.first_name");
+        sql = SQL();
+        return sql;
+    }
+
 }

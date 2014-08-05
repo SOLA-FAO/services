@@ -219,7 +219,7 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
      * ApplicationEJB.applicationActionAssign}.
      */
     List<ValidationResult> applicationActionAssign(
-            String applicationId, String userId, String languageCode, int rowVersion);
+            String applicationId, String userId, String teamId, String languageCode, int rowVersion);
 
     /**
      * See {@linkplain ApplicationEJB#applicationActionResubmit(java.lang.String, java.lang.String, int)

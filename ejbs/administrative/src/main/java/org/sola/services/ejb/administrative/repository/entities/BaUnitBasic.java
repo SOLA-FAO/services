@@ -59,6 +59,8 @@ public class BaUnitBasic extends AbstractReadOnlyEntity {
     private String transactionId;
     @Column()
     private String description;
+    @Column(name = "rowversion")
+    private int rowVersion;
 
     public BaUnitBasic() {
         super();
@@ -135,4 +137,13 @@ public class BaUnitBasic extends AbstractReadOnlyEntity {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public int getRowVersion() {
+        return rowVersion;
+    }
+
+    public void setRowVersion(int rowVersion) {
+        this.rowVersion = rowVersion;
+    }
+
 }

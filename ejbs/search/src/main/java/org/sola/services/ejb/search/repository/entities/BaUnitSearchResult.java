@@ -79,6 +79,8 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
     private String actionStatusCode;
     @Column(name = "notation_text")
     private String notationText;
+    @Column(name = "rowversion")
+    private int rowVersion;
 
     public BaUnitSearchResult() {
         super();
@@ -202,5 +204,13 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
 
     public void setNotationText(String notationText) {
         this.notationText = notationText;
+    }
+
+    public int getRowVersion() {
+        return rowVersion;
+    }
+
+    public void setRowVersion(int rowVersion) {
+        this.rowVersion = rowVersion;
     }
 }

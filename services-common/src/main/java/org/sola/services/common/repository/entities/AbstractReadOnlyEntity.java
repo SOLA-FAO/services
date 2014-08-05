@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 /*
@@ -33,6 +35,7 @@ package org.sola.services.common.repository.entities;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.sql.Array;
 import java.util.List;
 import java.util.Map;
 import org.sola.common.SOLAException;
@@ -42,9 +45,10 @@ import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.common.repository.RepositoryUtility;
 
 /**
- * The base class for all SOLA entities. This entity should be used to capture simple read only
- * query results. If the entity must update the database, then extend {@linkplain AbstractEntity}
- * or one of its descendents. 
+ * The base class for all SOLA entities. This entity should be used to capture
+ * simple read only query results. If the entity must update the database, then
+ * extend {@linkplain AbstractEntity} or one of its descendents.
+ *
  * @author soladev
  */
 public abstract class AbstractReadOnlyEntity implements Serializable {
@@ -53,14 +57,14 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
     private boolean getValueException = false;
 
     /**
-     * @return Generates and returns a new UUID value. 
+     * @return Generates and returns a new UUID value.
      */
     protected String generateId() {
         return java.util.UUID.randomUUID().toString();
     }
 
     /**
-     * @return true if the entity was loaded from the database. 
+     * @return true if the entity was loaded from the database.
      */
     public Boolean isLoaded() {
         return loaded;
@@ -68,6 +72,7 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
 
     /**
      * Sets a flag indicating the entity was loaded from the database.
+     *
      * @param loaded
      */
     public void setLoaded(Boolean loaded) {
@@ -75,18 +80,22 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
     }
 
     /**
-     * Flags if the entity has been saved to the database or not. 
-     * @return true if the entity was not loaded from the database (i.e. !isLoaded()). 
+     * Flags if the entity has been saved to the database or not.
+     *
+     * @return true if the entity was not loaded from the database (i.e.
+     * !isLoaded()).
      */
     public Boolean isNew() {
         return !isLoaded();
     }
 
     /**
-     * Obtains the value from the field indicated by the entityInfo parameter using reflection. 
-     * @param entityInfo Details of the field / column to get the value from. 
-     * @return The value of the field or an exception if the field indicated by the entityInfo
-     * does not exist. 
+     * Obtains the value from the field indicated by the entityInfo parameter
+     * using reflection.
+     *
+     * @param entityInfo Details of the field / column to get the value from.
+     * @return The value of the field or an exception if the field indicated by
+     * the entityInfo does not exist.
      */
     public Object getEntityFieldValue(AbstractEntityInfo entityInfo) {
         Object result = null;
@@ -107,15 +116,18 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
     }
 
     /**
-     * Sets the value of a field to the specified object using reflection. If the field indicated
-     * by the entityInfo does not exist or the type of the value does not match the field type an
-     * exception is raised. 
-     * <p> Note that Mybatis treats char fields as strings. To avoid an unnecessary type mismatch
-     * exception when setting a Character field, this method converts the string value to a Character. 
-     * Type conversion from Integer to Short is also performed when necessary. 
+     * Sets the value of a field to the specified object using reflection. If
+     * the field indicated by the entityInfo does not exist or the type of the
+     * value does not match the field type an exception is raised.
+     * <p>
+     * Note that Mybatis treats char fields as strings. To avoid an unnecessary
+     * type mismatch exception when setting a Character field, this method
+     * converts the string value to a Character. Type conversion from Integer to
+     * Short is also performed when necessary.
      * </p>
+     *
      * @param entityInfo Details of the field / column to set the value to.
-     * @param value The object to set the field to. 
+     * @param value The object to set the field to.
      */
     public void setEntityFieldValue(AbstractEntityInfo entityInfo, Object value) {
         try {
@@ -137,6 +149,11 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
                 value = new Short(value.toString());
             }
 
+            // Support retreival of array columns from the database. 
+            if (value != null && Array.class.isAssignableFrom(value.getClass())) {
+                value = ((Array) value).getArray();
+            }
+
             Method setter = this.getClass().getMethod(entityInfo.setterName(), fieldType);
             setter.invoke(this, value);
         } catch (Exception ex) {
@@ -147,14 +164,17 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
 
             throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
                     new Object[]{"Unable to set value to " + entityInfo.setterName()
-                        + " for entity " + this.toString(), "Value Type:" + valueType, ex});
+                        + " for entity " + this.toString(),
+                        "Field Type: " + entityInfo.getFieldType().getSimpleName()
+                        + ", Value Type:" + valueType, ex});
         }
 
     }
 
     /**
-     * @return Returns the value for the unique identifier for the entity (as indicated by the @Id
-     * annotation) or null if the entity has 0 or more than 1 fields marked as @Id. 
+     * @return Returns the value for the unique identifier for the entity (as
+     * indicated by the @Id annotation) or null if the entity has 0 or more than
+     * 1 fields marked as @Id.
      */
     public String getEntityId() {
         String result = null;
@@ -164,76 +184,85 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
         return result;
     }
 
-    /** 
-     * @return  The list of fields on the entity marked with the JPA 
-     * {@linkplain javax.persistence.Column} annotation. 
+    /**
+     * @return The list of fields on the entity marked with the JPA
+     * {@linkplain javax.persistence.Column} annotation.
      */
     public List<ColumnInfo> getColumns() {
         return RepositoryUtility.getColumns(this.getClass());
     }
 
-    /** 
-     * @return  The list of fields on the entity marked with the JPA
-     * {@linkplain javax.persistence.Id} annotation. 
+    /**
+     * @return The list of fields on the entity marked with the JPA
+     * {@linkplain javax.persistence.Id} annotation.
      */
     public List<ColumnInfo> getIdColumns() {
         return RepositoryUtility.getIdColumns(this.getClass(), getColumns());
     }
 
     /**
-     * Determines if the field indicated is an id column or not.  
-     * @param fieldName The name of the field to check. 
-     * @return true if the field is an id field on the entity. 
+     * Determines if the field indicated is an id column or not.
+     *
+     * @param fieldName The name of the field to check.
+     * @return true if the field is an id field on the entity.
      */
     public Boolean isIdColumn(String fieldName) {
         return RepositoryUtility.isIdColumn(this.getClass(), fieldName);
     }
 
-    /** 
-     * @return  The list of fields on the entity marked with the 
-     * {@linkplain org.sola.services.common.repository.ChildEntity} and/or 
-     * {@linkplain org.sola.services.common.repository.ChildEntityList} annotation. 
+    /**
+     * @return The list of fields on the entity marked with the
+     * {@linkplain org.sola.services.common.repository.ChildEntity} and/or
+     * {@linkplain org.sola.services.common.repository.ChildEntityList}
+     * annotation.
      */
     public List<ChildEntityInfo> getChildEntityInfo() {
         return RepositoryUtility.getChildEntityInfo(this.getClass());
     }
 
     /**
-     * Retrieves the ColumnInfo object for a specific column of the entity. 
-     * @param fieldName The name of the field to obtain the column info for. 
+     * Retrieves the ColumnInfo object for a specific column of the entity.
+     *
+     * @param fieldName The name of the field to obtain the column info for.
      */
     public ColumnInfo getColumnInfo(String fieldName) {
         return RepositoryUtility.getColumnInfo(this.getClass(), fieldName);
     }
 
     /**
-     * Retrieves the ChildEntityInfo object for a specific column of the entity. 
-     * @param fieldName The name of the field to obtain the child entity info for. 
+     * Retrieves the ChildEntityInfo object for a specific column of the entity.
+     *
+     * @param fieldName The name of the field to obtain the child entity info
+     * for.
      */
     public ChildEntityInfo getChildEntityInfo(String fieldName) {
         return RepositoryUtility.getChildEntityInfo(this.getClass(), fieldName);
     }
 
     /**
-     * @return The name of the database table (prefixed with the schema if specified) this entity
-     * represents. This information is obtained from the JPA {@linkplain javax.persistence.Table}
-     * annotation. 
+     * @return The name of the database table (prefixed with the schema if
+     * specified) this entity represents. This information is obtained from the
+     * JPA {@linkplain javax.persistence.Table} annotation.
      */
     public String getTableName() {
         return RepositoryUtility.getTableName(this.getClass());
     }
 
     /**
-     * Allows the SQL parameters used to retrieve child entities to be set, overriding the default
-     * join criteria used by {@linkplain CommonRepository}. This override is available for 
-     * One to One, One to Many and Many to Many joins. 
-     * <p> Override this method in the parent entity and populate the parameter map with the 
-     * appropriate SQL parts (e.g. {@linkplain CommonSqlProvider#PARAM_WHERE_PART}) for the join. 
+     * Allows the SQL parameters used to retrieve child entities to be set,
+     * overriding the default join criteria used by
+     * {@linkplain CommonRepository}. This override is available for One to One,
+     * One to Many and Many to Many joins.
+     * <p>
+     * Override this method in the parent entity and populate the parameter map
+     * with the appropriate SQL parts (e.g.
+     * {@linkplain CommonSqlProvider#PARAM_WHERE_PART}) for the join.
      * </p>
-     * @param <T> The generic type of the child entity. Must be a descendent of 
-     *            {@linkplain AbstractReadOnlyEntity}.
-     * @param childInfo The ChildEntityInfo for the child being loaded. Can be used to help
-     *  differentiate children of the parent class. 
+     *
+     * @param <T> The generic type of the child entity. Must be a descendent of
+     * {@linkplain AbstractReadOnlyEntity}.
+     * @param childInfo The ChildEntityInfo for the child being loaded. Can be
+     * used to help differentiate children of the parent class.
      * @return The SQL Parameter Map to use for retrieving the child entities.
      */
     public Map<String, Object> getChildJoinSqlParams(ChildEntityInfo childInfo) {
@@ -241,8 +270,9 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
     }
 
     /**
-     * Overridden to be consistent with the {@linkplain #equals}. 
-     * @return 
+     * Overridden to be consistent with the {@linkplain #equals}.
+     *
+     * @return
      */
     @Override
     public int hashCode() {
@@ -254,14 +284,16 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
         return hash;
     }
 
-    /** 
-     * Compares objects using the id columns of the entities. Note that the object must be the
-     * same class as this entity. During TO to Entity translation, Dozer uses this method to 
-     * match TO's to existing entities. As some TO's omit parent id values from association 
-     * entities (e.g. see PartyRoleTO), the {@linkplain AbstractVersionedEntity#equals} overrides
-     * this implementation to use the rowId value for comparison. 
-     * @param object The Object to compare with this one. 
-     * @return true if the values of the id columns on the entities match. 
+    /**
+     * Compares objects using the id columns of the entities. Note that the
+     * object must be the same class as this entity. During TO to Entity
+     * translation, Dozer uses this method to match TO's to existing entities.
+     * As some TO's omit parent id values from association entities (e.g. see
+     * PartyRoleTO), the {@linkplain AbstractVersionedEntity#equals} overrides
+     * this implementation to use the rowId value for comparison.
+     *
+     * @param object The Object to compare with this one.
+     * @return true if the values of the id columns on the entities match.
      */
     @Override
     public boolean equals(Object object) {
@@ -273,9 +305,10 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
     }
 
     /**
-     * Returns the class if the entity along with the values for any id columns marked on the
-     * entity. 
-     * @return 
+     * Returns the class if the entity along with the values for any id columns
+     * marked on the entity.
+     *
+     * @return
      */
     @Override
     public String toString() {

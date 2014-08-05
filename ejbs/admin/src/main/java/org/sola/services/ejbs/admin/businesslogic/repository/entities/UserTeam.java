@@ -27,52 +27,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
-package org.sola.services.ejb.search.repository.entities;
+package org.sola.services.ejbs.admin.businesslogic.repository.entities;
 
-import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 
-public class UserSearchParams extends AbstractReadOnlyEntity {
+/**
+ * Links the user to a party (a.k.a. Team). The team could be a group within the
+ * organization or a team of people form a third party organization.
+ *
+ * @author soladev
+ */
+@Table(schema = "system", name = "appuser_team")
+public class UserTeam extends AbstractVersionedEntity {
 
-    private String groupId;
-    private String userName;
-    private String firstName;
-    private String lastName;
+    @Id
+    @Column(name = "appuser_id")
+    private String userId;
+
+    @Id
+    @Column(name = "party_id")
     private String teamId;
 
-    public UserSearchParams() {
+    public UserTeam() {
         super();
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public UserTeam(String userId, String teamId) {
+        super();
+        this.userId = userId;
+        this.teamId = teamId;
     }
 
     public String getTeamId() {
@@ -83,4 +69,11 @@ public class UserSearchParams extends AbstractReadOnlyEntity {
         this.teamId = teamId;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 }

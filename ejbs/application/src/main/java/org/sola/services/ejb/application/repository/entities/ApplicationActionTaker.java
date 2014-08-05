@@ -31,7 +31,6 @@
  */
 package org.sola.services.ejb.application.repository.entities;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -56,6 +55,8 @@ public class ApplicationActionTaker extends AbstractVersionedEntity {
     private Date assignedDatetime;
     @Column(name = "assignee_id")
     private String assigneeId;
+    @Column(name = "agent_id")
+    private String agentId;
 
     public ApplicationActionTaker() {
         super();
@@ -101,6 +102,12 @@ public class ApplicationActionTaker extends AbstractVersionedEntity {
     public void setAssigneeId(String assigneeId) {
         this.assigneeId = assigneeId;
     }
-    
-    
+
+    public String getAgentId() {
+        return agentId;
+    }
+
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
 }

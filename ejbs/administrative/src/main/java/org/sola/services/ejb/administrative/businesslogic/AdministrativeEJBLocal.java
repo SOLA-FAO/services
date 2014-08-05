@@ -174,7 +174,7 @@ public interface AdministrativeEJBLocal extends AbstractSolaTransactionEJBLocal 
 
     /**
      * See {@linkplain AdministrativeEJB#SysRegPubDisStateLand(java.lang.String)
-     * CadastreEJB.SysRegPubDisStateLand}.
+     * AdministrativeEJB.SysRegPubDisStateLand}.
      */
     List<SysRegPubDisStateLand> getSysRegPubDisStateLandByLocation(String searchString, String languageCode);
 
@@ -188,4 +188,9 @@ public interface AdministrativeEJBLocal extends AbstractSolaTransactionEJBLocal 
 
     List<SysRegGender> getSysRegGender(String searchString, String languageCode);
 
+    /**
+     * See {@linkplain AdministrativeEJB#assignTeam(java.util.List, java.lang.String)
+     * AdministrativeEJB.assignTeam}.
+     */
+    void assignTeam(List<BaUnitBasic> properties, String teamId);
 }
