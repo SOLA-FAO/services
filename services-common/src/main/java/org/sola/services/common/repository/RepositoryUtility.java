@@ -1,33 +1,31 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
- */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
  */
 package org.sola.services.common.repository;
 
@@ -38,25 +36,36 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.apache.commons.lang.ClassUtils;
+import org.sola.common.DateUtility;
+import org.sola.common.RolesConstants;
 import org.sola.common.SOLAException;
+import org.sola.common.StringUtility;
 import org.sola.common.logging.LogUtility;
+import org.sola.common.messaging.MessageUtility;
 import org.sola.common.messaging.ServiceMessage;
+import org.sola.services.common.LocalInfo;
 import org.sola.services.common.ejbs.AbstractEJBLocal;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.ChildEntityInfo;
 import org.sola.services.common.repository.entities.ColumnInfo;
 
 /**
+ * Repository Utility class providing a number of utility methods for dealing
+ * with entities, database repositories and accessing EJBs.
+ *
+ * This class stores a cache of the metadata for each entity to limit avoid
+ * excessive reflection over entity classes during each database operation.
  *
  * @author soladev
  */
@@ -68,6 +77,15 @@ public class RepositoryUtility {
     private static Map<String, String> sorterExpressions = new HashMap<String, String>();
     private static Map<String, List<ChildEntityInfo>> childEntities = new HashMap<String, List<ChildEntityInfo>>();
 
+    /**
+     * Uses recursion to obtain the list of all declared fields of a class
+     * including those fields declared on ancestor classes
+     *
+     * @param c The class to assess
+     * @param fields The list of declared fields for the class and all its super
+     * classes. Note that this parameter must be an empty list. The list is
+     * populated by the recursive function.
+     */
     public static void getAllFields(Class<?> c, List<Field> fields) {
         fields.addAll(Arrays.asList(c.getDeclaredFields()));
         Class<?> superClass = c.getSuperclass();
@@ -131,6 +149,16 @@ public class RepositoryUtility {
                         columnInfo.setOnSelectFunction(accessFunctions.onSelect());
                         columnInfo.setOnChangeFunction(accessFunctions.onChange());
                     }
+                    Redact redactInfo = field.getAnnotation(Redact.class);
+                    if (redactInfo != null) {
+                        columnInfo.setRedact(true);
+                        columnInfo.setMinRedactClassification(
+                                StringUtility.isEmpty(redactInfo.minClassification()) ? null
+                                : redactInfo.minClassification());
+                        columnInfo.setRedactMessageCode(
+                                StringUtility.isEmpty(redactInfo.messageCode()) ? null
+                                : redactInfo.messageCode());
+                    }
                     columns.add(columnInfo);
                 }
             }
@@ -139,12 +167,30 @@ public class RepositoryUtility {
         return columns;
     }
 
+    /**
+     * Retrieves the column info metadata from an entity class based on a field
+     * name or database column name.
+     *
+     * @param <T>
+     * @param entityClass The class of entity to retrieve the column info from
+     * @param fieldNameOrDbColName The name of the entity field or the name of
+     * the database column
+     * @return The ColumnInfo metadata if a matching field is found, otherwise
+     * null.
+     */
     public static <T extends AbstractReadOnlyEntity> ColumnInfo getColumnInfo(Class<T> entityClass,
-            String fieldName) {
+            String fieldNameOrDbColName) {
         ColumnInfo result = null;
-        if (fieldName != null) {
+        if (fieldNameOrDbColName != null) {
             for (ColumnInfo columnInfo : getColumns(entityClass)) {
-                if (columnInfo.getFieldName().equalsIgnoreCase(fieldName)) {
+                if (columnInfo.getFieldName().equalsIgnoreCase(fieldNameOrDbColName)) {
+                    // Check the entity field name
+                    result = columnInfo;
+                    break;
+                }
+                if (columnInfo.getColumnName() != null
+                        && columnInfo.getColumnName().equalsIgnoreCase(fieldNameOrDbColName)) {
+                    // Check the database column name
                     result = columnInfo;
                     break;
                 }
@@ -228,7 +274,7 @@ public class RepositoryUtility {
                         throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
                                 // The ChildEntity annoation is not configured correctly
                                 new Object[]{"ChildEntity annotation is not configured correclty on "
-                            + entityClass.getSimpleName() + "." + field.getName()});
+                                    + entityClass.getSimpleName() + "." + field.getName()});
                     }
 
                     childInfo = new ChildEntityInfo(field.getName(), field.getType(), insert,
@@ -343,6 +389,135 @@ public class RepositoryUtility {
             } catch (ParseException ex) {
                 LogUtility.log("Unable to compare geometries. Parse Error:" + ex.getMessage(), ex);
                 result = false;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Checks the Security Classification to ensure the user has the appropriate
+     * clearance to view the record details. The security clearance assigned to
+     * a user will grant them access to all records that have the same or lower
+     * security classification. Where a specialty classification is being used,
+     * the user must have that clearance assigned (as a security role) or have a
+     * clearance level of Top Secret.
+     *
+     * @param classificationCode The security classification to check
+     * @return true user has the appropriate security clearance to view the
+     * entity, false otherwise.
+     */
+    public static boolean hasSecurityClearance(String classificationCode) {
+        boolean result;
+        if (StringUtility.isEmpty(classificationCode)
+                || RolesConstants.CLASSIFICATION_UNRESTRICTED.equals(classificationCode)) {
+            result = true;
+        } else if (RolesConstants.CLASSIFICATION_RESTRICTED.equals(classificationCode)) {
+            result = LocalInfo.isInRole(RolesConstants.CLASSIFICATION_RESTRICTED,
+                    RolesConstants.CLASSIFICATION_CONFIDENTIAL,
+                    RolesConstants.CLASSIFICATION_SECRET,
+                    RolesConstants.CLASSIFICATION_TOPSECRET);
+        } else if (RolesConstants.CLASSIFICATION_CONFIDENTIAL.equals(classificationCode)) {
+            result = LocalInfo.isInRole(RolesConstants.CLASSIFICATION_CONFIDENTIAL,
+                    RolesConstants.CLASSIFICATION_SECRET,
+                    RolesConstants.CLASSIFICATION_TOPSECRET);
+        } else if (RolesConstants.CLASSIFICATION_SECRET.equals(classificationCode)) {
+            result = LocalInfo.isInRole(RolesConstants.CLASSIFICATION_SECRET,
+                    RolesConstants.CLASSIFICATION_TOPSECRET);
+        } else if (RolesConstants.CLASSIFICATION_TOPSECRET.equals(classificationCode)) {
+            result = LocalInfo.isInRole(RolesConstants.CLASSIFICATION_TOPSECRET);
+        } else {
+            // Specialty Classification so allow users with that clearance or 
+            // TOP SECRET to view it. Note that the Speciality Classification must
+            // be statically declared using the @DeclareRoles annotation on 
+            // AbstractEJB otherwise it will be ignored by the isInRole check. 
+            result = LocalInfo.isInRole(classificationCode,
+                    RolesConstants.CLASSIFICATION_TOPSECRET);
+        }
+        return result;
+    }
+
+    /**
+     * Determines if the the contents of a field need to be redacted or not
+     * based on the security clearance assigned to the user and the minimum
+     * redact classification for the field. The minimum redaction classification
+     * can be overridden by setting the redact_code field on the entity
+     * explicitly.
+     *
+     * @param columnInfo The column info for the field being checked
+     * @param redactCode The override redact code set on the entity.
+     * @return true if the content of the field must be redacted, false
+     * otherwise.
+     */
+    public static boolean isRedactRequired(ColumnInfo columnInfo, String redactCode) {
+        boolean result = false;
+        if (columnInfo.isRedact()) {
+            if (!StringUtility.isEmpty(redactCode)) {
+                // An override redact code is set, so check if the user has this
+                // security clearance. If not, redact the field. 
+                result = !hasSecurityClearance(redactCode);
+            } else {
+                // No override redact code, so check if the user has the minimum
+                // classificaiton required (where one is set). If not, redact the field
+                result = !hasSecurityClearance(columnInfo.getMinRedactClassification());
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Attempts to obtain the appropriate redacted value for a field. This
+     * method attempts to provide a redacted value that matches the type of the
+     * field. The messageCode on the Redact annotation can be used to indicate
+     * the a custom redact value.
+     *
+     * @param columnInfo
+     * @return The value to use to redact the field or null.
+     */
+    public static Object getRedactedValue(ColumnInfo columnInfo) {
+        Object result = null;
+        Class<?> fieldType;
+        String msg;
+        if (columnInfo.getFieldType().isPrimitive()) {
+            fieldType = ClassUtils.primitiveToWrapper(columnInfo.getFieldType());
+        } else {
+            fieldType = columnInfo.getFieldType();
+        }
+        if (!StringUtility.isEmpty(columnInfo.getRedactMessageCode())) {
+            // Determine the message to use when redacting the field
+            msg = MessageUtility.getLocalizedMessageText(columnInfo.getRedactMessageCode(),
+                    LocalInfo.get(CommonSqlProvider.PARAM_LANGUAGE_CODE, String.class));
+            if (String.class.isAssignableFrom(fieldType)
+                    || Character.class.isAssignableFrom(fieldType)
+                    || char.class.isAssignableFrom(fieldType)) {
+                // The field is a string or char type
+                result = msg;
+            } else if (Date.class.isAssignableFrom(fieldType)) {
+                // The field is a date, use the DateUtility to parse the date time
+                result = DateUtility.convertToDate(msg, "MMM d, yyyy HH:mm");
+                if (result == null) {
+                    org.sola.services.common.logging.LogUtility.log("Unable to parse redacted date "
+                            + "value for " + columnInfo.getColumnName() + ". Date must be "
+                            + "in MMM d, yyyy HH:mm format. See RepositoryUtility.getRedactedValue", Level.SEVERE);
+                }
+            } else {
+                // The field is not a string or char, so attempt to convert the 
+                //redact message to the appropriate data type
+                try {
+                    result = fieldType.getConstructor(String.class).newInstance(msg);
+                } catch (Exception e) {
+                    org.sola.services.common.logging.LogUtility.log("Failed to cast redact "
+                            + "value for " + columnInfo.getColumnName(), e);
+                }
+            }
+        } else {
+            // No redact message code is provided, so try to create a default object to use
+            // for the redact value. 
+            try {
+                result = fieldType.newInstance();
+            } catch (Exception ex) {
+                org.sola.services.common.logging.LogUtility.log("Failed to instantiate default"
+                        + " redact value for " + columnInfo.getColumnName(), ex);
             }
         }
         return result;

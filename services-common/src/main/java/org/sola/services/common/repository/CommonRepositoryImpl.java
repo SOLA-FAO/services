@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.common.repository;
@@ -35,13 +37,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.logging.Level;
 import org.apache.ibatis.session.SqlSession;
+import org.sola.common.RolesConstants;
 import org.sola.common.SOLAException;
+import org.sola.common.StringUtility;
 import org.sola.common.messaging.ServiceMessage;
 import org.sola.services.common.EntityAction;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.ejbs.AbstractEJBLocal;
 import org.sola.services.common.faults.FaultUtility;
+import org.sola.services.common.logging.LogUtility;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
 import org.sola.services.common.repository.entities.AbstractEntity;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
@@ -76,7 +82,7 @@ public class CommonRepositoryImpl implements CommonRepository {
             throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
                     // Capture the specific details so they are added to the log
                     new Object[]{"File named " + CONNECT_CONFIG_FILE_NAME + " is not located in "
-                + "the default resource package for " + this.getClass().getSimpleName()});
+                        + "the default resource package for " + this.getClass().getSimpleName()});
         }
         dbConnectionManager = new DatabaseConnectionManager(connectionConfigFileUrl.toString(),
                 CommonMapper.class);
@@ -164,13 +170,16 @@ public class CommonRepositoryImpl implements CommonRepository {
 
     /**
      * Allows an array of entity classes to be set as inhibitors for a given SQL
-     * Query. <p> The Common Repository will attempt to eagerly load all child
-     * entities of an entity when that entity is loaded via a getEntity or
-     * getEntityList method. In some cases, the child entities are not required
-     * and the additional load is an unnecessary performance overhead. The Load
+     * Query.
+     * <p>
+     * The Common Repository will attempt to eagerly load all child entities of
+     * an entity when that entity is loaded via a getEntity or getEntityList
+     * method. In some cases, the child entities are not required and the
+     * additional load is an unnecessary performance overhead. The Load
      * Inhibitors allows the developer to indicate which child entities should
-     * not be loaded based on the child entity class. </p> <p> Once set, the
-     * load inhibitors remain set until the developer calls the {@linkplain
+     * not be loaded based on the child entity class. </p>
+     * <p>
+     * Once set, the load inhibitors remain set until the developer calls the {@linkplain
      * #clearLoadInhibitors()} method. This is to ensure any level of the child
      * hierarchy can be inhibited, but also means that the clear method should
      * be called once the necessary loading is complete </p>
@@ -200,8 +209,10 @@ public class CommonRepositoryImpl implements CommonRepository {
 
     /**
      * Retrieves a child entity that is in a one to one relationship with its
-     * parent entity. <p> To customize the default join criteria used to load
-     * the child entity, override the parent entity
+     * parent entity.
+     * <p>
+     * To customize the default join criteria used to load the child entity,
+     * override the parent entity
      * {@linkplain AbstractReadOnlyEntity#getChildJoinSqlParams} to return the
      * appropriately configured SQL Parameters. </p>
      *
@@ -273,16 +284,57 @@ public class CommonRepositoryImpl implements CommonRepository {
      */
     private <T extends AbstractReadOnlyEntity> T mapToEntity(T entity, Map<String, Object> row) {
         if (row != null && !row.isEmpty()) {
-            for (ColumnInfo columnInfo : entity.getColumns()) {
-                if (row.containsKey(columnInfo.getColumnName().toLowerCase())) {
-                    entity.setEntityFieldValue(columnInfo,
-                            row.get(columnInfo.getColumnName().toLowerCase()));
-                }
-            }
-            markAsLoaded(entity);
 
+            // Ticket #3. Check if the user has the appropraite security clearance
+            // to view this record. If not, do not load the entity.
+            String classificationCode = (String) row.get(AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME);
+            if (entity.hasSecurityClearance(classificationCode)) {
+                // Ticket #3. Obtain the redact code for this entity
+                String redactCode = (String) row.get(AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME);
+                entity.setRedacted(false);
+                for (ColumnInfo columnInfo : entity.getColumns()) {
+                    // Note that the row map only contains columns with non-null values
+                    if (row.containsKey(columnInfo.getColumnName().toLowerCase())) {
+                        Object value = row.get(columnInfo.getColumnName().toLowerCase());
+                        if (entity.isRedactRequired(columnInfo, redactCode)) {
+                            // The field must have its value redacted
+                            value = entity.getRedactedValue(columnInfo);
+                            entity.setRedacted(true);
+                        }
+                        setEntityRedactCode(entity, columnInfo, redactCode);
+                        entity.setEntityFieldValue(columnInfo, value);
+                    }
+                }
+                markAsLoaded(entity);
+            }
         }
         return entity;
+    }
+
+    /**
+     * Updates the redactCode for the entity to represent the
+     * minRedactClassification for a column if no override redact code has been
+     * set on the entity.
+     *
+     * @param <T>
+     * @param entity The entity being processed
+     * @param columnInfo The column to validate
+     * @param overrideRedactCode The override redact code set on the entity
+     */
+    private <T extends AbstractReadOnlyEntity> void setEntityRedactCode(T entity,
+            ColumnInfo columnInfo, String overrideRedactCode) {
+        if (StringUtility.isEmpty(overrideRedactCode)
+                && !StringUtility.isEmpty(columnInfo.getMinRedactClassification())) {
+            // The column has a minRedactClassification. Set the classification on 
+            // this column as the redact code for the entity. Note that a higher 
+            // minRedactClassification may have already been assigned to the entity, 
+            // so check for that case as well.
+            if (StringUtility.isEmpty(entity.getRedactCode())
+                    || columnInfo.getMinRedactClassification().compareTo(entity.getRedactCode()) > 0) {;
+                entity.setEntityFieldValue(entity.getColumnInfo(AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME),
+                        columnInfo.getMinRedactClassification());
+            }
+        }
     }
 
     /**
@@ -290,7 +342,9 @@ public class CommonRepositoryImpl implements CommonRepository {
      * executing an SQL query. Each column of the result is mapped to the entity
      * field based on the name of the column specified in the
      *
-     * @Column annotation. <p> Overloaded version of
+     * @Column annotation.
+     * <p>
+     * Overloaded version of
      * {@linkplain #mapToEntity(.AbstractReadOnlyEntity, Map)} that creates a
      * new instance of the entity to populate based on the entity class. </p>
      *
@@ -308,7 +362,7 @@ public class CommonRepositoryImpl implements CommonRepository {
         } catch (Exception ex) {
             throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
                     // Capture the specific details so they are added to the log
-                    new Object[]{"Failed to map entity to result " + entityClass.getSimpleName(), ex});
+                    new Object[]{"Failed to map entity to result " + entityClass.getSimpleName()}, ex);
         }
         return entity.isLoaded() ? entity : null;
     }
@@ -619,7 +673,7 @@ public class CommonRepositoryImpl implements CommonRepository {
             throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
                     // Capture the specific details so they are added to the log
                     new Object[]{"Failed to create Many to Many entity class "
-                + childInfo.getManyToManyClass().getSimpleName(), ex});
+                        + childInfo.getManyToManyClass().getSimpleName(), ex});
         }
         manyToMany.setEntityFieldValue(manyToMany.getColumnInfo(
                 childInfo.getParentIdField()), entity.getEntityId());
@@ -788,8 +842,8 @@ public class CommonRepositoryImpl implements CommonRepository {
                     // any exception raised when invoking the ejb method will be wrapped in an
                     // InvocationTargetException. The true cause can be masked by this exception. 
                     new Object[]{"Unable to invoke save  method " + childInfo.getSaveMethod()
-                + " on " + childInfo.getEJBLocalClass().getSimpleName(),
-                "Field=" + childInfo.getFieldName(), FaultUtility.getStackTraceAsString(ex)});
+                        + " on " + childInfo.getEJBLocalClass().getSimpleName(),
+                        "Field=" + childInfo.getFieldName(), FaultUtility.getStackTraceAsString(ex)});
         }
         return childEntity;
     }
@@ -941,8 +995,8 @@ public class CommonRepositoryImpl implements CommonRepository {
         Map<String, Object> params = new HashMap<String, Object>();
 
         String parentIdField = childInfo.getParentIdField();
-        Class<? extends AbstractEntity> entityClass =
-                (Class<? extends AbstractEntity>) childInfo.getEntityClass();
+        Class<? extends AbstractEntity> entityClass
+                = (Class<? extends AbstractEntity>) childInfo.getEntityClass();
 
         if (childInfo.isManyToMany()) {
             // Get the details of the Many to Many class and the select the child id column
@@ -950,7 +1004,7 @@ public class CommonRepositoryImpl implements CommonRepository {
 
             params.put(CommonSqlProvider.PARAM_SELECT_PART,
                     RepositoryUtility.getColumnInfo(entityClass,
-                    childInfo.getChildIdField()).getColumnName());
+                            childInfo.getChildIdField()).getColumnName());
 
         } else {
             // One to many relationship so just select the id column
@@ -1165,7 +1219,10 @@ public class CommonRepositoryImpl implements CommonRepository {
     /**
      * Retrieves a list of entities by generating a where clause based on the
      * list of entity ids.
-     * <p> Uses and IN clause for the SQL query. </p> <p> Overloaded version of {@linkplain #getEntityListByIds(java.lang.Class, java.util.List,
+     * <p>
+     * Uses and IN clause for the SQL query. </p>
+     * <p>
+     * Overloaded version of {@linkplain #getEntityListByIds(java.lang.Class, java.util.List,
      * java.util.Map) } that defaults the parameter map to null. </p>
      *
      * @param <T> The generic type of the entity being loaded. Must be a
@@ -1183,8 +1240,9 @@ public class CommonRepositoryImpl implements CommonRepository {
     /**
      * Retrieves a list of entities by generating a where clause based on the
      * list of entity ids.
-     * <p> Uses and IN clause for the SQL query. If a PARAM_WHERE_PART is
-     * provided in the params map, the IN clause is ANDed to the existing
+     * <p>
+     * Uses and IN clause for the SQL query. If a PARAM_WHERE_PART is provided
+     * in the params map, the IN clause is ANDed to the existing
      * PARAM_WHERE_PART.</p>
      *
      * @param <T> The generic type of the entity being loaded. Must be a
@@ -1231,10 +1289,11 @@ public class CommonRepositoryImpl implements CommonRepository {
 
     /**
      * Loads the child entity lists for both One to Many and Many to Many
-     * associations. <p> To customize the default join criteria used to load the
-     * child entity list, override
-     * {@linkplain AbstractReadOnlyEntity#getChildJoinSqlParams} to return the
-     * appropriately configured SQL Parameters. </p>
+     * associations.
+     * <p>
+     * To customize the default join criteria used to load the child entity
+     * list, override {@linkplain AbstractReadOnlyEntity#getChildJoinSqlParams}
+     * to return the appropriately configured SQL Parameters. </p>
      *
      * @param <T> The generic type of the parent entity. Must be a descendent of
      * {@linkplain AbstractReadOnlyEntity}
@@ -1265,10 +1324,11 @@ public class CommonRepositoryImpl implements CommonRepository {
 
     /**
      * Loads the child entity lists for both One to Many and Many to Many
-     * associations. <p> To customize the default join criteria used to load the
-     * child entity list, override
-     * {@linkplain AbstractReadOnlyEntity#getChildJoinSqlParams} to return the
-     * appropriately configured SQL Parameters. </p>
+     * associations.
+     * <p>
+     * To customize the default join criteria used to load the child entity
+     * list, override {@linkplain AbstractReadOnlyEntity#getChildJoinSqlParams}
+     * to return the appropriately configured SQL Parameters. </p>
      *
      * @param <T> The generic type of the parent entity. Must be a descendent of
      * {@linkplain AbstractReadOnlyEntity}
@@ -1297,8 +1357,8 @@ public class CommonRepositoryImpl implements CommonRepository {
 
             if (childInfo.isManyToMany()) {
                 // Get the details of the Many to Many class
-                Class<? extends AbstractEntity> manyToManyClass =
-                        (Class<? extends AbstractEntity>) childInfo.getManyToManyClass();
+                Class<? extends AbstractEntity> manyToManyClass
+                        = (Class<? extends AbstractEntity>) childInfo.getManyToManyClass();
 
                 // Get the parent and child column names on the Many to Many class
                 String parentIdColumn = RepositoryUtility.getColumnInfo(manyToManyClass,
@@ -1309,7 +1369,7 @@ public class CommonRepositoryImpl implements CommonRepository {
                 // Create a WHERE clause that will use a nested select on the Many to Many entity
                 // to restrict the selection of records from the target child entity table. 
                 // #307 Determine the correct name of the primary key column on the child entity. 
-                String childPKColumnName = RepositoryUtility.getIdColumns(childEntityClass).get(0).getColumnName(); 
+                String childPKColumnName = RepositoryUtility.getIdColumns(childEntityClass).get(0).getColumnName();
                 String whereClause = childPKColumnName + " IN ( SELECT a." + childIdColumn
                         + " FROM " + RepositoryUtility.getTableName(manyToManyClass) + " a "
                         + " WHERE a." + parentIdColumn + " = #{parentId})";
@@ -1346,8 +1406,8 @@ public class CommonRepositoryImpl implements CommonRepository {
     public <T extends AbstractReadOnlyEntity, U extends CommonMapper> void loadChildren(T entity, U mapper) {
         for (ChildEntityInfo childInfo : entity.getChildEntityInfo()) {
             if (AbstractReadOnlyEntity.class.isAssignableFrom(childInfo.getEntityClass())) {
-                Class<? extends AbstractReadOnlyEntity> childEntityClass =
-                        (Class<? extends AbstractReadOnlyEntity>) childInfo.getEntityClass();
+                Class<? extends AbstractReadOnlyEntity> childEntityClass
+                        = (Class<? extends AbstractReadOnlyEntity>) childInfo.getEntityClass();
                 // Check to determine if loading of this child class should be skipped or not
                 if (!isInhibitLoad(childEntityClass)) {
                     Object child = null;
@@ -1421,7 +1481,7 @@ public class CommonRepositoryImpl implements CommonRepository {
                     // any exception raised when invoking the ejb method will be wrapped in an
                     // InvocationTargetException. The true cause can be masked by this exception.
                     new Object[]{"Unable to invoke method " + childInfo.getLoadMethod(),
-                FaultUtility.getStackTraceAsString(ex)});
+                        FaultUtility.getStackTraceAsString(ex)});
         }
         return child;
     }
@@ -1498,8 +1558,8 @@ public class CommonRepositoryImpl implements CommonRepository {
     }
 
     /**
-     * Issue #248 Add Bulk Update capability to the repository. 
-     * Executes a dynamic bulk update command using the specified parameters.
+     * Issue #248 Add Bulk Update capability to the repository. Executes a
+     * dynamic bulk update command using the specified parameters.
      *
      * @param params {@link CommonSqlProvider#PARAM_QUERY} must be supplied with
      * the template for the bulk update statement. Values for the update can be

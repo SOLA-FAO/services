@@ -434,6 +434,8 @@ public class SearchSqlProvider {
                 + " FROM administrative.ba_unit_as_party bap, party.party pm"
                 + " WHERE bap.ba_unit_id = prop.id"
                 + " AND   pm.id = bap.party_id LIMIT 1) AS prop_man");
+        SELECT("prop.classification_code");
+        SELECT("prop.redact_code");
         FROM("administrative.ba_unit prop");
     }
 
@@ -635,6 +637,8 @@ public class SearchSqlProvider {
         SELECT("(SELECT (COALESCE(pc.name, '') || ' ' || COALESCE(pc.last_name, ''))"
                 + " FROM party.party pc"
                 + " WHERE pc.id = app.contact_person_id ) AS contact_person");
+        SELECT("app.classification_code");
+        SELECT("app.redact_code");
         FROM("application.application app");
     }
 

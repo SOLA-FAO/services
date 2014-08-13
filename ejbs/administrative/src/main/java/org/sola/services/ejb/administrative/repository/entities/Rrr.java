@@ -39,8 +39,10 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.sola.common.RolesConstants;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.repository.*;
+import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 import org.sola.services.ejb.party.businesslogic.PartyEJBLocal;
 import org.sola.services.ejb.party.repository.entities.Party;
@@ -86,18 +88,26 @@ public class Rrr extends AbstractVersionedEntity {
     private Date expirationDate;
     @Column(name = "share")
     private Double share;
+    @Redact(minClassification = RolesConstants.CLASSIFICATION_CONFIDENTIAL)
     @Column(name = "amount")
     private BigDecimal amount;
     @Column(name = "due_date")
     private Date dueDate;
+    @Redact(minClassification = RolesConstants.CLASSIFICATION_CONFIDENTIAL)
     @Column(name = "mortgage_interest_rate")
     private BigDecimal mortgageInterestRate;
+    @Redact(minClassification = RolesConstants.CLASSIFICATION_CONFIDENTIAL)
     @Column(name = "mortgage_ranking")
     private Integer mortgageRanking;
+    @Redact(minClassification = RolesConstants.CLASSIFICATION_CONFIDENTIAL)
     @Column(name = "mortgage_type_code")
     private String mortgageTypeCode;
     @Column(name = "sub_type_code")
     private String rrrSubTypeCode;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    private String classificationCode;
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
     // Child entity fields
     @ChildEntity(insertBeforeParent = false, parentIdField = "rrrId")
     private BaUnitNotation notation;
@@ -321,6 +331,24 @@ public class Rrr extends AbstractVersionedEntity {
 
     public void setRrrSubTypeCode(String rrrSubTypeCode) {
         this.rrrSubTypeCode = rrrSubTypeCode;
+    }
+
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
     }
 
     public Boolean isLocked() {

@@ -139,6 +139,12 @@ public class ApplicationSearchResult extends AbstractReadOnlyEntity {
     @Column(name = "description")
     @AccessFunctions(onSelect = "a.description")
     private String description;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    @AccessFunctions(onSelect = "a.classification_code")
+    private String classificationCode;
+    @AccessFunctions(onSelect = "a.redact_code")
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
 
     public ApplicationSearchResult() {
         super();
@@ -286,5 +292,23 @@ public class ApplicationSearchResult extends AbstractReadOnlyEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
     }
 }

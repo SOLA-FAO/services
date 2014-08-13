@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 /*
@@ -43,6 +45,7 @@ import org.sola.services.common.repository.ChildEntity;
 import org.sola.services.common.repository.ChildEntityList;
 import org.sola.services.common.repository.ExternalEJB;
 import org.sola.services.common.repository.RepositoryUtility;
+import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 import org.sola.services.ejb.cadastre.businesslogic.CadastreEJBLocal;
 import org.sola.services.ejb.cadastre.repository.entities.CadastreObject;
@@ -85,7 +88,7 @@ public class Application extends AbstractVersionedEntity {
     @Column(name = "status_code", insertable = false, updatable = false)
     private String statusCode = null;
     @AccessFunctions(onSelect = "st_asewkb(location)",
-    onChange = "get_geometry_with_srid(#{location})")
+            onChange = "get_geometry_with_srid(#{location})")
     @Column(name = "location")
     private byte[] location;
     @Column(name = "services_fee")
@@ -101,9 +104,13 @@ public class Application extends AbstractVersionedEntity {
     @Column(name = "receipt_reference")
     private String receiptRef;
     @Column
-    private String description; 
+    private String description;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    private String classificationCode;
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
     @ExternalEJB(ejbLocalClass = PartyEJBLocal.class,
-    loadMethod = "getParty", saveMethod = "saveParty")
+            loadMethod = "getParty", saveMethod = "saveParty")
     @ChildEntity(childIdField = "contactPersonId")
     private Party contactPerson;
     @ExternalEJB(ejbLocalClass = PartyEJBLocal.class, loadMethod = "getParty")
@@ -114,15 +121,15 @@ public class Application extends AbstractVersionedEntity {
     @ChildEntityList(parentIdField = "applicationId")
     private List<ApplicationProperty> propertyList;
     @ExternalEJB(ejbLocalClass = SourceEJBLocal.class,
-    loadMethod = "getSources", saveMethod = "saveSource")
+            loadMethod = "getSources", saveMethod = "saveSource")
     @ChildEntityList(parentIdField = "applicationId", childIdField = "sourceId",
-    manyToManyClass = ApplicationUsesSource.class)
+            manyToManyClass = ApplicationUsesSource.class)
     private List<Source> sourceList;
     @ExternalEJB(ejbLocalClass = CadastreEJBLocal.class, loadMethod = "getCadastreObjects")
     @ChildEntityList(parentIdField = "applicationId", childIdField = "spatialUnitId",
-    manyToManyClass = ApplicationSpatialUnit.class)
+            manyToManyClass = ApplicationSpatialUnit.class)
     private List<CadastreObject> cadastreObjectList;
-    
+
     public Application() {
         super();
     }
@@ -282,7 +289,7 @@ public class Application extends AbstractVersionedEntity {
 
     public void setReceiptRef(String receiptRef) {
         this.receiptRef = receiptRef;
-    }   
+    }
 
     public Party getAgent() {
         return agent;
@@ -347,6 +354,24 @@ public class Application extends AbstractVersionedEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
     }
 
     @Override

@@ -506,7 +506,6 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_QUERY, Role.QUERY_GET_ROLES_BY_USER_NAME);
         params.put(User.PARAM_USERNAME, userName);
-        isInRole(userName);
         return getRepository().getEntityList(Role.class, params);
     }
 

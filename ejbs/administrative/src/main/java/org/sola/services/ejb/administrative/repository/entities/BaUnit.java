@@ -38,6 +38,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.repository.*;
+import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 import org.sola.services.ejb.cadastre.businesslogic.CadastreEJBLocal;
 import org.sola.services.ejb.cadastre.repository.entities.CadastreObject;
@@ -97,6 +98,10 @@ public class BaUnit extends AbstractVersionedEntity {
     private String statusCode;
     @Column(name = "transaction_id", updatable = false)
     private String transactionId;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    private String classificationCode;
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
     @ChildEntityList(parentIdField = "baUnitId")
     private List<Rrr> rrrList;
     @ChildEntityList(parentIdField = "baUnitId")
@@ -296,6 +301,25 @@ public class BaUnit extends AbstractVersionedEntity {
     public void setPartyList(List<Party> partyList) {
         this.partyList = partyList;
     }
+
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
+    }
+    
 
     public Boolean isLocked() {
         if (locked == null) {

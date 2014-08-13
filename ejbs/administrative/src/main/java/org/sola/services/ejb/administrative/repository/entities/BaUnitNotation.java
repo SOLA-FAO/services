@@ -43,6 +43,7 @@ import org.sola.services.common.repository.ChildEntityList;
 import org.sola.services.common.repository.DefaultSorter;
 import org.sola.services.common.repository.ExternalEJB;
 import org.sola.services.common.repository.RepositoryUtility;
+import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 import org.sola.services.ejb.source.businesslogic.SourceEJBLocal;
 import org.sola.services.ejb.source.repository.entities.Source;
@@ -86,6 +87,10 @@ public class BaUnitNotation extends AbstractVersionedEntity {
     private Date changeTime;
     @Column(name = "notation_date")
     private Date notationDate;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    private String classificationCode;
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
     @ExternalEJB(ejbLocalClass = SourceEJBLocal.class,
             loadMethod = "getSources", saveMethod = "saveSource")
     @ChildEntityList(parentIdField = "notationId", childIdField = "sourceId",
@@ -188,6 +193,24 @@ public class BaUnitNotation extends AbstractVersionedEntity {
 
     public void setNotationDate(Date notationDate) {
         this.notationDate = notationDate;
+    }
+
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
     }
 
     public List<Source> getSourceList() {

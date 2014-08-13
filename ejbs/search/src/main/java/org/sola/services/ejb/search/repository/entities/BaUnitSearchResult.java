@@ -81,6 +81,10 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
     private String notationText;
     @Column(name = "rowversion")
     private int rowVersion;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    private String classificationCode;
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
 
     public BaUnitSearchResult() {
         super();
@@ -212,5 +216,23 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
 
     public void setRowVersion(int rowVersion) {
         this.rowVersion = rowVersion;
+    }
+
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
     }
 }
