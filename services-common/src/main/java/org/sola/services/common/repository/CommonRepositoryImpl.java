@@ -37,9 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.logging.Level;
 import org.apache.ibatis.session.SqlSession;
-import org.sola.common.RolesConstants;
 import org.sola.common.SOLAException;
 import org.sola.common.StringUtility;
 import org.sola.common.messaging.ServiceMessage;
@@ -47,9 +45,9 @@ import org.sola.services.common.EntityAction;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.ejbs.AbstractEJBLocal;
 import org.sola.services.common.faults.FaultUtility;
-import org.sola.services.common.logging.LogUtility;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
 import org.sola.services.common.repository.entities.AbstractEntity;
+import org.sola.services.common.repository.entities.AbstractEntityInfo;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 import org.sola.services.common.repository.entities.ChildEntityInfo;
@@ -322,7 +320,7 @@ public class CommonRepositoryImpl implements CommonRepository {
      * @param overrideRedactCode The override redact code set on the entity
      */
     private <T extends AbstractReadOnlyEntity> void setEntityRedactCode(T entity,
-            ColumnInfo columnInfo, String overrideRedactCode) {
+            AbstractEntityInfo columnInfo, String overrideRedactCode) {
         if (StringUtility.isEmpty(overrideRedactCode)
                 && !StringUtility.isEmpty(columnInfo.getMinRedactClassification())) {
             // The column has a minRedactClassification. Set the classification on 
@@ -487,6 +485,17 @@ public class CommonRepositoryImpl implements CommonRepository {
             U mapper, boolean beforeSave) {
 
         for (ChildEntityInfo childInfo : entity.getChildEntityInfo()) {
+            if (entity.isRedactRequired(childInfo, entity.getRedactCode())
+                    || (childInfo.isRedact() && entity.isRedacted())) {
+                // Do not allow an update of the child or list as the entity is subject to
+                // redaction. Note that the second part of the check is to prevent cases 
+                // where the redact code has been changed by the user to a lesser value. 
+                // If the entity was redacted on load, do not allow saving of any redacted 
+                // child as this may result in data loss or duplication. It also ensures
+                // a nefarious user cannot change the details of an entity that they do 
+                // not have privileges to view. 
+                continue;
+            }
             if (AbstractEntity.class.isAssignableFrom(childInfo.getEntityClass())) {
                 if (childInfo.isListField() && !childInfo.isManyToMany()) {
                     // One to many child list
@@ -1404,13 +1413,17 @@ public class CommonRepositoryImpl implements CommonRepository {
      * @param mapper The Mybatis mapper class used for this loading process.
      */
     public <T extends AbstractReadOnlyEntity, U extends CommonMapper> void loadChildren(T entity, U mapper) {
+        String redactCode = entity.getRedactCode();
         for (ChildEntityInfo childInfo : entity.getChildEntityInfo()) {
             if (AbstractReadOnlyEntity.class.isAssignableFrom(childInfo.getEntityClass())) {
                 Class<? extends AbstractReadOnlyEntity> childEntityClass
                         = (Class<? extends AbstractReadOnlyEntity>) childInfo.getEntityClass();
+
+                // Determine if this child entity is being redacted. If so, do not load it. 
+                boolean redactRequired = entity.isRedactRequired(childInfo, redactCode);
                 // Check to determine if loading of this child class should be skipped or not
-                if (!isInhibitLoad(childEntityClass)) {
-                    Object child = null;
+                if (!isInhibitLoad(childEntityClass) && !redactRequired) {
+                    Object child;
                     if (childInfo.isExternalEntity()) {
                         // External Entity
                         child = getExternalEntity(entity, childInfo, mapper);
@@ -1422,11 +1435,14 @@ public class CommonRepositoryImpl implements CommonRepository {
                         child = getChildEntity(entity, childEntityClass, childInfo, mapper);
                     }
                     entity.setEntityFieldValue(childInfo, child);
-                } else {
-                    // The child entity does not inherit from the SOLA Abstract Entity classes. 
-                    // Allow the loading of the external need to be managed by the parent repository. 
-                    loadOtherEntity(entity, childInfo, mapper);
                 }
+                entity.setRedacted(redactRequired || entity.isRedacted());
+                setEntityRedactCode(entity, childInfo, redactCode);
+
+            } else {
+                // The child entity does not inherit from the SOLA Abstract Entity classes. 
+                // Allow the loading of the external need to be managed by the parent repository. 
+                loadOtherEntity(entity, childInfo, mapper);
             }
         }
     }

@@ -51,9 +51,6 @@ public class ColumnInfo extends AbstractEntityInfo {
     private Boolean updatable;
     private String onSelectFunction;
     private String onChangeFunction;
-    private boolean redact;
-    private String minRedactClassification;
-    private String redactMessageCode;
 
     /**
      * Default constructor.
@@ -147,34 +144,6 @@ public class ColumnInfo extends AbstractEntityInfo {
 
     public void setOnSelectFunction(String onSelectFunction) {
         this.onSelectFunction = onSelectFunction;
-    }
-
-    public boolean isRedact() {
-        return redact;
-    }
-
-    public void setRedact(boolean redact) {
-        this.redact = redact;
-    }
-
-    public String getMinRedactClassification() {
-        return minRedactClassification;
-    }
-
-    public void setMinRedactClassification(String minRedactClassification) {
-        this.minRedactClassification = minRedactClassification;
-    }
-
-    /**
-     * The message code indicating the message to use when replacing/redacting
-     * the content of the field.
-     */
-    public String getRedactMessageCode() {
-        return redactMessageCode;
-    }
-
-    public void setRedactMessageCode(String redactMessageCode) {
-        this.redactMessageCode = redactMessageCode;
     }
 
     /**

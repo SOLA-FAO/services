@@ -350,7 +350,7 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
      * @return true if the content of the field must be redacted, false
      * otherwise.
      */
-    public boolean isRedactRequired(ColumnInfo columnInfo, String redactCode) {
+    public boolean isRedactRequired(AbstractEntityInfo columnInfo, String redactCode) {
         return RepositoryUtility.isRedactRequired(columnInfo, redactCode);
     }
 

@@ -67,9 +67,10 @@ public @interface Redact {
      * Optional. The message code indicating the message to use when
      * replacing/redacting the content of the field. Usually a reference to
      * constant on the {@link org.sola.common.messaging.ServiceMessage} class.
-     * If omitted, the field will be a assined a value created by its nullary
+     * If omitted, the field will be a assigned a value created by its nullary
      * constructor (i.e. constructor without arguments). Primitive types are
-     * boxed to ensure they can be created. 
+     * boxed to ensure they can be created. Not used if the field is a list of
+     * child entities as the list is not loaded
      *
      * @return
      */

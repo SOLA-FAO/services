@@ -56,6 +56,7 @@ import org.sola.common.messaging.MessageUtility;
 import org.sola.common.messaging.ServiceMessage;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.ejbs.AbstractEJBLocal;
+import org.sola.services.common.repository.entities.AbstractEntityInfo;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.ChildEntityInfo;
 import org.sola.services.common.repository.entities.ColumnInfo;
@@ -261,6 +262,7 @@ public class RepositoryUtility {
                 ChildEntity childAnnotation = field.getAnnotation(ChildEntity.class);
                 ChildEntityList childListAnnotation = field.getAnnotation(ChildEntityList.class);
                 ExternalEJB externalEJBAnnoation = field.getAnnotation(ExternalEJB.class);
+                Redact redactInfo = field.getAnnotation(Redact.class);
                 ParameterizedType paramType = null;
                 if (Iterable.class.isAssignableFrom(field.getType())) {
                     paramType = (ParameterizedType) field.getGenericType();
@@ -292,6 +294,14 @@ public class RepositoryUtility {
                     childInfo.setEJBLocalClass(externalEJBAnnoation.ejbLocalClass());
                     childInfo.setLoadMethod(externalEJBAnnoation.loadMethod());
                     childInfo.setSaveMethod(externalEJBAnnoation.saveMethod());
+                }
+                if (redactInfo != null && childInfo != null) {
+                    // Capture redact details but ignore the messageCode as this does not
+                    // apply to List or child entity fields
+                    childInfo.setRedact(true);
+                    childInfo.setMinRedactClassification(
+                            StringUtility.isEmpty(redactInfo.minClassification()) ? null
+                            : redactInfo.minClassification());
                 }
                 if (childInfo != null) {
                     children.add(childInfo);
@@ -448,7 +458,7 @@ public class RepositoryUtility {
      * @return true if the content of the field must be redacted, false
      * otherwise.
      */
-    public static boolean isRedactRequired(ColumnInfo columnInfo, String redactCode) {
+    public static boolean isRedactRequired(AbstractEntityInfo columnInfo, String redactCode) {
         boolean result = false;
         if (columnInfo.isRedact()) {
             if (!StringUtility.isEmpty(redactCode)) {
@@ -493,12 +503,14 @@ public class RepositoryUtility {
                 // The field is a string or char type
                 result = msg;
             } else if (Date.class.isAssignableFrom(fieldType)) {
-                // The field is a date, use the DateUtility to parse the date time
-                result = DateUtility.convertToDate(msg, "MMM d, yyyy HH:mm");
+                // The field is a date, use the DateUtility to parse the date time based
+                // on the specified redact date format
+                String dateFormat =  MessageUtility.getLocalizedMessageText(ServiceMessage.REDACT_DATE_FORMAT); 
+                result = DateUtility.convertToDate(msg, dateFormat);
                 if (result == null) {
                     org.sola.services.common.logging.LogUtility.log("Unable to parse redacted date "
                             + "value for " + columnInfo.getColumnName() + ". Date must be "
-                            + "in MMM d, yyyy HH:mm format. See RepositoryUtility.getRedactedValue", Level.SEVERE);
+                            + "in " + dateFormat + " format. See RepositoryUtility.getRedactedValue", Level.SEVERE);
                 }
             } else {
                 // The field is not a string or char, so attempt to convert the 

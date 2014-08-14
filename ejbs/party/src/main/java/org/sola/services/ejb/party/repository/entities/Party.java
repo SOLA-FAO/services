@@ -121,6 +121,7 @@ public class Party extends AbstractVersionedEntity {
             loadMethod = "getAddress", saveMethod = "saveAddress")
     @ChildEntity(childIdField = "addressId")
     private Address address;
+    @Redact
     @ChildEntityList(parentIdField = "partyId")
     private List<PartyRole> roleList;
     @Column(name = "party.is_rightholder(id) AS is_rightholder", insertable = false, updatable = false)
