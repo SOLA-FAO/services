@@ -4,12 +4,12 @@
     <parent>
         <groupId>org.sola.services</groupId>
         <artifactId>sola-ejbs</artifactId>
-        <version>sl-007</version>
+        <version>sl-008</version>
     </parent>
     <groupId>org.sola.services.ejbs</groupId>
     <artifactId>sola-cadastre</artifactId>
     <packaging>ejb</packaging>
-    <version>sl-007</version>
+    <version>sl-008</version>
     <name>EJB Cadastre</name>
     <dependencies>
         <dependency>
