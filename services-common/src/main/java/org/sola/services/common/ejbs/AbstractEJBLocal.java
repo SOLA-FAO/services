@@ -50,4 +50,6 @@ public interface AbstractEJBLocal {
     <T extends AbstractCodeEntity> List<T> getCodeEntityList(Class<T> codeEntityClass, String lang);
     <T extends AbstractCodeEntity> List<T> getCodeEntityList(Class<T> codeEntityClass);
     <T extends AbstractEntity> T saveEntity(T entityObject);
+    String getUserName();
+    boolean isInRole(String... roles);
 }
