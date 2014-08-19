@@ -279,6 +279,14 @@ public abstract class AbstractReadOnlyEntity implements Serializable {
     }
 
     /**
+     * @return True if the entity is annotated with a Cacheable annotation that
+     * has its value set to true.
+     */
+    public boolean isCacheable() {
+        return RepositoryUtility.isCachable(this.getClass());
+    }
+
+    /**
      * Allows the SQL parameters used to retrieve child entities to be set,
      * overriding the default join criteria used by
      * {@linkplain CommonRepository}. This override is available for One to One,

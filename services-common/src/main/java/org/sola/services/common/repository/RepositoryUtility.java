@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -55,7 +56,6 @@ import org.sola.common.logging.LogUtility;
 import org.sola.common.messaging.MessageUtility;
 import org.sola.common.messaging.ServiceMessage;
 import org.sola.services.common.LocalInfo;
-import org.sola.services.common.ejbs.AbstractEJBLocal;
 import org.sola.services.common.repository.entities.AbstractEntityInfo;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.ChildEntityInfo;
@@ -75,6 +75,7 @@ public class RepositoryUtility {
     private static Map<String, List<ColumnInfo>> entityColumns = new HashMap<String, List<ColumnInfo>>();
     private static Map<String, List<ColumnInfo>> entityIdColumns = new HashMap<String, List<ColumnInfo>>();
     private static Map<String, String> entityTableNames = new HashMap<String, String>();
+    private static Map<String, Boolean> entityCacheable = new HashMap<String, Boolean>();
     private static Map<String, String> sorterExpressions = new HashMap<String, String>();
     private static Map<String, List<ChildEntityInfo>> childEntities = new HashMap<String, List<ChildEntityInfo>>();
 
@@ -107,6 +108,38 @@ public class RepositoryUtility {
             }
         }
         return tableName;
+    }
+
+    /**
+     * Indicates if an entity can be cached for fast access. Used for reference
+     * codes that are not frequently updated.
+     *
+     * @param <T>
+     * @param entityClass The entity class to check for the cacheable annotation
+     * @return true if the Cacheable Annotation value is true, false otherwise.
+     */
+    public static <T extends AbstractReadOnlyEntity> boolean isCachable(Class<T> entityClass) {
+        boolean result = false;
+        if (entityCacheable.containsKey(entityClass.getName())) {
+            result = entityCacheable.get(entityClass.getName());
+        } else {
+            Cacheable cacheableAnnotation = entityClass.getAnnotation(Cacheable.class);
+            if (cacheableAnnotation == null && entityClass.getSuperclass() != null
+                    && AbstractReadOnlyEntity.class.isAssignableFrom(entityClass.getSuperclass())) {
+                result = isCachable((Class<AbstractReadOnlyEntity>) entityClass.getSuperclass());
+            }
+            if (cacheableAnnotation != null) {
+                result = cacheableAnnotation.value();
+                // Set the cacheable state of the entity based on the value of the
+                // Cacheable annotation
+                entityCacheable.put(entityClass.getName(), result);
+            } else {
+                // Set the cacheable state for this entity. Note that the result 
+                // may hve been inherited from a super class. 
+                entityCacheable.put(entityClass.getName(), result);
+            }
+        }
+        return result;
     }
 
     public static <T extends AbstractReadOnlyEntity> String getSorterExpression(Class<T> entityClass) {
@@ -312,7 +345,7 @@ public class RepositoryUtility {
         return children;
     }
 
-    public static <T extends AbstractEJBLocal> T getEJB(Class<T> ejbLocalClass) {
+    public static <T> T getEJB(Class<T> ejbLocalClass) {
         T ejb = null;
 
         String ejbLookupName = "java:global/SOLA_SL/" + ejbLocalClass.getSimpleName();
@@ -327,7 +360,7 @@ public class RepositoryUtility {
         return ejb;
     }
 
-    public static <T extends AbstractEJBLocal> T tryGetEJB(Class<T> ejbLocalClass) {
+    public static <T> T tryGetEJB(Class<T> ejbLocalClass) {
         T ejb = null;
 
         String ejbLookupName = "java:global/SOLA_SL/" + ejbLocalClass.getSimpleName();
@@ -505,7 +538,7 @@ public class RepositoryUtility {
             } else if (Date.class.isAssignableFrom(fieldType)) {
                 // The field is a date, use the DateUtility to parse the date time based
                 // on the specified redact date format
-                String dateFormat =  MessageUtility.getLocalizedMessageText(ServiceMessage.REDACT_DATE_FORMAT); 
+                String dateFormat = MessageUtility.getLocalizedMessageText(ServiceMessage.REDACT_DATE_FORMAT);
                 result = DateUtility.convertToDate(msg, dateFormat);
                 if (result == null) {
                     org.sola.services.common.logging.LogUtility.log("Unable to parse redacted date "

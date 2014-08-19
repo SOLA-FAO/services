@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.ejbs.admin.businesslogic;
@@ -36,7 +38,7 @@ import org.sola.services.ejbs.admin.businesslogic.repository.entities.GroupSumma
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Language;
 
 /**
- * Local interface for the {@linkplain AdminEJB}. 
+ * Local interface for the {@linkplain AdminEJB}.
  */
 public interface AdminEJBLocal {
 
@@ -49,47 +51,69 @@ public interface AdminEJBLocal {
     /**
      * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#getUser(java.lang.String)
      * AdminEJB.getUser}
+     *
      * @param userName
-     * @return 
+     * @return
      */
     User getUser(String userName);
-    
-    /** See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserNameExists(java.lang.String)}
+
+    /**
+     * See
+     * {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserNameExists(java.lang.String)}
+     *
      * @param userName
-     * @return */
+     * @return
+     */
     boolean isUserNameExists(String userName);
 
-    /** See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserEmailExists(java.lang.String)}
+    /**
+     * See
+     * {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserEmailExists(java.lang.String)}
+     *
      * @param email
-     * @return */
+     * @return
+     */
     boolean isUserEmailExists(String email);
-    
-    /** See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserEmailExists(java.lang.String, java.lang.String)}
+
+    /**
+     * See
+     * {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserEmailExists(java.lang.String, java.lang.String)}
+     *
      * @param email
      * @param exludeUserName
-     * @return */
+     * @return
+     */
     boolean isUserEmailExists(String email, String exludeUserName);
-    
+
     /**
-     * See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#checkCurrentUserPassword(java.lang.String)}
+     * See
+     * {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#checkCurrentUserPassword(java.lang.String)}
+     *
      * @param password
      * @return
      */
     boolean checkCurrentUserPassword(String password);
-    
+
     /**
-     * See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#checkCurrentUserPassword(java.lang.String)}
+     * See
+     * {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#checkCurrentUserPassword(java.lang.String)}
+     *
      * @param password
      * @return
      */
     boolean changeCurrentUserPassword(String password);
-    
-    /** See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserActive(java.lang.String)} */
+
+    /**
+     * See
+     * {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserActive(java.lang.String)}
+     */
     boolean isUserActive(String userName);
-    
-    /** See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#activeteCommuninityRecorderUser(java.lang.String, java.lang.String) }*/
+
+    /**
+     * See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#activeteCommuninityRecorderUser(java.lang.String, java.lang.String) }
+     */
     boolean activeteCommuninityRecorderUser(String userName, String activationCode);
-    
+
     /**
      * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#getCurrentUser()
      * AdminEJB.getCurrentUser}
@@ -101,18 +125,18 @@ public interface AdminEJBLocal {
      * AdminEJB.saveUser}
      */
     User saveUser(User user);
-    
+
     /**
      * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#getUserFullName(java.lang.String)
      */
     String getUserFullName(String userName);
-    
+
     /**
      * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#saveCurrentUser(org.sola.services.ejbs.admin.businesslogic.repository.entities.User)
      * AdminEJB.saveUser}
      */
     User saveCurrentUser(User user);
-    
+
     /**
      * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#createCommunityRecorderUser(org.sola.services.ejbs.admin.businesslogic.repository.entities.User)
      * AdminEJB.saveUser}
@@ -190,7 +214,7 @@ public interface AdminEJBLocal {
      * AdminEJB.getLanguages}
      */
     List<Language> getLanguages(String lang);
-    
+
     /**
      * See {@linkplain AdminEJB#consolidationExtract(boolean, java.lang.String)
      * AdminEJB.consolidationExtract}
@@ -202,4 +226,9 @@ public interface AdminEJBLocal {
      * AdminEJB.consolidationConsolidate}
      */
     String consolidationConsolidate(String languageCode, String fileInServer, String password);
+
+    /**
+     * See {@linkplain AdminEJB#flushCache()}
+     */
+    void flushCache();
 }

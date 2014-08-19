@@ -27,66 +27,30 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
-package org.sola.services.ejb.system.repository.entities;
+package org.sola.services.ejb.cache.businesslogic;
 
-import javax.persistence.Cacheable;
-import javax.persistence.Column;
-import javax.persistence.Table;
-import org.sola.services.common.repository.DefaultSorter;
-import org.sola.services.common.repository.entities.AbstractCodeEntity;
+import java.util.List;
+import javax.ejb.Local;
 
 /**
- * Entity representing the system.config_panel_launcher table.
-
+ *
  * @author soladev
  */
-@Table(name = "config_panel_launcher", schema = "system")
-@DefaultSorter(sortString = "display_value")
-public class ConfigPanelLauncher extends AbstractCodeEntity {
+@Local
+public interface CacheEJBLocal {
 
-    @Column(name = "panel_class")
-    private String panelClass;
-    @Column(name = "card_name")
-    private String cardName;
-    @Column(name = "message_code")
-    private String messageCode;
-    @Column(name = "launch_group")
-    private String launchGroupCode;
+    <T> String getKey(Class<T> entityClass, String languageCode);
 
-    public ConfigPanelLauncher() {
-        super();
-    }
+    boolean isCachedList(String key);
 
-    public String getPanelClass() {
-        return panelClass;
-    }
+    <T> List<T> getList(Class<T> entityClass, String key);
 
-    public void setPanelClass(String panelClass) {
-        this.panelClass = panelClass;
-    }
+    <T> void putList(String key, List<T> list);
 
-    public String getCardName() {
-        return cardName;
-    }
+    void clearEntityLists(Class entityClass);
 
-    public void setCardName(String cardName) {
-        this.cardName = cardName;
-    }
+    void clear(String key);
 
-    public String getMessageCode() {
-        return messageCode;
-    }
+    void clearAll();
 
-    public void setMessageCode(String messageCode) {
-        this.messageCode = messageCode;
-    }
-
-    public String getLaunchGroupCode() {
-        return launchGroupCode;
-    }
-
-    public void setLaunchGroupCode(String launchGroupCode) {
-        this.launchGroupCode = launchGroupCode;
-    }
-    
 }

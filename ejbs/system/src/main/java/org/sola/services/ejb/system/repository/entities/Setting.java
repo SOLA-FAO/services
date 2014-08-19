@@ -27,12 +27,14 @@
  */
 package org.sola.services.ejb.system.repository.entities;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.sola.services.common.repository.entities.AbstractEntity;
 
 @Table(name = "setting", schema = "system")
+@Cacheable
 public class Setting extends AbstractEntity {
 
     @Id

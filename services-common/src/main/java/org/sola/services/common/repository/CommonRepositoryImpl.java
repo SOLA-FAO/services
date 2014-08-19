@@ -52,6 +52,7 @@ import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 import org.sola.services.common.repository.entities.ChildEntityInfo;
 import org.sola.services.common.repository.entities.ColumnInfo;
+import org.sola.services.ejb.cache.businesslogic.CacheEJBLocal;
 
 /**
  * Implementation of the {@linkplain CommonRepository} interface that uses the
@@ -67,6 +68,7 @@ public class CommonRepositoryImpl implements CommonRepository {
      */
     private static final String LOAD_INHIBITORS = "Repository.loadInhibitors";
     private DatabaseConnectionManager dbConnectionManager = null;
+    CacheEJBLocal cache;
 
     /**
      * Loads the myBatis configuration file and initializes a connection to the
@@ -92,6 +94,18 @@ public class CommonRepositoryImpl implements CommonRepository {
      */
     public DatabaseConnectionManager getDbConnectionManager() {
         return dbConnectionManager;
+    }
+
+    /**
+     * Retrieves the EJB cache used by the repository.
+     *
+     * @return
+     */
+    public CacheEJBLocal getCache() {
+        if (cache == null) {
+            cache = RepositoryUtility.getEJB(CacheEJBLocal.class);
+        }
+        return cache;
     }
 
     /**
@@ -908,13 +922,16 @@ public class CommonRepositoryImpl implements CommonRepository {
             params.put(CommonSqlProvider.PARAM_WHERE_PART, whereClause);
             params.put(CommonSqlProvider.PARAM_ENTITY_CLASS, entity.getClass());
 
-            SqlSession session = getSqlSession();
-            try {
-                Map result = getMapper(session).getEntity(params);
-                mapToEntity(entity, result);
-            } finally {
-                session.close();
-            }
+            Map result = mapper.getEntity(params);
+            mapToEntity(entity, result);
+
+            /*SqlSession session = getSqlSession();
+             try {
+             Map result = getMapper(session).getEntity(params);
+             mapToEntity(entity, result);
+             } finally {
+             session.close();
+             } */
             return entity;
         }
         return entity;
@@ -936,6 +953,9 @@ public class CommonRepositoryImpl implements CommonRepository {
                 entity = saveEntity(entity, getMapper(session));
             } finally {
                 session.close();
+            }
+            if (entity.isCacheable()) {
+                getCache().clearEntityLists(entity.getClass());
             }
         }
         return entity;
@@ -1158,14 +1178,17 @@ public class CommonRepositoryImpl implements CommonRepository {
     public <T extends AbstractCodeEntity> T getCode(Class<T> codeListClass,
             String entityCode, String languageCode) {
 
-        HashMap<String, Object> params = new HashMap<String, Object>();
-        if (languageCode != null) {
-            params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, languageCode);
+        T result = null;
+        // Obtain the code list from the cache and then locate the specific
+        // entity code. 
+        List<T> list = getCodeList(codeListClass, languageCode);
+        for (T code : list) {
+            if (code.getCode().equals(entityCode)) {
+                result = code;
+                break;
+            }
         }
-        params.put(CommonSqlProvider.PARAM_WHERE_PART, "code = #{entityCode}");
-        params.put("entityCode", entityCode);
-
-        return getEntity(codeListClass, params);
+        return result;
     }
 
     @Override
@@ -1187,13 +1210,35 @@ public class CommonRepositoryImpl implements CommonRepository {
     public <T extends AbstractReadOnlyEntity> List<T> getEntityList(Class<T> entityClass,
             Map params) {
 
+        // Determine the Language Code for the query if it has been set
         params = params == null ? new HashMap<String, Object>() : params;
-        SqlSession session = getSqlSession();
+        if (LocalInfo.get(CommonSqlProvider.PARAM_LANGUAGE_CODE) != null
+                && !params.containsKey(CommonSqlProvider.PARAM_LANGUAGE_CODE)) {
+            params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE,
+                    LocalInfo.get(CommonSqlProvider.PARAM_LANGUAGE_CODE));
+
+        }
+        
+        // Determine the cache key
+        String key = null;
+        if (RepositoryUtility.isCachable(entityClass)) {
+            key = getCache().getKey(entityClass,
+                    (String) params.get(CommonSqlProvider.PARAM_LANGUAGE_CODE));
+        }
+        
         List<T> entityList = null;
-        try {
-            entityList = getEntityList(entityClass, params, getMapper(session));
-        } finally {
-            session.close();
+        if (!StringUtility.isEmpty(key) && getCache().isCachedList(key)) {
+            entityList = getCache().getList(entityClass, key);
+        } else {
+            SqlSession session = getSqlSession();
+            try {
+                entityList = getEntityList(entityClass, params, getMapper(session));
+            } finally {
+                session.close();
+            }
+            if (RepositoryUtility.isCachable(entityClass)) {
+                getCache().putList(key, entityList);
+            }
         }
         return entityList;
     }
