@@ -285,7 +285,7 @@ public class DigitalArchiveEJB extends AbstractEJB implements DigitalArchiveEJBL
         numPart = getRepository().getScalar(Long.class, params).toString();
 
         if (numPart != null) {
-            // Prefix with 0 to get a 4 digit number.
+            // Prefix with 0 to get a 8 digit number.
             while (numPart.length() < 8) {
                 numPart = "0" + numPart;
             }

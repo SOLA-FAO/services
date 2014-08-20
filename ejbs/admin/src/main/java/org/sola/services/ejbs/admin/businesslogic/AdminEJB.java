@@ -51,8 +51,6 @@ import org.sola.common.messaging.ClientMessage;
 import org.sola.services.common.br.ValidationResult;
 import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.repository.CommonSqlProvider;
-import org.sola.services.common.repository.RepositoryUtility;
-import org.sola.services.ejb.cache.businesslogic.CacheEJBLocal;
 import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
 import org.sola.services.ejb.system.repository.entities.BrValidation;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.GroupSummary;
@@ -681,6 +679,6 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
      */
     @RolesAllowed(RolesConstants.ADMIN_MANAGE_REFDATA)
     public void flushCache() {
-        RepositoryUtility.getEJB(CacheEJBLocal.class).clearAll();
+        getRepository().getCache().clearAll();
     }
 }

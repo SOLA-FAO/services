@@ -82,21 +82,23 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      * in the database
      */
     private DynamicQuery getDynamicQuery(String queryName, Map params) {
-        DynamicQuery query;
-        // Retrieve the dynamic query from the database. Use localization if it is provided
-        // as a query parameter. 
-        if (params != null && params.containsKey(CommonSqlProvider.PARAM_LANGUAGE_CODE)) {
-            query = getRepository().getEntity(DynamicQuery.class, queryName,
-                    params.get(CommonSqlProvider.PARAM_LANGUAGE_CODE).toString());
-        } else {
-            query = getRepository().getEntity(DynamicQuery.class, queryName);
+
+        // DynamicQuery is cachable so retrieve the entire list so they are loaded into
+        // the cache. 
+        List<DynamicQuery> queries = getRepository().getEntityList(DynamicQuery.class, params);
+        DynamicQuery result = null;
+        for (DynamicQuery q : queries) {
+            if (q.getName().equals(queryName)) {
+                result = q;
+                break;
+            }
         }
-        if (query == null) {
+        if (result == null) {
             // Raise an error to indicate the dynamic query does not exist
             throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
                     new Object[]{"Dynamic query " + queryName + " does not exist."});
         }
-        return query;
+        return result;
     }
 
     /**
