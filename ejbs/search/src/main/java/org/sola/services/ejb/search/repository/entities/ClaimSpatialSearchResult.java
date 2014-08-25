@@ -5,6 +5,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import org.sola.services.common.repository.AccessFunctions;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
+import static org.sola.services.ejb.search.repository.entities.ClaimSearchResult.PARAM_RECORDER;
 
 @Table(name = "claim", schema = "opentenure")
 public class ClaimSpatialSearchResult extends AbstractReadOnlyEntity {
@@ -29,7 +30,12 @@ public class ClaimSpatialSearchResult extends AbstractReadOnlyEntity {
     public static final String WHERE_SEARCH_BY_BOX
             = "mapped_geometry is not null and "
             + "ST_Intersects(mapped_geometry, ST_Envelope(st_geomfromtext(#{" 
-            + PARAM_ENVELOPE + "}, ST_Srid(mapped_geometry)))) and status_code != 'rejected'";
+            + PARAM_ENVELOPE + "}, ST_Srid(mapped_geometry)))) and status_code NOT IN ('rejected','withdrawn') and "
+            + "(status_code != 'created' or recorder_name = #{" + PARAM_RECORDER + "})";
+    
+    public static final String WHERE_SEARCH_ALL
+            = "mapped_geometry is not null and status_code NOT IN ('rejected','withdrawn') and "
+            + "(status_code != 'created' or recorder_name = #{" + PARAM_RECORDER + "})";
 
     public ClaimSpatialSearchResult() {
         super();

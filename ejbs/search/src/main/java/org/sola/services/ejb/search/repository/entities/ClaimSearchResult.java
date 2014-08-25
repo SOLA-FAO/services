@@ -32,11 +32,13 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
 
     public static final String PARAM_NAME = "claimantName";
     public static final String PARAM_USERNAME = "userName";
+    public static final String PARAM_CLAIM_NUMBER = "claimNumber";
     public static final String PARAM_DESCRIPTION = "claimDescription";
     public static final String PARAM_STATUS_CODE = "statusCode";
     public static final String PARAM_DATE_FROM = "dateFrom";
     public static final String PARAM_DATE_TO = "dateTo";
     public static final String PARAM_RECORDER = "recorderName";
+    public static final String PARAM_SEARCH_BY_USER = "searchByUser";
     public static final String PARAM_POINT = "pointParam";
     private static final String SELECT_PART = 
             "select c.id, c.nr, c.lodgement_date, c.challenge_expiry_date, c.decision_date, c.description, \n"
@@ -49,10 +51,10 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
             + "\n";
     
     public static final String QUERY_SEARCH_BY_POINT = SELECT_PART
-            + "WHERE ST_Contains(c.mapped_geometry, ST_GeomFromText(#{" + PARAM_POINT + "}, St_SRID(c.mapped_geometry))) AND c.status_code NOT IN ('rejected','withdrawn')";
+            + "WHERE ST_Contains(c.mapped_geometry, ST_GeomFromText(#{" + PARAM_POINT + "}, St_SRID(c.mapped_geometry))) AND c.status_code NOT IN ('rejected','withdrawn','created')";
     
     public static final String QUERY_SEARCH_ASSIGNED_TO_USER = SELECT_PART
-            + "WHERE c.assignee_name = #{" + PARAM_USERNAME + "} AND c.status_code NOT IN ('rejected','withdrawn','moderated') order by c.lodgement_date desc limit 100;";
+            + "WHERE c.assignee_name = #{" + PARAM_USERNAME + "} AND c.status_code IN ('reviewed','unmoderated') order by c.lodgement_date desc limit 100;";
     
     public static final String QUERY_SEARCH_FOR_REVIEW = SELECT_PART
             + "WHERE c.assignee_name is null AND c.status_code = 'unmoderated' and c.challenge_expiry_date <= now() order by c.lodgement_date desc limit 100;";
@@ -69,10 +71,13 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
     public static final String QUERY_SEARCH = SELECT_PART
             + "where position(lower(#{" + PARAM_NAME + "}) in lower(p.name || ' ' || COALESCE(p.last_name, ''))) > 0 and\n"
             + "position(lower(#{" + PARAM_DESCRIPTION + "}) in lower(COALESCE(c.description, ''))) > 0 and \n"
+            + "position(lower(#{" + PARAM_CLAIM_NUMBER + "}) in lower(COALESCE(c.nr, ''))) > 0 and \n"
             + "(c.status_code = #{" + PARAM_STATUS_CODE + "} or #{" + PARAM_STATUS_CODE + "} = '') and \n"
-            + "c.lodgement_date between #{" + PARAM_DATE_FROM + "} and #{" + PARAM_DATE_TO + "} and "
-            + "(c.recorder_name = #{" + PARAM_RECORDER + "} or #{" + PARAM_RECORDER + "} = '') "
-            + "order by c.lodgement_date desc limit 100;";
+            + "((c.lodgement_date between #{" + PARAM_DATE_FROM + "}::timestamp and #{" + PARAM_DATE_TO + "}::timestamp) \n"
+            + "  or #{" + PARAM_DATE_FROM + "}::timestamp is null or #{" + PARAM_DATE_TO + "}::timestamp is null) and "
+            + "(c.recorder_name = #{" + PARAM_RECORDER + "} or #{" + PARAM_SEARCH_BY_USER + "} = 'f') and "
+            + "(c.status_code != 'created' or c.recorder_name = #{" + PARAM_RECORDER + "})"
+            + "order by c.lodgement_date desc, c.nr desc limit 100;";
 
     public ClaimSearchResult() {
         super();

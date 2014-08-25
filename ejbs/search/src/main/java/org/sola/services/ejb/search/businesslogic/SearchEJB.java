@@ -860,6 +860,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         Map params = new HashMap();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, ClaimSpatialSearchResult.WHERE_SEARCH_BY_BOX);
         params.put(CommonSqlProvider.PARAM_LIMIT_PART, searchParams.getLimit());
+        params.put(ClaimSearchResult.PARAM_RECORDER, getUserName());
         params.put(ClaimSpatialSearchResult.PARAM_ENVELOPE,
                 String.format(ClaimSpatialSearchResult.ENVELOPE,
                 searchParams.getMinX(), searchParams.getMinY(),
@@ -874,7 +875,10 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      */
     @Override
     public List<ClaimSpatialSearchResult> getAllClaims() {
-        return getRepository().getEntityList(ClaimSpatialSearchResult.class);
+        Map params = new HashMap();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, ClaimSpatialSearchResult.WHERE_SEARCH_ALL);
+        params.put(ClaimSearchResult.PARAM_RECORDER, getUserName());
+        return getRepository().getEntityList(ClaimSpatialSearchResult.class, params);
     }
 
     /**
@@ -910,12 +914,14 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         Map params = new HashMap<String, Object>();
 
         // prepare params
-        searchParams.setLodgementDateFrom(DateUtility.minimizeDate(searchParams.getLodgementDateFrom()));
-        searchParams.setLodgementDateTo(DateUtility.maximizeDate(searchParams.getLodgementDateTo()));
+        if(searchParams.getLodgementDateFrom() != null || searchParams.getLodgementDateTo() != null){
+            searchParams.setLodgementDateFrom(DateUtility.minimizeDate(searchParams.getLodgementDateFrom()));
+            searchParams.setLodgementDateTo(DateUtility.maximizeDate(searchParams.getLodgementDateTo()));
+        }
         searchParams.setDescription(StringUtility.empty(searchParams.getDescription()));
+        searchParams.setClaimNumber(StringUtility.empty(searchParams.getClaimNumber()));
         searchParams.setClaimantName(StringUtility.empty(searchParams.getClaimantName()));
         searchParams.setStatusCode(StringUtility.empty(searchParams.getStatusCode()));
-        searchParams.setRecorderName(StringUtility.empty(searchParams.getRecorderName()));
         searchParams.setLanguageCode(StringUtility.empty(searchParams.getLanguageCode()));
 
         // put params into map
@@ -924,8 +930,10 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(ClaimSearchResult.PARAM_DATE_FROM, searchParams.getLodgementDateFrom());
         params.put(ClaimSearchResult.PARAM_DATE_TO, searchParams.getLodgementDateTo());
         params.put(ClaimSearchResult.PARAM_DESCRIPTION, searchParams.getDescription());
+        params.put(ClaimSearchResult.PARAM_CLAIM_NUMBER, searchParams.getClaimNumber());
         params.put(ClaimSearchResult.PARAM_NAME, searchParams.getClaimantName());
-        params.put(ClaimSearchResult.PARAM_RECORDER, searchParams.getRecorderName());
+        params.put(ClaimSearchResult.PARAM_SEARCH_BY_USER, searchParams.isSearchByUser());
+        params.put(ClaimSearchResult.PARAM_RECORDER, getUserName());
         params.put(ClaimSearchResult.PARAM_STATUS_CODE, searchParams.getStatusCode());
 
         return getRepository().getEntityList(ClaimSearchResult.class, params);
