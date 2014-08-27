@@ -950,12 +950,14 @@ public class CommonRepositoryImpl implements CommonRepository {
         if (entity != null) {
             SqlSession session = getSqlSession();
             try {
+                if (entity.isCacheable()) {
+                    // Check if the entity is cacheable before saving as the
+                    // entity can be null after the save due to deletion. 
+                    getCache().clearEntityLists(entity.getClass());
+                }
                 entity = saveEntity(entity, getMapper(session));
             } finally {
                 session.close();
-            }
-            if (entity.isCacheable()) {
-                getCache().clearEntityLists(entity.getClass());
             }
         }
         return entity;
@@ -1218,14 +1220,14 @@ public class CommonRepositoryImpl implements CommonRepository {
                     LocalInfo.get(CommonSqlProvider.PARAM_LANGUAGE_CODE));
 
         }
-        
+
         // Determine the cache key
         String key = null;
         if (RepositoryUtility.isCachable(entityClass)) {
             key = getCache().getKey(entityClass,
                     (String) params.get(CommonSqlProvider.PARAM_LANGUAGE_CODE));
         }
-        
+
         List<T> entityList = null;
         if (!StringUtility.isEmpty(key) && getCache().isCachedList(key)) {
             entityList = getCache().getList(entityClass, key);

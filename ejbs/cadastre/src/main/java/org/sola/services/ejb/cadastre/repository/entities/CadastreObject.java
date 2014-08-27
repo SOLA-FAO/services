@@ -53,8 +53,9 @@ public class CadastreObject extends AbstractVersionedEntity {
      * WHERE clause to return current&pending CO's based on search string
      * compared to first part and last part
      */
-    public static final String QUERY_WHERE_SEARCHBYALLPARTS = "(status_code= 'current' or status_code= 'pending') and "
-            + "compare_strings(#{search_string}, name_firstpart || ' ' || name_lastpart)";
+    public static final String QUERY_WHERE_SEARCHBYALLPARTS = "status_code IN ('current', 'pending') AND "
+            + "compare_strings(#{search_string}, name_firstpart || ' ' || name_lastpart) AND "
+            + "type_code = 'stateLand'";
     /**
      * WHERE clause to return current CO's based on search string compared to
      * first part and last part

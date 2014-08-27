@@ -152,6 +152,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
 
         // State Land updates. Set the current user as the assigned user.  
         application.setAssigneeId(adminEJB.getCurrentUser().getId());
+        application.setAssignedDatetime(application.getLodgingDatetime());
         calculateCompletionDates(application);
         //calculateFeesAndDates(application);
         treatApplicationSources(application);

@@ -239,7 +239,8 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
                 || requestType.equals(TransactionType.NEW_DIGITAL_PROPERTY)
                 || requestType.equals(TransactionType.NEW_DIGITAL_TITLE)
                 || requestType.equals(TransactionType.NEW_FREEHOLD)
-                || requestType.equals(TransactionType.NEW_STATE)) {
+                || requestType.equals(TransactionType.NEW_STATE)
+                || requestType.equals(TransactionType.CHANGE_STATE_LAND_PARCELS)) {
             cadastreEJB.ChangeStatusOfCadastreObjects(
                     transactionId,
                     CadastreObjectStatusChanger.QUERY_WHERE_SEARCHBYTRANSACTION_PENDING,
@@ -380,7 +381,8 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
 
         List<BrValidation> brValidationList = null;
         if (requestType.equals(TransactionType.CADASTRE_CHANGE)
-                || requestType.equals(TransactionType.REDEFINE_CADASTRE)) {
+                || requestType.equals(TransactionType.REDEFINE_CADASTRE)
+                || requestType.equals(TransactionType.CHANGE_STATE_LAND_PARCELS)) {
             brValidationList = this.systemEJB.getBrForValidatingTransaction(
                     "cadastre_object", momentCode, requestType);
         } else if (requestType.equals(TransactionType.BULK_OPERATION_SPATIAL)) {
