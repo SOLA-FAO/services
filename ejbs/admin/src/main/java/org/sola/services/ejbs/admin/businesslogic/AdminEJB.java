@@ -48,6 +48,7 @@ import org.sola.common.FileUtility;
 import org.sola.common.RolesConstants;
 import org.sola.common.SOLAException;
 import org.sola.common.messaging.ClientMessage;
+import org.sola.services.common.EntityTable;
 import org.sola.services.common.br.ValidationResult;
 import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.repository.CommonSqlProvider;
@@ -533,7 +534,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
 
     /**
      * Checks if the current user has been assigned one or more of the null null
-     * null null null null null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
+     * null null null null null null null null null null null null null null
+     * null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
      * {@linkplain RolesConstants#ADMIN_MANAGE_REFDATA} or
      * {@linkplain RolesConstants#ADMIN_MANAGE_SETTINGS} security roles.
      * <p>
@@ -678,7 +680,39 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
      * Requires the {@linkplain RolesConstants#ADMIN_MANAGE_REFDATA} role. </p>
      */
     @RolesAllowed(RolesConstants.ADMIN_MANAGE_REFDATA)
+    @Override
     public void flushCache() {
         getRepository().getCache().clearAll();
+    }
+
+    /**
+     * Updates the security classifications for a list of entities and
+     * identified by the entityTable and entity ids
+     *
+     * @param entityIds The ids of the entities to update
+     * @param entityTable Enumeration indicating the entity table to update
+     * @param classificationCode The new classification code to assign to the
+     * entities
+     * @param redactCode The new redactCode to assign to the entities
+     */
+    @RolesAllowed(RolesConstants.CLASSIFICATION_CHANGE_CLASS)
+    @Override
+    public void saveSecurityClassifications(List<String> entityIds, EntityTable entityTable,
+            String classificationCode, String redactCode) {
+        
+        Map params = new HashMap<String, Object>();
+        String updateSql
+                = " UPDATE " + entityTable.getTable()
+                + " SET classification_code = #{classCode}, "
+                + "     redact_code = #{redactCode}, "
+                + "     change_user = #{user} "
+                + " WHERE id IN (" 
+                + CommonSqlProvider.prepareListParams(entityIds, params) + ") ";
+
+        params.put(CommonSqlProvider.PARAM_QUERY, updateSql);
+        params.put("classCode", classificationCode);
+        params.put("redactCode", redactCode);
+        params.put("user", getCurrentUser().getUserName());
+        getRepository().bulkUpdate(params);
     }
 }

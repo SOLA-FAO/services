@@ -1342,7 +1342,7 @@ public class CommonRepositoryImpl implements CommonRepository {
 
         return getEntityList(entityClass, params);
     }
-
+ 
     /**
      * Loads the child entity lists for both One to Many and Many to Many
      * associations.

@@ -29,8 +29,8 @@
  */
 package org.sola.services.ejbs.admin.businesslogic;
 
-import java.io.IOException;
 import java.util.List;
+import org.sola.services.common.EntityTable;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Role;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.User;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Group;
@@ -110,7 +110,8 @@ public interface AdminEJBLocal {
     boolean isUserActive(String userName);
 
     /**
-     * See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#activeteCommuninityRecorderUser(java.lang.String, java.lang.String) }
+     * See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#activeteCommuninityRecorderUser(java.lang.String, java.lang.String)
+     * }
      */
     boolean activeteCommuninityRecorderUser(String userName, String activationCode);
 
@@ -231,4 +232,16 @@ public interface AdminEJBLocal {
      * See {@linkplain AdminEJB#flushCache()}
      */
     void flushCache();
+
+    /**
+     * See {@linkplain AdminEJB#saveSecurityClassifications(java.util.List, org.sola.services.common.EntityTable,
+     * java.lang.String, java.lang.String) saveSecurityClassifications}
+     *
+     * @param entityIds
+     * @param entityTable
+     * @param classificationCode
+     * @param redactCode
+     */
+    void saveSecurityClassifications(List<String> entityIds, EntityTable entityTable,
+            String classificationCode, String redactCode);
 }
