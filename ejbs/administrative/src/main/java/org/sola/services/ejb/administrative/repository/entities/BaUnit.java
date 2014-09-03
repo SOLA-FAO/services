@@ -132,6 +132,9 @@ public class BaUnit extends AbstractVersionedEntity {
     @Column(insertable = false, updatable = false, name = "land_use_code")
     @AccessFunctions(onSelect = "administrative.get_land_use_code(id)")
     private String landUseCode;
+    @Column(insertable = false, updatable = false, name = "state_land_status_code")
+    @AccessFunctions(onSelect = "administrative.get_state_land_status(id)")
+    private String stateLandStatusCode;
     @ExternalEJB(ejbLocalClass = PartyEJBLocal.class, loadMethod = "getParties")
     @ChildEntityList(parentIdField = "baUnitId", childIdField = "partyId",
             manyToManyClass = BaUnitAsParty.class, readOnly = true)
@@ -236,6 +239,14 @@ public class BaUnit extends AbstractVersionedEntity {
 
     public void setLandUseCode(String landUseCode) {
         this.landUseCode = landUseCode;
+    }
+
+    public String getStateLandStatusCode() {
+        return stateLandStatusCode;
+    }
+
+    public void setStateLandStatusCode(String stateLandStatusCode) {
+        this.stateLandStatusCode = stateLandStatusCode;
     }
 
     public List<BaUnitNotation> getBaUnitNotationList() {

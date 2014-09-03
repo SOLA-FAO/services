@@ -434,6 +434,7 @@ public class SearchSqlProvider {
                 + " FROM administrative.ba_unit_as_party bap, party.party pm"
                 + " WHERE bap.ba_unit_id = prop.id"
                 + " AND   pm.id = bap.party_id LIMIT 1) AS prop_man");
+        SELECT("administrative.get_state_land_status(prop.id) AS state_land_status_code");
         SELECT("prop.classification_code");
         SELECT("prop.redact_code");
         FROM("administrative.ba_unit prop");

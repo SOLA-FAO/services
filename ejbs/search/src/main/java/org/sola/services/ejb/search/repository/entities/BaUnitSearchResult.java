@@ -79,6 +79,8 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
     private String actionStatusCode;
     @Column(name = "notation_text")
     private String notationText;
+    @Column(name = "state_land_status_code")
+    private String stateLandStatusCode;
     @Column(name = "rowversion")
     private int rowVersion;
     @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
@@ -208,6 +210,14 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
 
     public void setNotationText(String notationText) {
         this.notationText = notationText;
+    }
+
+    public String getStateLandStatusCode() {
+        return stateLandStatusCode;
+    }
+
+    public void setStateLandStatusCode(String stateLandStatusCode) {
+        this.stateLandStatusCode = stateLandStatusCode;
     }
 
     public int getRowVersion() {
