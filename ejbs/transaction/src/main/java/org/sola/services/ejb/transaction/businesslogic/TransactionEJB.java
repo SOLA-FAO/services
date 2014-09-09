@@ -381,13 +381,15 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
 
         List<BrValidation> brValidationList = null;
         if (requestType.equals(TransactionType.CADASTRE_CHANGE)
-                || requestType.equals(TransactionType.REDEFINE_CADASTRE)
-                || requestType.equals(TransactionType.CHANGE_STATE_LAND_PARCELS)) {
+                || requestType.equals(TransactionType.REDEFINE_CADASTRE)) {
             brValidationList = this.systemEJB.getBrForValidatingTransaction(
                     "cadastre_object", momentCode, requestType);
         } else if (requestType.equals(TransactionType.BULK_OPERATION_SPATIAL)) {
             brValidationList = this.systemEJB.getBrForValidatingTransaction(
                     TransactionType.BULK_OPERATION_SPATIAL, momentCode, requestType);
+        } else if (requestType.equals(TransactionType.CHANGE_STATE_LAND_PARCELS)) {
+             brValidationList = this.systemEJB.getBrForValidatingTransaction(
+                    TransactionType.STATE_LAND, momentCode, requestType);
         }
 
         HashMap<String, Serializable> params = new HashMap<String, Serializable>();

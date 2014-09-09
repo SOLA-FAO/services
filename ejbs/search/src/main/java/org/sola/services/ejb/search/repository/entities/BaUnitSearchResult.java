@@ -29,6 +29,7 @@
  */
 package org.sola.services.ejb.search.repository.entities;
 
+import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
@@ -54,9 +55,9 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
     @Column
     private String name;
     @Column(name = "name_firstpart")
-    private String nameFirstPart;
+    private String nameFirstpart;
     @Column(name = "name_lastpart")
-    private String nameLastPart;
+    private String nameLastpart;
     @Column(name = "status_code")
     private String statusCode;
     @Column
@@ -69,6 +70,8 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
     private String parcels;
     @Column
     private String locality;
+    @Column
+    private BigDecimal area;
     @Column(name = "prop_man")
     private String propertyManager;
     @Column(name = "type_code")
@@ -108,20 +111,20 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
         this.name = name;
     }
 
-    public String getNameFirstPart() {
-        return nameFirstPart;
+    public String getNameFirstpart() {
+        return nameFirstpart;
     }
 
-    public void setNameFirstPart(String nameFirstPart) {
-        this.nameFirstPart = nameFirstPart;
+    public void setNameFirstpart(String nameFirstPart) {
+        this.nameFirstpart = nameFirstPart;
     }
 
-    public String getNameLastPart() {
-        return nameLastPart;
+    public String getNameLastpart() {
+        return nameLastpart;
     }
 
-    public void setNameLastPart(String nameLastPart) {
-        this.nameLastPart = nameLastPart;
+    public void setNameLastpart(String nameLastPart) {
+        this.nameLastpart = nameLastPart;
     }
 
     public String getRightholders() {
@@ -170,6 +173,14 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
 
     public void setLocality(String locality) {
         this.locality = locality;
+    }
+
+    public BigDecimal getArea() {
+        return area;
+    }
+
+    public void setArea(BigDecimal area) {
+        this.area = area;
     }
 
     public String getPropertyManager() {

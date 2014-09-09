@@ -238,4 +238,9 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
      * See {@linkplain SearchEJB#getPropertiesToAction(java.lang.String)}.
      */
     List<BaUnitSearchResult> getPropertiesToAction(String locale);
+
+    /**
+     * See {@linkplain SearchEJB#getUnderlyingTitles(java.lang.String)}.
+     */
+    List<BaUnitSearchResult> getUnderlyingTitles(String parcelId);
 }

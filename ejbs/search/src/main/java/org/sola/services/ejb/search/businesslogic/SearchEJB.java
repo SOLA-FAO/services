@@ -968,4 +968,28 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         return getRepository().getEntityList(BaUnitSearchResult.class, params);
     }
 
+    /**
+     * Retrieves a list of property records that are overlapped by the specified
+     * state land parcel. Used to determine the property titles underlying the
+     * state land parcel.
+     *
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMINISTRATIVE_BA_UNIT_SAVE}
+     * role.</p>
+     *
+     * @param parcelId The identifier of the State Land Parcel to obtain
+     * underlying titles for.
+     * @return BaUnits underlying the state land parcel. 
+     */
+    @Override
+    @RolesAllowed({RolesConstants.ADMINISTRATIVE_BA_UNIT_SAVE})
+    public List<BaUnitSearchResult> getUnderlyingTitles(String parcelId) {
+        Map params = new HashMap<String, Object>();
+
+        params.put(CommonSqlProvider.PARAM_QUERY,
+                SearchSqlProvider.buildGetUnderlyingTitles());
+        params.put(SearchSqlProvider.PARAM_SL_PARCEL_ID, parcelId);
+        return getRepository().getEntityList(BaUnitSearchResult.class, params);
+    }
+
 }

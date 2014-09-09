@@ -33,6 +33,7 @@
  */
 package org.sola.services.ejb.search.repository;
 
+import org.apache.ibatis.jdbc.SqlBuilder;
 import static org.apache.ibatis.jdbc.SqlBuilder.*;
 import org.sola.common.StringUtility;
 import org.sola.services.common.repository.CommonSqlProvider;
@@ -50,6 +51,7 @@ import org.sola.services.ejb.search.repository.entities.UserSearchResult;
 public class SearchSqlProvider {
 
     public static final String PARAM_APPLICATION_ID = "applicationId";
+    public static final String PARAM_SL_PARCEL_ID = "slParcelId";
     private static final String APPLICATION_GROUP = "application";
     private static final String SERVICE_GROUP = "service";
     private static final String RRR_GROUP = "rrr";
@@ -435,6 +437,10 @@ public class SearchSqlProvider {
                 + " WHERE bap.ba_unit_id = prop.id"
                 + " AND   pm.id = bap.party_id LIMIT 1) AS prop_man");
         SELECT("administrative.get_state_land_status(prop.id) AS state_land_status_code");
+        SELECT("(SELECT ba.size "
+                + " FROM administrative.ba_unit_area ba "
+                + " WHERE ba.ba_unit_id = prop.id"
+                + " AND   ba.type_code = 'officialArea' ) AS area");
         SELECT("prop.classification_code");
         SELECT("prop.redact_code");
         FROM("administrative.ba_unit prop");
@@ -865,6 +871,33 @@ public class SearchSqlProvider {
         initUserSummaryQuery();
         WHERE("u.active = 't'");
         ORDER_BY("u.last_name, u.first_name");
+        sql = SQL();
+        return sql;
+    }
+
+    /**
+     * Builds an appropriate SQL Query to retrieve the properties underlying the
+     * specified State Land Parcel. Uses a spatial comparison. 
+     *
+     * @return SQL String
+     */
+    public static String buildGetUnderlyingTitles() {
+        String sql;
+
+        initPropertySummaryQuery();
+        FROM("cadastre.cadastre_object co");
+        FROM("cadastre.cadastre_object co_sl");
+        FROM("administrative.ba_unit_contains_spatial_unit bsu");
+        WHERE("co_sl.id = #{" + PARAM_SL_PARCEL_ID + "} ");
+        WHERE("co_sl.type_code = 'stateLand'");
+        WHERE("co_sl.geom_polygon IS NOT NULL");
+        WHERE("co.geom_polygon IS NOT NULL");
+        WHERE("ST_Intersects(co.geom_polygon, co_sl.geom_polygon)");
+        // Don't include parcels that share a point or boundary with the state land parcel
+        WHERE("NOT ST_Touches(co.geom_polygon, co_sl.geom_polygon)"); 
+        WHERE("co.type_code = 'parcel'");
+        WHERE("bsu.spatial_unit_id = co.id");
+        WHERE("prop.id = bsu.ba_unit_id");
         sql = SQL();
         return sql;
     }

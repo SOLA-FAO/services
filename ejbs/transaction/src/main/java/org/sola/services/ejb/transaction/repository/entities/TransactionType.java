@@ -47,4 +47,5 @@ public class TransactionType {
     public static final String NEW_STATE = "newState"; 
     public static final String NEW_FREEHOLD = "newFreehold"; 
     public static final String CHANGE_STATE_LAND_PARCELS = "changeSLParcels"; 
+    public static final String STATE_LAND = "state_land";
 }

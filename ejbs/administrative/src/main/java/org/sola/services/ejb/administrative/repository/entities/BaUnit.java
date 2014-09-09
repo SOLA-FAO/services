@@ -124,8 +124,9 @@ public class BaUnit extends AbstractVersionedEntity {
     @Column(insertable = false, updatable = false, name = "pending_action_code")
     @AccessFunctions(onSelect = "administrative.get_ba_unit_pending_action(id)")
     private String pendingActionCode;
-    @Column(insertable = false, updatable = false, name = "calculated_area_size")
-    @AccessFunctions(onSelect = "administrative.get_calculated_area_size_action(#{" + QUERY_PARAMETER_COLIST + "})")
+    // Not used for SOLA State Land
+   // @Column(insertable = false, updatable = false, name = "calculated_area_size")
+   // @AccessFunctions(onSelect = "administrative.get_calculated_area_size_action(#{" + QUERY_PARAMETER_COLIST + "})")
     private BigDecimal calculatedAreaSize;
     @Column()
     private String description;
