@@ -96,6 +96,11 @@ public abstract class AbstractEntity extends AbstractReadOnlyEntity {
             }
         } else {
             for (ColumnInfo columnInfo : getColumns()) {
+                if (!columnInfo.isUpdatable()) {
+                    // This column is not updatable, so don't bother checking if
+                    // it has changed. 
+                    continue; 
+                }
                 Object newValue = getEntityFieldValue(columnInfo);
                 Object originalValue = originalValues.get(columnInfo.getFieldName());
                 if (Date.class.isAssignableFrom(columnInfo.getFieldType())) {
@@ -116,6 +121,7 @@ public abstract class AbstractEntity extends AbstractReadOnlyEntity {
                     result = true;
                 }
                 if (result) {
+                    // Debugging statement
 //                    System.err.println("Change detected on " + this.getTableName()
 //                            + ", column=" + columnInfo.getFieldName()
 //                            + ", old val=" + originalValue + ", new val="
