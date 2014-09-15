@@ -35,6 +35,7 @@ import org.sola.services.common.repository.ChildEntityList;
 import org.sola.services.common.repository.ExternalEJB;
 import org.sola.services.ejb.cadastre.businesslogic.CadastreEJBLocal;
 import org.sola.services.ejb.cadastre.repository.entities.CadastreObject;
+import org.sola.services.ejb.cadastre.repository.entities.CadastreObjectTarget;
 
 /**
  *
@@ -50,6 +51,13 @@ public class TransactionStateLand extends Transaction {
             saveMethod = "saveCadastreObject")
     List<CadastreObject> stateLandParcels;
 
+    @ChildEntityList(parentIdField = "transactionId")
+    @ExternalEJB(
+            ejbLocalClass = CadastreEJBLocal.class,
+            loadMethod = "getCadastreObjectTargetsByTransaction",
+            saveMethod = "saveEntity")
+    private List<CadastreObjectTarget> stateLandTargetList;
+
     public List<CadastreObject> getStateLandParcels() {
         return stateLandParcels;
     }
@@ -58,13 +66,11 @@ public class TransactionStateLand extends Transaction {
         this.stateLandParcels = stateLandParcels;
     }
 
-//    @Override
-//    public void preSave() {
-//        if (this.isNew() && this.getCadastreObjectList() != null){
-//            for(CadastreObject cadastreObject:this.getCadastreObjectList()){
-//                cadastreObject.setId(null);
-//            }
-//        }
-//        super.preSave();
-//    }
+    public List<CadastreObjectTarget> getStateLandTargetList() {
+        return stateLandTargetList;
+    }
+
+    public void setStateLandTargetList(List<CadastreObjectTarget> stateLandTargetList) {
+        this.stateLandTargetList = stateLandTargetList;
+    }
 }

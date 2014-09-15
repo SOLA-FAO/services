@@ -43,6 +43,7 @@ import org.sola.services.common.br.ValidationResult;
 import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.faults.SOLAValidationException;
 import org.sola.services.common.repository.CommonSqlProvider;
+import org.sola.services.common.repository.entities.AbstractStatusChangerEntity;
 import org.sola.services.ejb.cadastre.repository.entities.*;
 import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
 import org.sola.services.ejb.system.repository.entities.BrValidation;
@@ -250,7 +251,13 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
         List<CadastreObjectStatusChanger> involvedCoList
                 = getRepository().getEntityList(CadastreObjectStatusChanger.class, filter, params);
         for (CadastreObjectStatusChanger involvedCo : involvedCoList) {
-            involvedCo.setStatusCode(statusCode);
+            // SOLA State Land extension. If the state land status for the parcel is Disposed, then
+            // set the parcel status to historic. 
+            if (StateLandStatusType.CODE_DISPOSED.equals(involvedCo.getStateLandStatusCode())) {
+                involvedCo.setStatusCode(AbstractStatusChangerEntity.STATUS_HISTORIC);
+            } else {
+                involvedCo.setStatusCode(statusCode);
+            }
             getRepository().saveEntity(involvedCo);
         }
     }
