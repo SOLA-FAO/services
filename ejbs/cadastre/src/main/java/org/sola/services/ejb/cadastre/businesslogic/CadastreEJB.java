@@ -251,13 +251,7 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
         List<CadastreObjectStatusChanger> involvedCoList
                 = getRepository().getEntityList(CadastreObjectStatusChanger.class, filter, params);
         for (CadastreObjectStatusChanger involvedCo : involvedCoList) {
-            // SOLA State Land extension. If the state land status for the parcel is Disposed, then
-            // set the parcel status to historic. 
-            if (StateLandStatusType.CODE_DISPOSED.equals(involvedCo.getStateLandStatusCode())) {
-                involvedCo.setStatusCode(AbstractStatusChangerEntity.STATUS_HISTORIC);
-            } else {
-                involvedCo.setStatusCode(statusCode);
-            }
+            involvedCo.setStatusCode(statusCode);
             getRepository().saveEntity(involvedCo);
         }
     }
@@ -642,5 +636,85 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
     @Override
     public List<SpatialUnit> getSpatialUnitsByIds(List<String> ids) {
         return getRepository().getEntityListByIds(SpatialUnit.class, ids);
+    }
+
+    /**
+     * Approves the changes to cadastre objects as a result of a Change State
+     * Land Parcels task
+     *
+     * @param transactionId The identifier of the transaction
+     */
+    @Override
+    @RolesAllowed({RolesConstants.APPLICATION_APPROVE, RolesConstants.APPLICATION_SERVICE_COMPLETE})
+    public void approveStateLandChange(String transactionId) {
+        List<CadastreObjectTargetRedefinition> targetObjectList
+                = this.getCadastreObjectRedefinitionTargetsByTransaction(transactionId);
+
+        if (!this.isInRole(RolesConstants.CADASTRE_PARCEL_SAVE)) {
+            // Along with one of the above 2 roles, the user must also have the Save Parcel role 
+            // to run this method. 
+            throw new SOLAException(ServiceMessage.EXCEPTION_INSUFFICIENT_RIGHTS);
+        }
+
+        // Make all new pending SL parcels current
+        this.ChangeStatusOfCadastreObjects(transactionId,
+                CadastreObjectStatusChanger.QUERY_WHERE_PENDING_SL_PARCELS,
+                CadastreObjectStatusChanger.CURRENT);
+
+        // Make all pending SL parcels that are begining disposed historic
+        this.ChangeStatusOfCadastreObjects(transactionId,
+                CadastreObjectStatusChanger.QUERY_WHERE_DISPOSED_SL_PARCELS,
+                CadastreObjectStatusChanger.HISTORIC);
+
+        // Make any target SL parcels historic as well. 
+        this.ChangeStatusOfCadastreObjects(transactionId,
+                CadastreObjectStatusChanger.QUERY_WHERE_SEARCHBYTRANSACTION_TARGET,
+                CadastreObjectStatusChanger.HISTORIC);
+
+        // Process a series of bulk updates so that any properties that reference the target
+        // SL parcels are re-linked to the new SL parcels they are being replaced by. 
+        String bulkInsertSql
+                = " INSERT INTO administrative.ba_unit_contains_spatial_unit "
+                + " (ba_unit_id, spatial_unit_id, change_user) "
+                + " SELECT bsu.ba_unit_id, co.id, #{currentUser} "
+                + " FROM administrative.ba_unit_contains_spatial_unit bsu, "
+                + "      cadastre.cadastre_object co, "
+                + "      cadastre.cadastre_object_target cot "
+                + " WHERE cot.transaction_id = #{transactionId} "
+                + " AND   co.rowidentifier = cot.cadastre_object_id "
+                + " AND   co.transaction_id = cot.transaction_id "
+                + " AND   bsu.spatial_unit_id = cot.cadastre_object_id ";
+
+        String bulkUpdateSql
+                = " UPDATE administrative.ba_unit_contains_spatial_unit "
+                + " SET change_user = #{currentUser} "
+                + " WHERE  spatial_unit_id IN ( "
+                + "     SELECT cot.cadastre_object_id "
+                + "     FROM   cadastre.cadastre_object_target cot, "
+                + "            cadastre.cadastre_object co "
+                + "     WHERE cot.transaction_id = #{transactionId} "
+                + "     AND   co.rowidentifier = cot.cadastre_object_id "
+                + "     AND   co.transaction_id = cot.transaction_id ) ";
+
+        String bulkDeleteSql
+                = " DELETE FROM administrative.ba_unit_contains_spatial_unit "
+                + " WHERE  spatial_unit_id IN ( "
+                + "     SELECT cot.cadastre_object_id "
+                + "     FROM   cadastre.cadastre_object_target cot, "
+                + "            cadastre.cadastre_object co "
+                + "     WHERE cot.transaction_id = #{transactionId} "
+                + "     AND   co.rowidentifier = cot.cadastre_object_id "
+                + "     AND   co.transaction_id = cot.transaction_id ) ";
+
+        // Process the bulk updates
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("transactionId", transactionId);
+        params.put("currentUser", this.getUserName());
+        params.put(CommonSqlProvider.PARAM_QUERY, bulkInsertSql);
+        getRepository().bulkUpdate(params);
+        params.put(CommonSqlProvider.PARAM_QUERY, bulkUpdateSql);
+        getRepository().bulkUpdate(params);
+        params.put(CommonSqlProvider.PARAM_QUERY, bulkDeleteSql);
+        getRepository().bulkUpdate(params);
     }
 }

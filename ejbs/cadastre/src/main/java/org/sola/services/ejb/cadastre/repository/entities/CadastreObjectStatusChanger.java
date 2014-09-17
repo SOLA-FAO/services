@@ -43,11 +43,29 @@ import org.sola.services.common.repository.entities.AbstractStatusChangerEntity;
 @Table(schema = "cadastre", name = "cadastre_object")
 public class CadastreObjectStatusChanger extends AbstractStatusChangerEntity {
 
+    public static final String CURRENT = "current";
+    public static final String HISTORIC = "historic";
+    public static final String PENDING = "pending";
     /**
      * Returns all CO's matching the transaction id
      */
     public static final String QUERY_WHERE_SEARCHBYTRANSACTION_PENDING
             = " transaction_id = #{transaction_id}";
+
+    /**
+     * Returns all CO's matching the transaction id
+     */
+    public static final String QUERY_WHERE_PENDING_SL_PARCELS
+            = " transaction_id = #{transaction_id} "
+            + " AND state_land_status_code IS NOT NULL "
+            + " AND state_land_status_code != 'disposed' ";
+
+    /**
+     * Returns all CO's matching the transaction id
+     */
+    public static final String QUERY_WHERE_DISPOSED_SL_PARCELS
+            = " transaction_id = #{transaction_id} "
+            + " AND state_land_status_code = 'disposed' ";
     /**
      * Returns all CO's with a CO Target matching the transaction id
      */

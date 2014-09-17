@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.ejb.cadastre.businesslogic;
@@ -161,7 +163,7 @@ public interface CadastreEJBLocal extends AbstractEJBLocal {
      */
     List<SpatialUnitTemporary> getSpatialUnitTemporaryListByTransaction(
             String transactionId);
-    
+
     /**
      * see {@linkplain CadastreEJB#getSpatialValueArea(java.lang.String)
      * CadastreEJB.getSpatialValueArea}
@@ -172,55 +174,61 @@ public interface CadastreEJBLocal extends AbstractEJBLocal {
      * see {@linkplain CadastreEJB#getNewCadastreObjectIdentifier(byte[], java.lang.String)
      * CadastreEJB.getNewCadastreObjectIdentifier}
      */
-   NewCadastreObjectIdentifier getNewCadastreObjectIdentifier(byte[] geom, String cadastreObjectType);
+    NewCadastreObjectIdentifier getNewCadastreObjectIdentifier(byte[] geom, String cadastreObjectType);
 
     /**
      * see {@linkplain CadastreEJB#saveSpatialUnitGroups(List<SpatialUnitGroup>, String)
      * CadastreEJB.saveSpatialUnitGroups}
      */
-   void saveSpatialUnitGroups(List<SpatialUnitGroup> items, String languageCode);
-   
+    void saveSpatialUnitGroups(List<SpatialUnitGroup> items, String languageCode);
+
     /**
      * see {@linkplain CadastreEJB#getSpatialUnitGroups(byte[], Integer, Integer)
      * CadastreEJB.getSpatialUnitGroups}
      */
-   List<SpatialUnitGroup> getSpatialUnitGroups(
-           byte[] filteringGeometry, Integer hierarchyLevel, Integer srid);
+    List<SpatialUnitGroup> getSpatialUnitGroups(
+            byte[] filteringGeometry, Integer hierarchyLevel, Integer srid);
 
     /**
      * See {@linkplain CadastreEJB#getSpatialUnitGroupsByIds(java.util.List)
      * CadastreEJB.getSpatialUnitGroupsByIds}.
      */
     List<SpatialUnitGroup> getSpatialUnitGroupsByIds(List<String> ids);
-    
-        /**
+
+    /**
      * See {@linkplain CadastreEJB#getHierarchyLevels(java.lang.String)
      * CadastreEJB.getHierarchyLevels}.
      */
     List<HierarchyLevel> getHierarchyLevels(String languageCode);
 
-        /**
+    /**
      * See {@linkplain CadastreEJB#getLevels(java.lang.String)
      * CadastreEJB.getLevels}.
      */
     List<Level> getLevels(String languageCode);
-    
+
     /**
      * see {@linkplain CadastreEJB#getSpatialUnits(byte[], String, Integer)
      * CadastreEJB.getSpatialUnits}
      */
-   List<SpatialUnit> getSpatialUnits(
-           byte[] filteringGeometry, String levelId, Integer srid);
+    List<SpatialUnit> getSpatialUnits(
+            byte[] filteringGeometry, String levelId, Integer srid);
 
     /**
      * see {@linkplain CadastreEJB#saveSpatialUnits(List<SpatialUnit>, String)
      * CadastreEJB.saveSpatialUnits}
      */
-   void saveSpatialUnits(List<SpatialUnit> items, String languageCode);
+    void saveSpatialUnits(List<SpatialUnit> items, String languageCode);
 
     /**
      * See {@linkplain CadastreEJB#getSpatialUnitsByIds(java.util.List)
      * CadastreEJB.getSpatialUnitsByIds}.
      */
     List<SpatialUnit> getSpatialUnitsByIds(List<String> ids);
+
+    /**
+     * See {@linkplain CadastreEJB#approveStateLandChange(java.lang.String)
+     * CadastreEJB.approveStateLandChange}.
+     */
+    void approveStateLandChange(String transactionId);
 }
