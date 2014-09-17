@@ -139,6 +139,8 @@ public class ApplicationSearchResult extends AbstractReadOnlyEntity {
     @Column(name = "description")
     @AccessFunctions(onSelect = "a.description")
     private String description;
+    @Column(name = "service_desc")
+    private String serviceDescriptions;
     @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
     @AccessFunctions(onSelect = "a.classification_code")
     private String classificationCode;
@@ -292,6 +294,14 @@ public class ApplicationSearchResult extends AbstractReadOnlyEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getServiceDescriptions() {
+        return serviceDescriptions;
+    }
+
+    public void setServiceDescriptions(String serviceDescriptions) {
+        this.serviceDescriptions = serviceDescriptions;
     }
 
     @Override

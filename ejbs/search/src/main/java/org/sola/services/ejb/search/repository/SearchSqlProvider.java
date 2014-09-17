@@ -637,7 +637,8 @@ public class SearchSqlProvider {
         SELECT("(SELECT string_agg(tmp.display_value, ',') FROM "
                 + "(SELECT get_translation(display_value, #{" + CommonSqlProvider.PARAM_LANGUAGE_CODE + "}) as display_value  "
                 + "FROM application.service aps INNER JOIN application.request_type rt ON aps.request_type_code = rt.code  "
-                + "WHERE aps.application_id = app.id ORDER BY aps.service_order) tmp) AS service_list");
+                + "WHERE aps.application_id = app.id  AND aps.status_code != 'cancelled' "
+                + "ORDER BY aps.service_order) tmp) AS service_list");
         SELECT("(SELECT (COALESCE(pa.name, '') || ' ' || COALESCE(pa.last_name, ''))"
                 + " FROM party.party pa"
                 + " WHERE pa.id = app.agent_id ) AS agent");
@@ -756,6 +757,12 @@ public class SearchSqlProvider {
         String sql;
 
         initJobSummaryQuery();
+
+        SELECT("(SELECT string_agg(application.get_concatenated_name(tmp.id), ';') FROM "
+                + "(SELECT ser_desc.id FROM application.service ser_desc "
+                + " WHERE  ser_desc.application_id = app.id "
+                + " AND    ser_desc.status_code != 'cancelled' "
+                + " ORDER BY ser_desc.service_order) tmp) AS service_desc");
 
         SELECT("(COALESCE(u.first_name, '') || ' ' || COALESCE(u.last_name, '')) AS assignee_name");
         FROM("system.appuser u");
@@ -877,7 +884,7 @@ public class SearchSqlProvider {
 
     /**
      * Builds an appropriate SQL Query to retrieve the properties underlying the
-     * specified State Land Parcel. Uses a spatial comparison. 
+     * specified State Land Parcel. Uses a spatial comparison.
      *
      * @return SQL String
      */
@@ -894,7 +901,7 @@ public class SearchSqlProvider {
         WHERE("co.geom_polygon IS NOT NULL");
         WHERE("ST_Intersects(co.geom_polygon, co_sl.geom_polygon)");
         // Don't include parcels that share a point or boundary with the state land parcel
-        WHERE("NOT ST_Touches(co.geom_polygon, co_sl.geom_polygon)"); 
+        WHERE("NOT ST_Touches(co.geom_polygon, co_sl.geom_polygon)");
         WHERE("co.type_code = 'parcel'");
         WHERE("bsu.spatial_unit_id = co.id");
         WHERE("prop.id = bsu.ba_unit_id");
