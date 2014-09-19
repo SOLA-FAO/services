@@ -29,6 +29,8 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
     private String statusCode;
     @Column(name = "status_name")
     private String statusName;
+    @Column(name="rowversion")
+    private int version;
 
     public static final String PARAM_NAME = "claimantName";
     public static final String PARAM_USERNAME = "userName";
@@ -43,7 +45,7 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
     private static final String SELECT_PART = 
             "select c.id, c.nr, c.lodgement_date, c.challenge_expiry_date, c.decision_date, c.description, \n"
             + "c.claimant_id, (p.name || ' ' || coalesce(p.last_name, '')) as claimant_name,\n"
-            + "c.challenged_claim_id, c.status_code, get_translation(cs.display_value, #{" 
+            + "c.challenged_claim_id, c.status_code, c.rowversion, get_translation(cs.display_value, #{" 
             + CommonSqlProvider.PARAM_LANGUAGE_CODE + "}) as status_name\n"
             + "\n"
             + "from (opentenure.claim c inner join opentenure.claim_status cs ON c.status_code = cs.code) \n"
@@ -169,5 +171,13 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
 
     public void setStatusName(String statusName) {
         this.statusName = statusName;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 }

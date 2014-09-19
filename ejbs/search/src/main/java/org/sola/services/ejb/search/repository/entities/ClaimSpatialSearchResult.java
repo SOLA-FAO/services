@@ -23,18 +23,20 @@ public class ClaimSpatialSearchResult extends AbstractReadOnlyEntity {
     private String gpsGeometry;
     @Column(name = "status_code")
     private String statusCode;
-
+    @Column(name="rowversion")
+    private int version;
+    
     public static final String PARAM_ENVELOPE = "paramEnvelope";
     public static final String ENVELOPE = "LINESTRING(%s %s, %s %s)";
     
     public static final String WHERE_SEARCH_BY_BOX
             = "mapped_geometry is not null and "
             + "ST_Intersects(mapped_geometry, ST_Envelope(st_geomfromtext(#{" 
-            + PARAM_ENVELOPE + "}, ST_Srid(mapped_geometry)))) and status_code NOT IN ('rejected','withdrawn') and "
+            + PARAM_ENVELOPE + "}, ST_Srid(mapped_geometry)))) and "
             + "(status_code != 'created' or recorder_name = #{" + PARAM_RECORDER + "})";
     
     public static final String WHERE_SEARCH_ALL
-            = "mapped_geometry is not null and status_code NOT IN ('rejected','withdrawn') and "
+            = "mapped_geometry is not null and "
             + "(status_code != 'created' or recorder_name = #{" + PARAM_RECORDER + "})";
 
     public ClaimSpatialSearchResult() {
@@ -79,5 +81,13 @@ public class ClaimSpatialSearchResult extends AbstractReadOnlyEntity {
 
     public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 }
