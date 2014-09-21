@@ -263,4 +263,11 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
      * ApplicationEJB.getWorkSummary}.
      */
     List<WorkSummary> getWorkSummary(Date fromDate, Date toDate);
+
+    /**
+     * See {@linkplain ApplicationEJB#applicationActionTransfer(java.lang.String, java.lang.String, int)
+     * ApplicationEJB.applicationActionTransfer}.
+     */
+    List<ValidationResult> applicationActionTransfer(
+            String applicationId, String languageCode, int rowVersion);
 }

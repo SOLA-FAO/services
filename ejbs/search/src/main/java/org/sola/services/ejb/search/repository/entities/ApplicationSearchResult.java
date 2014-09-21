@@ -60,10 +60,10 @@ public class ApplicationSearchResult extends AbstractReadOnlyEntity {
             + "LEFT JOIN party.party p ON a.contact_person_id = p.id "
             + "LEFT JOIN party.party p2 ON a.agent_id = p2.id ";
     public static final String QUERY_WHERE_GET_ASSIGNED = "u.username = #{" + QUERY_PARAM_USER_NAME + "} "
-            + " AND a.status_code in ('lodged', 'approved')";
-    public static final String QUERY_WHERE_GET_ASSIGNED_ALL = "u.username IS NOT NULL AND a.status_code in ('lodged', 'approved')";
+            + " AND a.status_code in ('lodged', 'approved', 'to-be-transferred')";
+    public static final String QUERY_WHERE_GET_ASSIGNED_ALL = "u.username IS NOT NULL AND a.status_code in ('lodged', 'approved', 'to-be-transferred')";
     public static final String QUERY_WHERE_GET_UNASSIGNED = "u.username IS NULL "
-            + " AND a.status_code in ('lodged', 'approved')";
+            + " AND a.status_code in ('lodged', 'approved', 'to-be-transferred')";
     /**
      * Uses CASE statements to skip execution of the compare_strings function if the parameter
      * string is empty.

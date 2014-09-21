@@ -1282,4 +1282,28 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
         }
 
     }
+
+    /**
+     * Updates the status of the application to the value indicated by the
+     * <code>status_to_set</code> in the
+     * <code>application.application_action_type</code> table for the
+     * <code>transfer</code> code. (i.e. to be transferred). <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_TRANSFER} role.</p>
+     *
+     * @param applicationId The application to perform the action against
+     * @param languageCode The language code to use for localization of
+     * validation messages.
+     * @param rowVersion The current row version of the service
+     * @return The results of the validation performed as part of the service
+     * action.
+     * @see #takeActionAgainstApplication(java.lang.String, java.lang.String,
+     * java.lang.String, int) takeActionAgainstApplication
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_TRANSFER)
+    public List<ValidationResult> applicationActionTransfer(
+            String applicationId, String languageCode, int rowVersion) {
+        return this.takeActionAgainstApplication(
+                applicationId, ApplicationActionType.TRANSFER, languageCode, rowVersion);
+    }
 }

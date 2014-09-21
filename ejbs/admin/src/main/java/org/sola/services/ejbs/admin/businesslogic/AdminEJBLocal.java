@@ -28,6 +28,7 @@
 package org.sola.services.ejbs.admin.businesslogic;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Role;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.User;
@@ -201,16 +202,16 @@ public interface AdminEJBLocal {
     List<Language> getLanguages(String lang);
     
     /**
-     * See {@linkplain AdminEJB#consolidationExtract(boolean, java.lang.String)
+     * See {@linkplain AdminEJB#consolidationExtract(java.lang.String, boolean, java.lang.String)
      * AdminEJB.consolidationExtract}
      */
-    String consolidationExtract(boolean everything, String password);
+    String consolidationExtract(String processName, boolean everything, String password);
 
     /**
-     * See {@linkplain AdminEJB#consolidationConsolidate(String, String, String)
+     * See {@linkplain AdminEJB#consolidationConsolidate(String, String, String, String)
      * AdminEJB.consolidationConsolidate}
      */
-    String consolidationConsolidate(String languageCode, String fileInServer, String password);
+    void consolidationConsolidate(String processName, String languageCode, String fileInServer, String password);
     
     /**
      * See {@linkplain AdminEJB#restoreUserPassword(String)}
@@ -226,4 +227,46 @@ public interface AdminEJBLocal {
      * See {@linkplain AdminEJB#getUserInfo(String)}
      */
     User getUserInfo(String userName);
+    
+    /**
+     * See {@linkplain AdminEJB#startProcessProgressUsingBr(String, int)
+     * AdminEJB.startProcessProgressUsingBr}
+     */
+    void startProcessProgress(String processName, int maximumValue);
+
+    /**
+     * See {@linkplain AdminEJB#startProcessProgressUsingBr(String, String)
+     * AdminEJB.startProcessProgressUsingBr}
+     */
+    void startProcessProgressUsingBr(String processName, String brNameToGenerateMaximumValue);
+
+    /**
+     * See {@linkplain AdminEJB#getProcessProgress(String, boolean)
+     * AdminEJB.getProcessProgress}
+     */
+    int getProcessProgress(String processName, boolean inPercentage);
+
+    /**
+     * See {@linkplain AdminEJB#setProcessProgress(String, int)
+     * AdminEJB.setProcessProgress}
+     */
+    void setProcessProgress(String processName, int progressValue);
+
+    /**
+     * See {@linkplain AdminEJB#getProcessLog(String)
+     * AdminEJB.getProcessLog}
+     */
+    String getProcessLog(String processName);
+
+    /**
+     * See {@linkplain AdminEJB#updateProcessLog(String, String)
+     * AdminEJB.updateProcessLog}
+     */
+    void updateProcessLog(String processName, String logInput);
+
+    /**
+     * See {@linkplain AdminEJB#startProcessLog(String)
+     * AdminEJB.startProcessLog}
+     */
+    void startProcessLog(String processName);
 }
