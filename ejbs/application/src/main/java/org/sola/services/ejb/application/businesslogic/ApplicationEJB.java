@@ -994,7 +994,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
 
     /**
      * Wrapper method that uses the applicationId to load the application object
-     * before calling null null null null     {@linkplain #takeActionAgainstApplication(org.sola.services.ejb.application.repository.entities.ApplicationActionTaker,
+     * before calling null null null null null null null null null null null
+     * null null null null null null     {@linkplain #takeActionAgainstApplication(org.sola.services.ejb.application.repository.entities.ApplicationActionTaker,
      * java.lang.String, java.lang.String, int) takeActionAgainstApplication.
      *
      * @param applicationId The identifier of the application to perform the action against
@@ -1333,5 +1334,58 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
         params.put(ApplicationSqlProvider.PARAM_SERVICE_ID, serviceId);
         getRepository().bulkUpdate(params);
 
+    }
+
+    /**
+     * Saves changes to all checklist items associated to a service.
+     * <p>
+     * Requires the {@linkplain RolesConstants#SERVICE_START_CHECKLIST}
+     * role.</p>
+     *
+     * @param checklistGroupCode
+     * @param serviceChecklistItem
+     * @return the list of checklist items for the service after they have been
+     * saved.
+     */
+    @Override
+    @RolesAllowed(RolesConstants.SERVICE_START_CHECKLIST)
+    public List<ServiceChecklistItem> saveServiceChecklistItem(String checklistGroupCode,
+            List<ServiceChecklistItem> serviceChecklistItem) {
+        if (serviceChecklistItem != null && serviceChecklistItem.size() > 0) {
+            String serviceId = serviceChecklistItem.get(0).getServiceId();
+            ListIterator<ServiceChecklistItem> it = serviceChecklistItem.listIterator();
+            while (it.hasNext()) {
+                ServiceChecklistItem item = it.next();
+                it.remove();
+                ServiceChecklistItem savedItem = saveEntity(item);
+                if (savedItem != null) {
+                    it.add(savedItem);
+                }
+            }
+            Service s = getEntityById(Service.class, serviceId);
+            s.setActionNotes(checklistGroupCode);
+            saveEntity(s);
+        }
+        return serviceChecklistItem;
+    }
+
+    /**
+     * Retrieves all checklist items associated to a service.
+     * <p>
+     * Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
+     *
+     * @param serviceId Id of the service to retrieve checklist items for
+     * @return The checklist items
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
+    public List<ServiceChecklistItem> getServiceChecklistItem(String serviceId) {
+        List<ServiceChecklistItem> result = null;
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, ServiceChecklistItem.QUERY_WHERE_BYSERVICEID);
+        params.put(ServiceChecklistItem.QUERY_PARAMETER_SERVICE_ID, serviceId);
+        result
+                = getRepository().getEntityList(ServiceChecklistItem.class, params);
+        return result;
     }
 }

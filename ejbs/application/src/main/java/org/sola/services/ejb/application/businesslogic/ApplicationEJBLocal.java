@@ -271,4 +271,17 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
      * ApplicationEJB.linkServiceObjectsToApplication}.
      */
     void linkServiceObjectsToApplication(String serviceId);
+
+    /**
+     * See {@linkplain ApplicationEJB#saveServiceChecklistItem(java.lang.String, java.util.List)
+     * ApplicationEJB.saveServiceChecklistItem}.
+     */
+    List<ServiceChecklistItem> saveServiceChecklistItem(String checklistGroupCode,
+            List<ServiceChecklistItem> serviceChecklistItem);
+
+    /**
+     * See {@linkplain ApplicationEJB#getServiceChecklistItem(java.lang.String)
+     * ApplicationEJB.getServiceChecklistItem}.
+     */
+    List<ServiceChecklistItem> getServiceChecklistItem(String serviceId);
 }
