@@ -621,7 +621,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
 
     /**
      * Checks if the current user has been assigned one or more of the null null
-     * null null null null null null null null null null null null null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
+     * null null null null null null null null null null null null null null
+     * null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
      * {@linkplain RolesConstants#ADMIN_MANAGE_REFDATA} or
      * {@linkplain RolesConstants#ADMIN_MANAGE_SETTINGS} security roles.
      * <p>
@@ -719,7 +720,9 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
                 setProcessProgress(processName, getProcessProgress(processName, false) + 5);
             }
             updateProcessLog(processName, "Compress all generated scripts...");
-            String compressedFilePath = FileUtility.compress(schemaName, filesToAdd, password);
+            String compressedFilePath = FileUtility.compress(
+                    systemEJB.checkRuleGetResultSingle("consolidation-extraction-file-name", null).getValue().toString(),
+                    filesToAdd, password);
             updateProcessLog(processName, "done");
             updateProcessLog(processName, "Finished with success!");
             setProcessProgress(processName, getProcessProgress(processName, false) + 10);
@@ -837,8 +840,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
             params.put("process_name", processName);
             getRepository().getScalar(String.class, params);
         } catch (Exception ex) {
-            updateProcessLog(processName, String.format("%s\r\n%s", 
-                    MessageUtility.getLocalizedMessage(ServiceMessage.ADMIN_WS_CONSOLIDATION_FAILED).getMessage(), 
+            updateProcessLog(processName, String.format("%s\r\n%s",
+                    MessageUtility.getLocalizedMessage(ServiceMessage.ADMIN_WS_CONSOLIDATION_FAILED).getMessage(),
                     ex.getMessage()));
             throw new SOLAException(ServiceMessage.ADMIN_WS_CONSOLIDATION_FAILED, ex);
         }
