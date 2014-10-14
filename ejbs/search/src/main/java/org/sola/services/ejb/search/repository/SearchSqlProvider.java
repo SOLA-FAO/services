@@ -758,7 +758,8 @@ public class SearchSqlProvider {
 
         initJobSummaryQuery();
 
-        SELECT("(SELECT string_agg(application.get_concatenated_name(tmp.id), ';') FROM "
+        SELECT("(SELECT string_agg(application.get_concatenated_name(tmp.id, "
+                + " #{" + CommonSqlProvider.PARAM_LANGUAGE_CODE + "}), ';') FROM "
                 + "(SELECT ser_desc.id FROM application.service ser_desc "
                 + " WHERE  ser_desc.application_id = app.id "
                 + " AND    ser_desc.status_code != 'cancelled' "

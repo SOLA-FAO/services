@@ -42,41 +42,54 @@ import org.sola.services.common.repository.entities.AbstractVersionedEntity;
  * @author soladev
  */
 @Table(name = "service_checklist_item", schema = "application")
-@DefaultSorter(sortString= "display_order, display_value")
+@DefaultSorter(sortString = "display_order, name")
 public class ServiceChecklistItem extends AbstractVersionedEntity {
 
     public static final String QUERY_PARAMETER_SERVICE_ID = "serviceId";
     public static final String QUERY_WHERE_BYSERVICEID = "service_id = #{" + QUERY_PARAMETER_SERVICE_ID + "} ";
     @Id
+    @Column(name = "id")
+    private String id;
     @Column(name = "service_id")
     private String serviceId;
-    @Id
     @Column(name = "checklist_item_code")
     private String itemCode;
     @Column(name = "result")
     private String result;
     @Column(name = "comment")
     private String comment;
-    @AccessFunctions(onSelect = "(SELECT get_translation(ci.display_value, #{"
+    @AccessFunctions(onSelect = "COALESCE((SELECT get_translation(ci.display_value, #{"
             + PARAM_LANGUAGE_CODE + "})"
-            + " FROM application.checklist_item ci"
-            + " WHERE ci.code = checklist_item_code)")
-    @Column(name = "display_value", insertable = false, updatable = false)
+            + " FROM  application.checklist_item ci"
+            + " WHERE checklist_item_code IS NOT NULL "
+            + " AND   ci.code = checklist_item_code), name)", onChange = "#{itemDisplayValue}")
+    @Column(name = "name")
     private String itemDisplayValue;
-    @AccessFunctions(onSelect = "(SELECT get_translation(ci.description, #{"
+    @AccessFunctions(onSelect = "COALESCE((SELECT get_translation(ci.description, #{"
             + PARAM_LANGUAGE_CODE + "})"
-            + " FROM application.checklist_item ci "
-            + " WHERE ci.code = checklist_item_code)")
-    @Column(name = "description", insertable = false, updatable = false)
+            + " FROM  application.checklist_item ci "
+            + " WHERE checklist_item_code IS NOT NULL "
+            + " AND   ci.code = checklist_item_code), description)", onChange = "#{itemDescription}")
+    @Column(name = "description")
     private String itemDescription;
-    @AccessFunctions(onSelect = "(SELECT ci.display_order "
+    @AccessFunctions(onSelect = "COALESCE((SELECT ci.display_order "
             + " FROM application.checklist_item ci "
-            + " WHERE ci.code = checklist_item_code)")
+            + " WHERE checklist_item_code IS NOT NULL"
+            + " AND   ci.code = checklist_item_code), 10000)")
     @Column(name = "display_order", insertable = false, updatable = false)
     private int itemDisplayOrder;
 
     public ServiceChecklistItem() {
         super();
+    }
+
+    public String getId() {
+        id = id == null ? generateId() : id;
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getServiceId() {
