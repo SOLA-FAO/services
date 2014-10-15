@@ -38,6 +38,7 @@ import org.sola.common.RolesConstants;
 import org.sola.common.SOLAException;
 import org.sola.common.StringUtility;
 import org.sola.common.messaging.ServiceMessage;
+import org.sola.services.common.LocalInfo;
 import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
@@ -714,6 +715,9 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(BaUnitSearchResult.QUERY_PARAM_PARCEL_NAME_LASTPART, searchParams.getPlanNumber());
         params.put(BaUnitSearchResult.QUERY_PARAM_PROPERTY_MANAGER, searchParams.getPropertyManager());
         params.put(BaUnitSearchResult.QUERY_PARAM_DESCRIPTION, searchParams.getDescription());
+        params.put(BaUnitSearchResult.QUERY_PARAM_RRR_TYPE_CODE, searchParams.getRrrTypeCode());
+        params.put(BaUnitSearchResult.QUERY_PARAM_RRR_SUB_TYPE_CODE, searchParams.getRrrSubTypeCode());
+        params.put(BaUnitSearchResult.QUERY_PARAM_USER_NAME, getUserName()); 
         return getRepository().getEntityList(BaUnitSearchResult.class, params);
     }
 
@@ -979,7 +983,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      *
      * @param parcelId The identifier of the State Land Parcel to obtain
      * underlying titles for.
-     * @return BaUnits underlying the state land parcel. 
+     * @return BaUnits underlying the state land parcel.
      */
     @Override
     @RolesAllowed({RolesConstants.ADMINISTRATIVE_BA_UNIT_SAVE})

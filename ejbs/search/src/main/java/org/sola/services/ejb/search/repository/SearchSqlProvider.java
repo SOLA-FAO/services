@@ -418,11 +418,15 @@ public class SearchSqlProvider {
                 + "WHERE rrr1.ba_unit_id = prop.id "
                 + "AND rrr1.status_code = 'current' "
                 + "AND pr1.rrr_id = rrr1.id "
-                + "AND p1.id = pr1.party_id ) AS rightholders");
+                + "AND p1.id = pr1.party_id "
+                + "AND system.has_security_clearance(#{" + BaUnitSearchResult.QUERY_PARAM_USER_NAME + "}, rrr1.classification_code) "
+                + "AND system.has_security_clearance(#{" + BaUnitSearchResult.QUERY_PARAM_USER_NAME + "}, p1.classification_code) "
+                + ") AS rightholders");
         SELECT("(SELECT string_agg(COALESCE(co1.name_firstpart, '') || ' ' || COALESCE(co1.name_lastpart, ''), '::::') "
                 + "FROM administrative.ba_unit_contains_spatial_unit bas1, cadastre.cadastre_object co1 "
                 + "WHERE bas1.ba_unit_id = prop.id "
-                + "AND co1.id = bas1.spatial_unit_id"
+                + "AND co1.id = bas1.spatial_unit_id "
+                + "AND system.has_security_clearance(#{" + BaUnitSearchResult.QUERY_PARAM_USER_NAME + "}, co1.classification_code) "
                 + ") AS parcels");
         SELECT("(SELECT string_agg(COALESCE(addr2.description, ''), '::::') "
                 + "FROM administrative.ba_unit_contains_spatial_unit bas2, cadastre.spatial_unit_address sua2, "
@@ -472,11 +476,13 @@ public class SearchSqlProvider {
             WHERE("prop.type_code != 'stateLand'");
         }
 
-        if (!StringUtility.isEmpty(params.getOwnerName()) || !StringUtility.isEmpty(params.getInterestRefNum())) {
+        if (!StringUtility.isEmpty(params.getOwnerName()) || !StringUtility.isEmpty(params.getInterestRefNum())
+                || !StringUtility.isEmpty(params.getRrrTypeCode())) {
             criteriaProvided = true;
             FROM("administrative.rrr rrr LEFT OUTER JOIN administrative.notation n ON n.rrr_id = rrr.id");
             WHERE("rrr.ba_unit_id = prop.id");
             WHERE("rrr.status_code = 'current'");
+            WHERE("system.has_security_clearance(#{" + BaUnitSearchResult.QUERY_PARAM_USER_NAME + "}, rrr.classification_code)"); 
         }
 
         if (!StringUtility.isEmpty(params.getOwnerName())) {
@@ -518,6 +524,7 @@ public class SearchSqlProvider {
             FROM("cadastre.cadastre_object co");
             WHERE("bas.ba_unit_id = prop.id");
             WHERE("co.id = bas.spatial_unit_id");
+            WHERE("system.has_security_clearance(#{" + BaUnitSearchResult.QUERY_PARAM_USER_NAME + "}, co.classification_code)");
         }
 
         if (!StringUtility.isEmpty(params.getParcelNumber())) {
@@ -555,12 +562,23 @@ public class SearchSqlProvider {
             WHERE("pman.id = bap.party_id");
             WHERE("compare_strings(#{" + BaUnitSearchResult.QUERY_PARAM_PROPERTY_MANAGER + "}, "
                     + "COALESCE(pman.name, '') || ' ' || COALESCE(pman.last_name, '') || ' ' || COALESCE(pman.alias, ''))");
+            WHERE("system.has_security_clearance(#{" + BaUnitSearchResult.QUERY_PARAM_USER_NAME + "}, pman.classification_code)");
         }
 
         if (!StringUtility.isEmpty(params.getDescription())) {
             criteriaProvided = true;
             WHERE("compare_strings(#{" + BaUnitSearchResult.QUERY_PARAM_DESCRIPTION
                     + "}, COALESCE(prop.description, ''))");
+        }
+
+        if (!StringUtility.isEmpty(params.getRrrTypeCode())) {
+            criteriaProvided = true;
+            WHERE("rrr.type_code = #{" + BaUnitSearchResult.QUERY_PARAM_RRR_TYPE_CODE + "}");
+
+            if (!StringUtility.isEmpty(params.getRrrSubTypeCode())) {
+                criteriaProvided = true;
+                WHERE("rrr.sub_type_code = #{" + BaUnitSearchResult.QUERY_PARAM_RRR_SUB_TYPE_CODE + "}");
+            }
         }
 
         if (!criteriaProvided) {
