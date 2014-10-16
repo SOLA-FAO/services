@@ -276,9 +276,9 @@ public abstract class AbstractEJB implements AbstractEJBLocal {
      */
     @Override
     public <T extends AbstractCodeEntity> T getCodeEntity(Class<T> codeEntityClass, String code, String lang) {
-        if (!codeEntityClass.getPackage().getName().equals(getEntityPackage())) {
-            throw new SOLAException(ServiceMessage.EXCEPTION_ENTITY_PACKAGE_VIOLATION);
-        }
+//        if (!codeEntityClass.getPackage().getName().equals(getEntityPackage())) {
+//            throw new SOLAException(ServiceMessage.EXCEPTION_ENTITY_PACKAGE_VIOLATION);
+//        }
         return getRepository().getCode(codeEntityClass, code, lang);
     }
 
@@ -290,9 +290,9 @@ public abstract class AbstractEJB implements AbstractEJBLocal {
      */
     @Override
     public <T extends AbstractCodeEntity> List<T> getCodeEntityList(Class<T> codeEntityClass, String lang) {
-        if (!codeEntityClass.getPackage().getName().equals(getEntityPackage())) {
-            throw new SOLAException(ServiceMessage.EXCEPTION_ENTITY_PACKAGE_VIOLATION);
-        }
+//        if (!codeEntityClass.getPackage().getName().equals(getEntityPackage())) {
+//            throw new SOLAException(ServiceMessage.EXCEPTION_ENTITY_PACKAGE_VIOLATION);
+//        }
         return getRepository().getCodeList(codeEntityClass, lang);
     }
 

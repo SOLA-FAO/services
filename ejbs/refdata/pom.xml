@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>sola-ejbs</artifactId>
-        <groupId>org.sola.services</groupId>
-        <version>1402a-SNAPSHOT</version>
-    </parent>
-    <groupId>org.sola.services.ejbs</groupId>
-    <artifactId>sola-address</artifactId>
-    <packaging>ejb</packaging>
+    <artifactId>sola-ejbs</artifactId>
+    <groupId>org.sola.services</groupId>
     <version>1402a-SNAPSHOT</version>
-    <name>EJB Address</name>
-    
+  </parent>
+
+    <groupId>org.sola.services.ejbs</groupId>
+    <artifactId>sola-refdata</artifactId>
+    <version>1402a-SNAPSHOT</version>
+    <packaging>ejb</packaging>
+
+    <name>EJB ReferenceData</name>
+
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,7 +27,7 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -75,4 +77,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

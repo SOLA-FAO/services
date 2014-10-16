@@ -651,7 +651,9 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     @Override
     public List<Language> getLanguages(String lang) {
         Map params = new HashMap<String, Object>();
-        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, lang);
+        if(lang != null){
+            params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, lang);
+        }
         params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, "item_order");
         return getRepository().getEntityList(Language.class, params);
     }
