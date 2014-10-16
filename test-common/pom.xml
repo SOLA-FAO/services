@@ -5,12 +5,12 @@
     <parent>
         <artifactId>sola-services</artifactId>
         <groupId>org.sola</groupId>
-        <version>sl-014</version>
+        <version>sl-015</version>
     </parent>
 
     <groupId>org.sola.services</groupId>
     <artifactId>sola-test-common</artifactId>
-    <version>sl-014</version>
+    <version>sl-015</version>
     <packaging>jar</packaging>
 
     <name>Services Test Common</name>
