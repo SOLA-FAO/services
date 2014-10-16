@@ -78,7 +78,7 @@ public class Service extends AbstractVersionedEntity {
     @Column(name = "value_fee")
     private BigDecimal valueFee;
     @Column(insertable = false, updatable = false, name = "concatenated_name")
-    @AccessFunctions(onSelect = "application.get_concatenated_name(id), #{" + CommonSqlProvider.PARAM_LANGUAGE_CODE + "}")
+    @AccessFunctions(onSelect = "application.get_concatenated_name(id, #{" + CommonSqlProvider.PARAM_LANGUAGE_CODE + "})")
     private String concatenatedName;
 
     public Service() {
