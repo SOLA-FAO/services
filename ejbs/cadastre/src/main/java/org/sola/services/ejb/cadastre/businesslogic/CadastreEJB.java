@@ -647,8 +647,6 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
     @Override
     @RolesAllowed({RolesConstants.APPLICATION_APPROVE, RolesConstants.APPLICATION_SERVICE_COMPLETE})
     public void approveStateLandChange(String transactionId) {
-        List<CadastreObjectTargetRedefinition> targetObjectList
-                = this.getCadastreObjectRedefinitionTargetsByTransaction(transactionId);
 
         if (!this.isInRole(RolesConstants.CADASTRE_PARCEL_SAVE)) {
             // Along with one of the above 2 roles, the user must also have the Save Parcel role 
@@ -672,7 +670,8 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
                 CadastreObjectStatusChanger.HISTORIC);
 
         // Process a series of bulk updates so that any properties that reference the target
-        // SL parcels are re-linked to the new SL parcels they are being replaced by. 
+        // SL parcels are re-linked to the new SL parcels they are being replaced by. Note
+        // that the id for the parcel being replaced is set as the row id on the new parcel.  
         String bulkInsertSql
                 = " INSERT INTO administrative.ba_unit_contains_spatial_unit "
                 + " (ba_unit_id, spatial_unit_id, change_user) "
@@ -715,6 +714,43 @@ public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
         params.put(CommonSqlProvider.PARAM_QUERY, bulkUpdateSql);
         getRepository().bulkUpdate(params);
         params.put(CommonSqlProvider.PARAM_QUERY, bulkDeleteSql);
+        getRepository().bulkUpdate(params);
+    }
+
+    /**
+     * Updates all cadastre objects associated to the disposed property with the
+     * historic status as well as ensuring the state_land_status_code is set to
+     * disposed.
+     *
+     * @param transactionId The identifier of the transaction
+     */
+    @Override
+    @RolesAllowed({RolesConstants.APPLICATION_APPROVE, RolesConstants.APPLICATION_SERVICE_COMPLETE})
+    public void approveStateLandDisposal(String transactionId) {
+
+        if (!this.isInRole(RolesConstants.CADASTRE_PARCEL_SAVE)) {
+            // Along with one of the above 2 roles, the user must also have the Save Parcel role 
+            // to run this method. 
+            throw new SOLAException(ServiceMessage.EXCEPTION_INSUFFICIENT_RIGHTS);
+        }
+
+        String bulkUpdateSql
+                = " UPDATE cadastre.cadastre_object "
+                + " SET change_user = #{currentUser},"
+                + "     status_code = 'historic', "
+                + "     state_land_status_code = 'disposed' "
+                + " WHERE id IN ( "
+                + "     SELECT bas.spatial_unit_id "
+                + "     FROM   administrative.ba_unit_contains_spatial_unit bas, "
+                + "            administrative.ba_unit_target bat "
+                + "     WHERE bat.transaction_id = #{transactionId} "
+                + "     AND   bas.ba_unit_id = bat.ba_unit_id ) ";
+
+        // Process the bulk update
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("transactionId", transactionId);
+        params.put("currentUser", this.getUserName());
+        params.put(CommonSqlProvider.PARAM_QUERY, bulkUpdateSql);
         getRepository().bulkUpdate(params);
     }
 }

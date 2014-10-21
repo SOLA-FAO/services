@@ -231,4 +231,10 @@ public interface CadastreEJBLocal extends AbstractEJBLocal {
      * CadastreEJB.approveStateLandChange}.
      */
     void approveStateLandChange(String transactionId);
+
+    /**
+     * See {@linkplain CadastreEJB#approveStateLandDisposal(java.lang.String)
+     * CadastreEJB.approveStateLandDisposal}.
+     */
+    void approveStateLandDisposal(String transactionId);
 }

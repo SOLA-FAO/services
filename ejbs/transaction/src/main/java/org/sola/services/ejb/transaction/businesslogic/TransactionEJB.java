@@ -266,7 +266,10 @@ public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
             cadastreEJB.approveCadastreRedefinition(transactionId);
         }
         if (requestType.equals(TransactionType.CHANGE_STATE_LAND_PARCELS)) {
-             cadastreEJB.approveStateLandChange(transactionId);
+            cadastreEJB.approveStateLandChange(transactionId);
+        }
+        if (requestType.equals(TransactionType.DISPOSE_PROPERTY)) {
+            cadastreEJB.approveStateLandDisposal(transactionId);
         }
     }
 
