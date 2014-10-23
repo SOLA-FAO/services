@@ -25,11 +25,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.sola.services.ejb.search.spatial;
+
+import java.util.List;
 
 /**
  * A query that is used for navigation purposes for layers of type
@@ -38,14 +36,22 @@ package org.sola.services.ejb.search.spatial;
  * @author Elton Manoku
  */
 public class QueryForPublicDisplayMap extends QueryForNavigation {
-    private String nameLastPart;
+    private List<String> filterParamKeys;
+    private List<String> filterParamValues;
 
-    public String getNameLastPart() {
-        return nameLastPart;
+    public List<String> getFilterParamKeys() {
+        return filterParamKeys;
     }
 
-    public void setNameLastPart(String nameLastPart) {
-        this.nameLastPart = nameLastPart;
+    public void setFilterParamKeys(List<String> filterParamKeys) {
+        this.filterParamKeys = filterParamKeys;
     }
-    
+
+    public List<String> getFilterParamValues() {
+        return filterParamValues;
+    }
+
+    public void setFilterParamValues(List<String> filterParamValues) {
+        this.filterParamValues = filterParamValues;
+    } 
 }

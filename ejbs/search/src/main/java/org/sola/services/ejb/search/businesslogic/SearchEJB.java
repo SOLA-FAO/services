@@ -507,7 +507,11 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     public ResultForNavigationInfo getSpatialResultForPublicDisplay(
             QueryForPublicDisplayMap spatialQuery) {
         Map params = this.getSpatialNavigationQueryParams(spatialQuery);
-        params.put("name_lastpart", spatialQuery.getNameLastPart());
+        if (spatialQuery.getFilterParamKeys() != null && spatialQuery.getFilterParamKeys().size() > 0) {
+            for (int x = 0; x < spatialQuery.getFilterParamKeys().size(); x++) {
+                params.put(spatialQuery.getFilterParamKeys().get(x), spatialQuery.getFilterParamValues().get(x));
+            }
+        }
         return getSpatialResultForNavigation(spatialQuery.getQueryName(), params);
     }
 
@@ -717,7 +721,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(BaUnitSearchResult.QUERY_PARAM_DESCRIPTION, searchParams.getDescription());
         params.put(BaUnitSearchResult.QUERY_PARAM_RRR_TYPE_CODE, searchParams.getRrrTypeCode());
         params.put(BaUnitSearchResult.QUERY_PARAM_RRR_SUB_TYPE_CODE, searchParams.getRrrSubTypeCode());
-        params.put(BaUnitSearchResult.QUERY_PARAM_USER_NAME, getUserName()); 
+        params.put(BaUnitSearchResult.QUERY_PARAM_USER_NAME, getUserName());
         return getRepository().getEntityList(BaUnitSearchResult.class, params);
     }
 
@@ -795,14 +799,17 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      * @return
      */
     @Override
-    public byte[] getExtentOfPublicDisplayMap(String nameLastPart) {
-        String sqlToGetExtent = "select st_asewkb(st_extent(co.geom_polygon)) as extent "
-                + " from cadastre.cadastre_object co where type_code= 'parcel' "
-                + " and status_code= 'current' and name_lastpart =#{name_lastpart}";
-        String paramLastPart = "name_lastpart";
+    public byte[] getExtentOfPublicDisplayMap(String filterParam) {
+        String FILTER_PARAM = "filterParam";
+        String sqlToGetExtent = "SELECT st_asewkb(st_extent(co.geom_polygon)) AS extent "
+                + " FROM cadastre.cadastre_object co, application.application_spatial_unit asu "
+                + " WHERE asu.application_id = #{" + FILTER_PARAM + "} "
+                + " AND   co.id = asu.spatial_unit_id "
+                + " AND   co.type_code = 'stateLand' "
+                + " AND   co.geom_polygon IS NOT NULL ";
         Map params = new HashMap();
         params.put(CommonSqlProvider.PARAM_QUERY, sqlToGetExtent);
-        params.put(paramLastPart, nameLastPart);
+        params.put(FILTER_PARAM, filterParam);
         List result = getRepository().executeSql(params);
         byte[] value = null;
         if (result != null && result.size() > 0 && result.get(0) != null) {

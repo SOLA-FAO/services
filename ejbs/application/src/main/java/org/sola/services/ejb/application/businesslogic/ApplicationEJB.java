@@ -995,7 +995,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     /**
      * Wrapper method that uses the applicationId to load the application object
      * before calling null null null null null null null null null null null
-     * null null null null null null     {@linkplain #takeActionAgainstApplication(org.sola.services.ejb.application.repository.entities.ApplicationActionTaker,
+     * null null null null null null null null null     {@linkplain #takeActionAgainstApplication(org.sola.services.ejb.application.repository.entities.ApplicationActionTaker,
      * java.lang.String, java.lang.String, int) takeActionAgainstApplication.
      *
      * @param applicationId The identifier of the application to perform the action against
@@ -1387,5 +1387,35 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
         result
                 = getRepository().getEntityList(ServiceChecklistItem.class, params);
         return result;
+    }
+
+    /**
+     * Retrieves details for the specified service from the database
+     * <p>
+     * Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
+     *
+     * @param serviceId Id of the service to retrieve
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
+    public Service getService(String serviceId) {
+        return getRepository().getEntity(Service.class, serviceId);
+    }
+
+    /**
+     * Saves changes a service / task.
+     * <p>
+     * Requires the {@linkplain RolesConstants#APPLICATION_EDIT_APPS} role.</p>
+     *
+     * @param service
+     * @return the saved service saved.
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_EDIT_APPS)
+    public Service saveService(Service service) {
+        if (service != null) {
+            service = getRepository().saveEntity(service);
+        }
+        return service;
     }
 }

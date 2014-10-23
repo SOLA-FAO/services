@@ -195,7 +195,7 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
     /**
      * See {@linkplain SearchEJB#getExtentOfPublicDisplayMap(String)}.
      */
-    byte[] getExtentOfPublicDisplayMap(String nameLastPart);
+    byte[] getExtentOfPublicDisplayMap(String filterParam);
 
     /**
      * See {@linkplain SearchEJB#getMapCenterLabel(byte[])}.
