@@ -290,10 +290,28 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
      * ApplicationEJB.getService}.
      */
     Service getService(String serviceId);
-    
-     /**
-     * See {@linkplain ApplicationEJB#saveService(org.sola.services.ejb.application.repository.entities.Service) 
+
+    /**
+     * See {@linkplain ApplicationEJB#saveService(org.sola.services.ejb.application.repository.entities.Service)
      * ApplicationEJB.saveService}.
      */
-     Service saveService(Service service);
+    Service saveService(Service service);
+
+    /**
+     * See {@linkplain ApplicationEJB#getPublicDisplayItem(java.lang.String)
+     * ApplicationEJB.getPublicDisplayItem}.
+     */
+    PublicDisplayItem getPublicDisplayItem(String itemId);
+
+    /**
+     * See {@linkplain ApplicationEJB#savePublicDisplayItem(org.sola.services.ejb.application.repository.entities.PublicDisplayItem)
+     * ApplicationEJB.savePublicDisplayItem}.
+     */
+    PublicDisplayItem savePublicDisplayItem(PublicDisplayItem item);
+
+    /**
+     * See {@linkplain ApplicationEJB#getPublicDisplayItems(java.lang.String)
+     * ApplicationEJB.getPublicDisplayItems}.
+     */
+    List<PublicDisplayItem> getPublicDisplayItems(String serviceId);
 }

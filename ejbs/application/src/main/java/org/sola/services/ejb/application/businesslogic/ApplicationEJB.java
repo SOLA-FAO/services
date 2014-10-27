@@ -995,7 +995,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     /**
      * Wrapper method that uses the applicationId to load the application object
      * before calling null null null null null null null null null null null
-     * null null null null null null null null null     {@linkplain #takeActionAgainstApplication(org.sola.services.ejb.application.repository.entities.ApplicationActionTaker,
+     * null null null null null null null null null null null null     {@linkplain #takeActionAgainstApplication(org.sola.services.ejb.application.repository.entities.ApplicationActionTaker,
      * java.lang.String, java.lang.String, int) takeActionAgainstApplication.
      *
      * @param applicationId The identifier of the application to perform the action against
@@ -1417,5 +1417,55 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
             service = getRepository().saveEntity(service);
         }
         return service;
+    }
+
+    /**
+     * Retrieves details for the specified public display item from the database
+     * <p>
+     * Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
+     *
+     * @param itemId Id of the public display item to retrieve
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
+    public PublicDisplayItem getPublicDisplayItem(String itemId) {
+        return getRepository().getEntity(PublicDisplayItem.class, itemId);
+    }
+
+    /**
+     * Saves changes a public display item.
+     * <p>
+     * Requires the {@linkplain RolesConstants#APPLICATION_EDIT_APPS} role.</p>
+     *
+     * @param item
+     * @return the saved item.
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_EDIT_APPS)
+    public PublicDisplayItem savePublicDisplayItem(PublicDisplayItem item) {
+        if (item != null) {
+            item = getRepository().saveEntity(item);
+        }
+        return item;
+    }
+
+    /**
+     * Retrieves all public display items associated to a service.
+     * <p>
+     * Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
+     *
+     * @param serviceId Id of the service to retrieve public display items for
+     * @return The public display items
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
+    public List<PublicDisplayItem> getPublicDisplayItems(String serviceId) {
+        List<PublicDisplayItem> result = null;
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, PublicDisplayItem.QUERY_WHERE_BYSERVICEID);
+        params.put(PublicDisplayItem.QUERY_PARAMETER_SERVICE_ID, serviceId);
+        result
+                = getRepository().getEntityList(PublicDisplayItem.class, params);
+        return result;
     }
 }
