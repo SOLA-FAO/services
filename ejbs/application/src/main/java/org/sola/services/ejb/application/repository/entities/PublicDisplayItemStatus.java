@@ -36,7 +36,7 @@ import org.sola.services.common.repository.entities.AbstractCodeEntity;
  *
  * @author soladev
  */
-@Table(name = "public_display_item_status", schema = "application")
+@Table(name = "public_display_status", schema = "application")
 public class PublicDisplayItemStatus extends AbstractCodeEntity {
 
     public PublicDisplayItemStatus() {

@@ -314,4 +314,10 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
      * ApplicationEJB.getPublicDisplayItems}.
      */
     List<PublicDisplayItem> getPublicDisplayItems(String serviceId);
+
+    /**
+     * See {@linkplain ApplicationEJB#savePublicDisplayItems(java.util.List)
+     * ApplicationEJB.savePublicDisplayItems}.
+     */
+    List<PublicDisplayItem> savePublicDisplayItems(List<PublicDisplayItem> items);
 }

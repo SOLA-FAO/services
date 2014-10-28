@@ -995,7 +995,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     /**
      * Wrapper method that uses the applicationId to load the application object
      * before calling null null null null null null null null null null null
-     * null null null null null null null null null null null null     {@linkplain #takeActionAgainstApplication(org.sola.services.ejb.application.repository.entities.ApplicationActionTaker,
+     * null null null null null null null null null null null null null null     {@linkplain #takeActionAgainstApplication(org.sola.services.ejb.application.repository.entities.ApplicationActionTaker,
      * java.lang.String, java.lang.String, int) takeActionAgainstApplication.
      *
      * @param applicationId The identifier of the application to perform the action against
@@ -1435,13 +1435,14 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     /**
      * Saves changes a public display item.
      * <p>
-     * Requires the {@linkplain RolesConstants#APPLICATION_EDIT_APPS} role.</p>
+     * Requires the {@linkplain RolesConstants#SERVICE_START_PUBLIC_DISPLAY}
+     * role.</p>
      *
      * @param item
      * @return the saved item.
      */
     @Override
-    @RolesAllowed(RolesConstants.APPLICATION_EDIT_APPS)
+    @RolesAllowed(RolesConstants.SERVICE_START_PUBLIC_DISPLAY)
     public PublicDisplayItem savePublicDisplayItem(PublicDisplayItem item) {
         if (item != null) {
             item = getRepository().saveEntity(item);
@@ -1467,5 +1468,42 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
         result
                 = getRepository().getEntityList(PublicDisplayItem.class, params);
         return result;
+    }
+
+    /**
+     * Saves changes to all public display items associated to a service.
+     * <p>
+     * Requires the {@linkplain RolesConstants#SERVICE_START_PUBLIC_DISPLAY}
+     * role.</p>
+     *
+     * @param items
+     * @return the list of display items for the service after they have been
+     * saved.
+     */
+    @Override
+    @RolesAllowed(RolesConstants.SERVICE_START_PUBLIC_DISPLAY)
+    public List<PublicDisplayItem> savePublicDisplayItems(List<PublicDisplayItem> items) {
+        if (items != null && items.size() > 0) {
+            String serviceId = items.get(0).getServiceId();
+            ListIterator<PublicDisplayItem> it = items.listIterator();
+            while (it.hasNext()) {
+                PublicDisplayItem item = it.next();
+                it.remove();
+                PublicDisplayItem savedItem = getRepository().saveEntity(item);
+                if (savedItem != null) {
+                    it.add(savedItem);
+                }
+            }
+            String actionNote = "";
+            if (items.size() == 1) {
+                actionNote = "1 Display Item";
+            } else {
+                actionNote = items.size() + " Display Items";
+            }
+            Service s = getEntityById(Service.class, serviceId);
+            s.setActionNotes(actionNote);
+            saveEntity(s);
+        }
+        return items;
     }
 }
