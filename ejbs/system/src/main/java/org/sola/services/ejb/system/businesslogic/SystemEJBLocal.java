@@ -63,6 +63,20 @@ public interface SystemEJBLocal extends AbstractEJBLocal {
      * See {@linkplain SystemEJB#getSetting(java.lang.String, java.lang.String)  SystemEJB.getSetting}
      */
     String getSetting(String name, String defaultValue);
+    
+    /** 
+     * Returns setting object, by given name
+     * @param name Setting name
+     * @return 
+     */
+    Setting getSetting(String name);
+    
+    /** 
+     * Saves system setting
+     * @param setting Setting object to save
+     * @return  
+     */
+    Setting saveSetting(Setting setting);
 
     /**
      * See {@linkplain org.sola.services.ejb.system.businesslogic.SystemEJB#getBr(java.lang.String, java.lang.String)
@@ -75,6 +89,8 @@ public interface SystemEJBLocal extends AbstractEJBLocal {
      * SystemEJB.saveBr}
      */
     Br saveBr(Br br);
+    
+    boolean deleteBr(String brId);
 
     /**
      * See {@linkplain SystemEJB#getBrs(java.util.List)

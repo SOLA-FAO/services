@@ -30,8 +30,8 @@
         <module>scheduler</module>
         <module>transaction</module>
         <module>admin</module>
-    <module>refdata</module>
-  </modules>
+        <module>refdata</module>
+    </modules>
     <dependencies>
         <dependency>
             <groupId>org.sola.services</groupId>

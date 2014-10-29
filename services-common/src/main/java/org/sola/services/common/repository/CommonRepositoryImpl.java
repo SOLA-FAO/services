@@ -1094,7 +1094,6 @@ public class CommonRepositoryImpl implements CommonRepository {
         if (languageCode != null) {
             params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, languageCode);
         }
-
         return getEntityList(codeListClass, params);
     }
 

@@ -11,8 +11,6 @@
     <packaging>pom</packaging>
     <version>1402a-SNAPSHOT</version>
     <name>Services POM</name>
-    <repositories>
-    </repositories>
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
     </properties>

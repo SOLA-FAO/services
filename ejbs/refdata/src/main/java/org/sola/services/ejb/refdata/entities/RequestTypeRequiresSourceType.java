@@ -25,65 +25,46 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
-package org.sola.services.ejb.system.repository.entities;
+package org.sola.services.ejb.refdata.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import org.sola.services.common.repository.DefaultSorter;
 import org.sola.services.common.repository.entities.AbstractEntity;
 
-@Table(name = "setting", schema = "system")
-@DefaultSorter(sortString = "name")
-public class Setting extends AbstractEntity {
-    public static final String MAP_WEST = "map-west";
-    public static final String MAP_EAST = "map-east";
-    public static final String MAP_SOUTH = "map-south";
-    public static final String MAP_NORTH = "map-north";
-    
+/**
+ * Entity representing the application.request_type_requires_source_type association table 
+ * (i.e many to many table). 
+ * @author soladev
+ */
+@Table(name = "request_type_requires_source_type", schema = "application")
+public class RequestTypeRequiresSourceType extends AbstractEntity {
+
     @Id
-    @Column
-    private String name;
-    @Column(name = "vl")
-    private String value;
-    @Column
-    private boolean active;
-    @Column
-    private String description;
-    
-    public Setting() {
+    @Column(name = "request_type_code")
+    private String requestTypeCode;
+    @Id
+    @Column(name = "source_type_code")
+    private String sourceTypeCode;
+
+    public RequestTypeRequiresSourceType() {
         super();
     }
 
-    public boolean isActive() {
-        return active;
+    public String getRequestTypeCode() {
+        return requestTypeCode;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setRequestTypeCode(String requestTypeCode) {
+        this.requestTypeCode = requestTypeCode;
     }
 
-    public String getDescription() {
-        return description;
+    public String getSourceTypeCode() {
+        return sourceTypeCode;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setSourceTypeCode(String sourceTypeCode) {
+        this.sourceTypeCode = sourceTypeCode;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
 }

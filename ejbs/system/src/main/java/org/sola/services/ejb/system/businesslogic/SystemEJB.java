@@ -42,7 +42,9 @@ import javax.ejb.Stateless;
 import org.sola.common.ConfigConstants;
 import org.sola.common.RolesConstants;
 import org.sola.common.SOLAException;
+import org.sola.common.StringUtility;
 import org.sola.common.messaging.ServiceMessage;
+import org.sola.services.common.EntityAction;
 import org.sola.services.common.br.ValidationResult;
 import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.repository.CommonSqlProvider;
@@ -100,6 +102,12 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
         return getRepository().getEntityList(Setting.class);
     }
 
+    @Override
+    @RolesAllowed(RolesConstants.ADMIN_MANAGE_SETTINGS)
+    public Setting saveSetting(Setting setting){
+        return getRepository().saveEntity(setting);
+    }
+    
     /**
      * Retrieves the value for the named setting. Constants for each setting are
      * available in {@linkplain  ConfigConstants}. If the setting does not exist,
@@ -120,6 +128,11 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
         return result;
     }
 
+    @Override
+    public Setting getSetting(String name){
+        return getRepository().getEntity(Setting.class, name);
+    }
+    
     /**
      * Returns the SOLA business rule matching the id.
      *
@@ -131,7 +144,7 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
      * each Br.
      *
      */
-    @RolesAllowed(RolesConstants.ADMIN_MANAGE_SECURITY)
+    @RolesAllowed(RolesConstants.ADMIN_MANAGE_BR)
     @Override
     public Br getBr(String id, String lang) {
         if (lang == null) {
@@ -143,6 +156,34 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
         }
     }
 
+    @Override
+    @RolesAllowed(RolesConstants.ADMIN_MANAGE_BR)
+    public boolean deleteBr(String brId){
+        if(StringUtility.isEmpty(brId)){
+            return true;
+        }
+        Br br = getBr(brId, null);
+        if(br!=null){
+            // Delete validations
+            if(br.getBrValidationList() != null){
+                for(BrValidation validation : br.getBrValidationList()){
+                    validation.setEntityAction(EntityAction.DELETE);
+                    getRepository().saveEntity(validation);
+                }
+            }
+            // Delete definitions
+            if(br.getBrDefinitionList() != null){
+                for(BrDefinition def : br.getBrDefinitionList()){
+                    def.setEntityAction(EntityAction.DELETE);
+                    getRepository().saveEntity(def);
+                }
+            }
+            br.setEntityAction(EntityAction.DELETE);
+            getRepository().saveEntity(br);
+        }
+        return true;
+    }
+    
     /**
      * Can be used to create a new business rule or save any updates to the
      * details of an existing business role.

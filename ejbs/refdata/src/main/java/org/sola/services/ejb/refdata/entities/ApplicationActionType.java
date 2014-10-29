@@ -25,65 +25,54 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
-package org.sola.services.ejb.system.repository.entities;
+package org.sola.services.ejb.refdata.entities;
 
 import javax.persistence.Column;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import org.sola.services.common.repository.DefaultSorter;
-import org.sola.services.common.repository.entities.AbstractEntity;
+import org.sola.services.common.repository.entities.AbstractCodeEntity;
 
-@Table(name = "setting", schema = "system")
-@DefaultSorter(sortString = "name")
-public class Setting extends AbstractEntity {
-    public static final String MAP_WEST = "map-west";
-    public static final String MAP_EAST = "map-east";
-    public static final String MAP_SOUTH = "map-south";
-    public static final String MAP_NORTH = "map-north";
+/**
+ * Entity representing the application.application_action_type code table
+ * @author soladev
+ */
+@Table(name = "application_action_type", schema = "application")
+@DefaultSorter(sortString="display_value")
+public class ApplicationActionType extends AbstractCodeEntity {
+
+    public static final String LODGE = "lodge";
+    public static final String APPROVE = "approve";
+    public static final String ARCHIVE = "archive";
+    public static final String DISPATCH = "dispatch";
+    public static final String DOCUMENTS_ADDED = "addDocument";
+    public static final String WITHDRAW = "withdraw";
+    public static final String CANCEL = "cancel";
+    public static final String REQUISITION = "requisition";
+    // Although validate is here it is not found in the list of actions in the table itself,
+    // because if validation fails, the action logged must be:VALIDATE_FAILED or VALIDATE_PASSED
+    public static final String VALIDATE = "validate";
+    public static final String VALIDATE_FAILED = "validateFailed";
+    public static final String VALIDATE_PASSED = "validatePassed";
+    public static final String LAPSE = "lapse";
+    public static final String ASSIGN = "assign";
+    public static final String UNASSIGN = "unAssign";
+    public static final String RESUBMIT = "resubmit";
+    public static final String TRANSFER = "transfer";
+    public static final String ADD_SPATIAL_UNIT = "addSpatialUnit";
     
-    @Id
-    @Column
-    private String name;
-    @Column(name = "vl")
-    private String value;
-    @Column
-    private boolean active;
-    @Column
-    private String description;
-    
-    public Setting() {
+
+    @Column(name = "status_to_set")
+    private String statusToSet;
+
+    public ApplicationActionType() {
         super();
     }
 
-    public boolean isActive() {
-        return active;
+    public String getStatusToSet() {
+        return statusToSet;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
+    public void setStatusToSet(String statusToSet) {
+        this.statusToSet = statusToSet;
     }
 }

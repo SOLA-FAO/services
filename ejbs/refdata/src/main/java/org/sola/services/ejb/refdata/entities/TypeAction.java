@@ -25,65 +25,21 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
-package org.sola.services.ejb.system.repository.entities;
+package org.sola.services.ejb.refdata.entities;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import org.sola.services.common.repository.DefaultSorter;
-import org.sola.services.common.repository.entities.AbstractEntity;
+import org.sola.services.common.repository.entities.AbstractCodeEntity;
 
-@Table(name = "setting", schema = "system")
-@DefaultSorter(sortString = "name")
-public class Setting extends AbstractEntity {
-    public static final String MAP_WEST = "map-west";
-    public static final String MAP_EAST = "map-east";
-    public static final String MAP_SOUTH = "map-south";
-    public static final String MAP_NORTH = "map-north";
-    
-    @Id
-    @Column
-    private String name;
-    @Column(name = "vl")
-    private String value;
-    @Column
-    private boolean active;
-    @Column
-    private String description;
-    
-    public Setting() {
+/**
+ * Entity representing the application.type_action code table
+ */
+@Table(name = "type_action", schema = "application")
+@DefaultSorter(sortString="display_value")
+public class TypeAction extends AbstractCodeEntity {
+    public static final String CANCEL = "cancel";
+
+    public TypeAction() {
         super();
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 }

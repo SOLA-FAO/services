@@ -25,100 +25,75 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
-package org.sola.services.ejb.system.repository.entities;
+package org.sola.services.ejb.refdata.entities;
 
-import java.util.Date;
-import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.sola.services.common.repository.Localized;
 import org.sola.services.common.repository.entities.AbstractEntity;
 
-@Table(name = "br_definition", schema = "system")
-public class BrDefinition extends AbstractEntity {
+@Table(name = "language", schema = "system")
+public class Language extends AbstractEntity {
     
     @Id
-    @Column(name="br_id")
-    private String brId;
-    
-    @Id
-    @Column(name="active_from")
-    private Date activeFrom;
-    
-    @Column(name="active_until")
-    private Date activeUntil;
+    @Column
+    String code;
+
+    @Column(name="display_value")
+    @Localized
+    String displayValue;
     
     @Column
-    private String body;
+    boolean active;
     
-    private String objectId = UUID.randomUUID().toString();
+    @Column(name="is_default")
+    boolean isDefault;
     
-    public BrDefinition(){
+    @Column(name="item_order")
+    int itemOrder;
+    
+    public Language(){
         super();
     }
 
-    public Date getActiveFrom() {
-        return activeFrom;
+    public String getCode() {
+        return code;
     }
 
-    public void setActiveFrom(Date activeFrom) {
-        this.activeFrom = activeFrom;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public Date getActiveUntil() {
-        return activeUntil;
+    public String getDisplayValue() {
+        return displayValue;
     }
 
-    public void setActiveUntil(Date activeUntil) {
-        this.activeUntil = activeUntil;
+    public void setDisplayValue(String displayValue) {
+        this.displayValue = displayValue;
     }
 
-    public String getBody() {
-        return body;
+    public boolean isActive() {
+        return active;
     }
 
-    public void setBody(String body) {
-        this.body = body;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
-    public String getBrId() {
-        return brId;
-    }
-
-    public void setBrId(String brId) {
-        this.brId = brId;
-    }
-
-    public String getObjectId() {
-        return objectId;
-    }
-
-    public void setObjectId(String objectId) {
-        this.objectId = objectId;
+    public boolean isIsDefault() {
+        return isDefault;
     }
     
-    @Override
-    public boolean equals(Object object) {
-        boolean result = false;
-        if (object != null && object.getClass() == this.getClass()) {
-            result = this.toString().equals(object.toString());
-        }
-        return result;
+    public void setIsDefault(boolean isDefault) {
+        this.isDefault = isDefault;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (brId != null ? brId.hashCode() : 0);
-        hash += (activeFrom != null ? activeFrom.hashCode() : 0);
-        return hash;
+    public int getItemOrder() {
+        return itemOrder;
     }
 
-    @Override
-    public String toString() {
-        String result = this.getClass().getSimpleName();
-        result += ", brId=" + (brId == null ? "null" : brId.toString());
-        result += ", activeFrom=" + (activeFrom == null ? "null" : activeFrom.getTime());
-        return result;
+    public void setItemOrder(int itemOrder) {
+        this.itemOrder = itemOrder;
     }
 }
