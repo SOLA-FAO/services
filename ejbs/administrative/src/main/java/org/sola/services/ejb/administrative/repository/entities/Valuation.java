@@ -52,6 +52,9 @@ import org.sola.services.ejb.source.repository.entities.Source;
 @Table(name = "valuation", schema = "administrative")
 public class Valuation extends AbstractVersionedEntity {
 
+    public static final String QUERY_PARAMETER_TRANSACTION_ID = "transactionId";
+    public static final String QUERY_WHERE_BYTRANSACTIONID = "transaction_id = #{" + QUERY_PARAMETER_TRANSACTION_ID + "} ";
+
     @Id
     @Column(name = "id")
     private String id;
@@ -80,13 +83,15 @@ public class Valuation extends AbstractVersionedEntity {
     @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
     private String classificationCode;
     @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
-    private String redactCode;; 
+    private String redactCode;
+
+    ; 
 
     public Valuation() {
         super();
     }
-    
-     public String getId() {
+
+    public String getId() {
         id = id == null ? generateId() : id;
         return id;
     }
@@ -250,6 +255,5 @@ public class Valuation extends AbstractVersionedEntity {
     public void setRedactCode(String redactCode) {
         this.redactCode = redactCode;
     }
-    
-    
+
 }

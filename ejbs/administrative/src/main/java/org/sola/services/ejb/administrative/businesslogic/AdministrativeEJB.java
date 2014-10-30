@@ -241,6 +241,37 @@ public class AdministrativeEJB extends AbstractEJB
         LocalInfo.setTransactionId(transaction.getId());
         return getRepository().saveEntity(baUnit);
     }
+    
+    
+    /**
+     * Saves any updates to an existing BA Unit. Can also be used to create a
+     * new BA Unit, however this method does not set any default values on the
+     * BA Unit like null null null null null null null null null null null null     {@linkplain #createBaUnit(java.lang.String, org.sola.services.ejb.administrative.repository.entities.BaUnit)
+     * createBaUnit}. Will also create a new Transaction record for the BA Unit
+     * if the Service is not already associated to a Transaction.
+     *
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMINISTRATIVE_BA_UNIT_SAVE}
+     * role</p>
+     *
+     * @param serviceId The identifier of the Service the BA Unit is being
+     * created as part of
+     * @param baUnitTO The details of the BA Unit to create
+     * @return The updated BA Unit
+     * @see #createBaUnit(java.lang.String,
+     * org.sola.services.ejb.administrative.repository.entities.BaUnit)
+     * createBaUnit
+     */
+    @Override
+    //@RolesAllowed(RolesConstants.ADMINISTRATIVE_BA_UNIT_SAVE)
+    //Valuation RoleConstants.somthing goes here.
+    public Valuation saveValuation(Valuation valuation) {
+        if (valuation == null) {
+            return null;
+        }
+        return getRepository().saveEntity(valuation);
+    }
+    
 
     /**
      * Added for State Land to allow individual BaUnitNotation records to be
@@ -405,6 +436,22 @@ public class AdministrativeEJB extends AbstractEJB
         params.put(CommonSqlProvider.PARAM_WHERE_PART, BaUnit.QUERY_WHERE_BY_TRANSACTION_ID_EXTENDED);
         params.put(BaUnit.QUERY_PARAMETER_TRANSACTIONID, transactionId);
         return getRepository().getEntityList(BaUnit.class, params);
+    }
+    
+    /**
+     * Returns all Valuations that are associated to the specified transaction
+     *
+     * @param transactionId The Transaction identifier
+     */
+    @Override
+    public List<Valuation> getValuationsByTransactionId(String transactionId) {
+         List<Valuation> result = null;
+        Map params = new HashMap<String, Object>();   
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, Valuation.QUERY_WHERE_BYTRANSACTIONID);
+        params.put(Valuation.QUERY_PARAMETER_TRANSACTION_ID, transactionId);
+        result
+                = getRepository().getEntityList(Valuation.class, params);
+        return result;
     }
 
     /**
