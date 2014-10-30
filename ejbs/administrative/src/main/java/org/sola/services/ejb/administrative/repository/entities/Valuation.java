@@ -45,7 +45,7 @@ import org.sola.services.ejb.source.businesslogic.SourceEJBLocal;
 import org.sola.services.ejb.source.repository.entities.Source;
 
 /**
- * Entity representing the administrative.ba_unit_type code table.
+ * Entity representing the administrative.valuation table.
  *
  * @author soladev
  */
@@ -54,32 +54,202 @@ public class Valuation extends AbstractVersionedEntity {
 
     @Id
     @Column(name = "id")
-    String id;
+    private String id;
     @Column(name = "nr")
-    String nr;
+    private String nr;
     @Column(name = "ba_unit_id")
-    String baUnitId;
+    private String baUnitId;
     @Redact(minClassification = RolesConstants.CLASSIFICATION_CONFIDENTIAL)
     @Column(name = "amount")
-    BigDecimal amount;
+    private BigDecimal amount;
     @Column(name = "valuation_date")
-    Date valuationDate;
+    private Date valuationDate;
     @Column(name = "type_code")
-    String typeCode;
+    private String typeCode;
     @ExternalEJB(ejbLocalClass = SourceEJBLocal.class,
             loadMethod = "getSources", saveMethod = "saveSource")
     @ChildEntityList(parentIdField = "valuationId", childIdField = "sourceId",
-            manyToManyClass = SourceDescribesRrr.class)
+            manyToManyClass = SourceDescribesValuation.class)
     private List<Source> sourceList;
-    String description;
+    @Column(name = "source")
+    private String source;
+    @Column(name = "description")
+    private String description;
     @Column(name = "transaction_id", updatable = false)
-    String transcationId;
+    private String transcationId;
     @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
-    String classificationCode;
+    private String classificationCode;
     @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
-    String redactCode;
+    private String redactCode;; 
 
     public Valuation() {
         super();
     }
+    
+     public String getId() {
+        id = id == null ? generateId() : id;
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the nr
+     */
+    public String getNr() {
+        return nr;
+    }
+
+    /**
+     * @param nr the nr to set
+     */
+    public void setNr(String nr) {
+        this.nr = nr;
+    }
+
+    /**
+     * @return the baUnitId
+     */
+    public String getBaUnitId() {
+        return baUnitId;
+    }
+
+    /**
+     * @param baUnitId the baUnitId to set
+     */
+    public void setBaUnitId(String baUnitId) {
+        this.baUnitId = baUnitId;
+    }
+
+    /**
+     * @return the amount
+     */
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    /**
+     * @param amount the amount to set
+     */
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    /**
+     * @return the valuationDate
+     */
+    public Date getValuationDate() {
+        return valuationDate;
+    }
+
+    /**
+     * @param valuationDate the valuationDate to set
+     */
+    public void setValuationDate(Date valuationDate) {
+        this.valuationDate = valuationDate;
+    }
+
+    /**
+     * @return the typeCode
+     */
+    public String getTypeCode() {
+        return typeCode;
+    }
+
+    /**
+     * @param typeCode the typeCode to set
+     */
+    public void setTypeCode(String typeCode) {
+        this.typeCode = typeCode;
+    }
+
+    /**
+     * @return the sourceList
+     */
+    public List<Source> getSourceList() {
+        return sourceList;
+    }
+
+    /**
+     * @param sourceList the sourceList to set
+     */
+    public void setSourceList(List<Source> sourceList) {
+        this.sourceList = sourceList;
+    }
+
+    /**
+     * @return the source
+     */
+    public String getSource() {
+        return source;
+    }
+
+    /**
+     * @param source the source to set
+     */
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * @return the transcationId
+     */
+    public String getTranscationId() {
+        return transcationId;
+    }
+
+    /**
+     * @param transcationId the transcationId to set
+     */
+    public void setTranscationId(String transcationId) {
+        this.transcationId = transcationId;
+    }
+
+    /**
+     * @return the classificationCode
+     */
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    /**
+     * @param classificationCode the classificationCode to set
+     */
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    /**
+     * @return the redactCode
+     */
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    /**
+     * @param redactCode the redactCode to set
+     */
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
+    }
+    
+    
 }
