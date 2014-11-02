@@ -214,7 +214,8 @@ public class AdministrativeEJB extends AbstractEJB
     /**
      * Saves any updates to an existing BA Unit. Can also be used to create a
      * new BA Unit, however this method does not set any default values on the
-     * BA Unit like null null null null null null null null null null null null     {@linkplain #createBaUnit(java.lang.String, org.sola.services.ejb.administrative.repository.entities.BaUnit)
+     * BA Unit like null null null null null null null null null null null null
+     * null null     {@linkplain #createBaUnit(java.lang.String, org.sola.services.ejb.administrative.repository.entities.BaUnit)
      * createBaUnit}. Will also create a new Transaction record for the BA Unit
      * if the Service is not already associated to a Transaction.
      *
@@ -241,37 +242,56 @@ public class AdministrativeEJB extends AbstractEJB
         LocalInfo.setTransactionId(transaction.getId());
         return getRepository().saveEntity(baUnit);
     }
-    
-    
+
     /**
-     * Saves any updates to an existing BA Unit. Can also be used to create a
+     * Saves any updates to an existing Valuation. Can also be used to create a
      * new BA Unit, however this method does not set any default values on the
-     * BA Unit like null null null null null null null null null null null null     {@linkplain #createBaUnit(java.lang.String, org.sola.services.ejb.administrative.repository.entities.BaUnit)
-     * createBaUnit}. Will also create a new Transaction record for the BA Unit
-     * if the Service is not already associated to a Transaction.
+     * Valuation like null null null null null null null null null null null
+     * null .It will also create a new Transaction record for the Valuation if
+     * the Service is not already associated to a Transaction.
      *
      * <p>
      * Requires the {@linkplain RolesConstants#ADMINISTRATIVE_BA_UNIT_SAVE}
      * role</p>
      *
-     * @param serviceId The identifier of the Service the BA Unit is being
+     * @param serviceId The identifier of the Service the Valuation is being
      * created as part of
-     * @param baUnitTO The details of the BA Unit to create
-     * @return The updated BA Unit
-     * @see #createBaUnit(java.lang.String,
-     * org.sola.services.ejb.administrative.repository.entities.BaUnit)
-     * createBaUnit
+     * @param valuation The details of the Valuation to create
+     * @return The updated Valuation
      */
     @Override
-    //@RolesAllowed(RolesConstants.ADMINISTRATIVE_BA_UNIT_SAVE)
-    //Valuation RoleConstants.somthing goes here.
-    public Valuation saveValuation(Valuation valuation) {
+    @RolesAllowed(RolesConstants.APPLICATION_EDIT_APPS)
+    public Valuation saveValuation(String serviceId, Valuation valuation) {
         if (valuation == null) {
             return null;
         }
+        TransactionBasic transaction
+                = transactionEJB.getTransactionByServiceId(serviceId, true, TransactionBasic.class);
+        LocalInfo.setTransactionId(transaction.getId());
         return getRepository().saveEntity(valuation);
     }
-    
+
+    /**
+     * Saves a list of valuations that are already associated with a service.
+     *
+     * @param items
+     * @return list of saved valuations.
+     */
+    @Override
+    public List<Valuation> saveValuations(List<Valuation> items) {
+        if (items != null && items.size() > 0) {
+            ListIterator<Valuation> it = items.listIterator();
+            while (it.hasNext()) {
+                Valuation item = it.next();
+                it.remove();
+                Valuation savedItem = getRepository().saveEntity(item);
+                if (savedItem != null) {
+                    it.add(savedItem);
+                }
+            }
+        }
+        return items;
+    }
 
     /**
      * Added for State Land to allow individual BaUnitNotation records to be
@@ -286,7 +306,8 @@ public class AdministrativeEJB extends AbstractEJB
     @Override
     @RolesAllowed({RolesConstants.ADMINISTRATIVE_BA_UNIT_SAVE,
         RolesConstants.ADMINISTRATIVE_NOTATION_SAVE})
-    public BaUnitNotation saveNotation(BaUnitNotation notation) {
+    public BaUnitNotation saveNotation(BaUnitNotation notation
+    ) {
         if (notation == null) {
             return null;
         }
@@ -300,7 +321,8 @@ public class AdministrativeEJB extends AbstractEJB
      * @return The BA Unit details or null if the identifier is invalid.
      */
     @Override
-    public BaUnit getBaUnitById(String id) {
+    public BaUnit getBaUnitById(String id
+    ) {
         BaUnit result = null;
         if (id != null) {
             result = getRepository().getEntity(BaUnit.class, id);
@@ -330,7 +352,8 @@ public class AdministrativeEJB extends AbstractEJB
         RolesConstants.APPLICATION_VALIDATE})
     public List<ValidationResult> approveTransaction(
             String transactionId, String approvedStatus,
-            boolean validateOnly, String languageCode) {
+            boolean validateOnly, String languageCode
+    ) {
         List<ValidationResult> validationResult = new ArrayList<ValidationResult>();
 
         if (!this.isInRole(RolesConstants.APPLICATION_APPROVE)) {
@@ -437,21 +460,21 @@ public class AdministrativeEJB extends AbstractEJB
         params.put(BaUnit.QUERY_PARAMETER_TRANSACTIONID, transactionId);
         return getRepository().getEntityList(BaUnit.class, params);
     }
-    
+
     /**
-     * Returns all Valuations that are associated to the specified transaction
+     * Returns all Valuations that are associated to the specified service
      *
-     * @param transactionId The Transaction identifier
+     * @param serviceId The Service identifier
      */
     @Override
-    public List<Valuation> getValuationsByTransactionId(String transactionId) {
-         List<Valuation> result = null;
-        Map params = new HashMap<String, Object>();   
+    @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
+    public List<Valuation> getValuations(String serviceId) {
+        TransactionBasic transaction
+                = transactionEJB.getTransactionByServiceId(serviceId, false, TransactionBasic.class);
+        Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, Valuation.QUERY_WHERE_BYTRANSACTIONID);
-        params.put(Valuation.QUERY_PARAMETER_TRANSACTION_ID, transactionId);
-        result
-                = getRepository().getEntityList(Valuation.class, params);
-        return result;
+        params.put(Valuation.QUERY_PARAMETER_TRANSACTION_ID, transaction.getId());
+        return getRepository().getEntityList(Valuation.class, params);
     }
 
     /**

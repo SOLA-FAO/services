@@ -36,6 +36,7 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.sola.common.RolesConstants;
+import org.sola.services.common.LocalInfo;
 import org.sola.services.common.repository.ChildEntityList;
 import org.sola.services.common.repository.ExternalEJB;
 import org.sola.services.common.repository.Redact;
@@ -79,7 +80,7 @@ public class Valuation extends AbstractVersionedEntity {
     @Column(name = "description")
     private String description;
     @Column(name = "transaction_id", updatable = false)
-    private String transcationId;
+    private String transactionId;
     @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
     private String classificationCode;
     @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
@@ -215,15 +216,15 @@ public class Valuation extends AbstractVersionedEntity {
     /**
      * @return the transcationId
      */
-    public String getTranscationId() {
-        return transcationId;
+    public String getTransactionId() {
+        return transactionId;
     }
 
     /**
      * @param transcationId the transcationId to set
      */
-    public void setTranscationId(String transcationId) {
-        this.transcationId = transcationId;
+    public void setTransactionId(String transcationId) {
+        this.transactionId = transcationId;
     }
 
     /**
@@ -254,6 +255,14 @@ public class Valuation extends AbstractVersionedEntity {
      */
     public void setRedactCode(String redactCode) {
         this.redactCode = redactCode;
+    }
+    
+    @Override
+    public void preSave() {
+        if (this.isNew()) {
+            setTransactionId(LocalInfo.getTransactionId());
+        }
+        super.preSave();
     }
 
 }
