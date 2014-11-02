@@ -83,6 +83,12 @@ public interface AdministrativeEJBLocal extends AbstractSolaTransactionEJBLocal 
      * AdministrativeEJB.getSourceBaUnitRelationTypes}
      */
     List<SourceBaUnitRelationType> getSourceBaUnitRelationTypes(String languageCode);
+    
+    /**
+     * see {@linkplain AdministrativeEJB#getValuationTypes(java.lang.String)
+     * AdministrativeEJB.getValuationTypes}
+     */
+    List<ValuationType> getValuationTypes(String languageCode);
 
     /**
      * see {@linkplain AdministrativeEJB#getBaUnitById(java.lang.String)

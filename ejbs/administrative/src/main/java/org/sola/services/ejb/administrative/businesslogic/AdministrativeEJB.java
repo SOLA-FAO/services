@@ -167,6 +167,18 @@ public class AdministrativeEJB extends AbstractEJB
     public List<SourceBaUnitRelationType> getSourceBaUnitRelationTypes(String languageCode) {
         return getRepository().getCodeList(SourceBaUnitRelationType.class, languageCode);
     }
+    
+    /**
+     * Retrieves all valuation types.
+     *
+     * @param languageCode The language code to use for localization of display
+     * values.
+     * @return
+     */
+    @Override
+    public List<ValuationType> getValuationTypes(String languageCode) {
+        return getRepository().getCodeList(ValuationType.class, languageCode);
+    }
 
     /**
      * Locates a BA Unit using by matching the first part and last part of the
