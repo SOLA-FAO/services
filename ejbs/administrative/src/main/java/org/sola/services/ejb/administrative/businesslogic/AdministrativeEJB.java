@@ -167,7 +167,7 @@ public class AdministrativeEJB extends AbstractEJB
     public List<SourceBaUnitRelationType> getSourceBaUnitRelationTypes(String languageCode) {
         return getRepository().getCodeList(SourceBaUnitRelationType.class, languageCode);
     }
-    
+
     /**
      * Retrieves all valuation types.
      *
@@ -227,7 +227,7 @@ public class AdministrativeEJB extends AbstractEJB
      * Saves any updates to an existing BA Unit. Can also be used to create a
      * new BA Unit, however this method does not set any default values on the
      * BA Unit like null null null null null null null null null null null null
-     * null null     {@linkplain #createBaUnit(java.lang.String, org.sola.services.ejb.administrative.repository.entities.BaUnit)
+     * null null null     {@linkplain #createBaUnit(java.lang.String, org.sola.services.ejb.administrative.repository.entities.BaUnit)
      * createBaUnit}. Will also create a new Transaction record for the BA Unit
      * if the Service is not already associated to a Transaction.
      *
@@ -257,13 +257,13 @@ public class AdministrativeEJB extends AbstractEJB
 
     /**
      * Saves any updates to an existing Valuation. Can also be used to create a
-     * new BA Unit, however this method does not set any default values on the
+     * new Valuation, however this method does not set any default values on the
      * Valuation like null null null null null null null null null null null
      * null .It will also create a new Transaction record for the Valuation if
      * the Service is not already associated to a Transaction.
      *
      * <p>
-     * Requires the {@linkplain RolesConstants#ADMINISTRATIVE_BA_UNIT_SAVE}
+     * Requires the {@linkplain RolesConstants.APPLICATION_EDIT_APPS}
      * role</p>
      *
      * @param serviceId The identifier of the Service the Valuation is being
@@ -287,10 +287,15 @@ public class AdministrativeEJB extends AbstractEJB
      * Saves a list of valuations that are already associated with a service.
      *
      * @param items
+     * @param serviceId
      * @return list of saved valuations.
      */
     @Override
-    public List<Valuation> saveValuations(List<Valuation> items) {
+    public List<Valuation> saveValuations(List<Valuation> items, String serviceId) {
+        if (serviceId != null) {
+            TransactionBasic transaction = transactionEJB.createTransaction(serviceId, TransactionBasic.class);
+            LocalInfo.setTransactionId(transaction.getId());
+         } 
         if (items != null && items.size() > 0) {
             ListIterator<Valuation> it = items.listIterator();
             while (it.hasNext()) {
