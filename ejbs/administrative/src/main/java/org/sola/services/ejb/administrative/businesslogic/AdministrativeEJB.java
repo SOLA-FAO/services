@@ -284,16 +284,20 @@ public class AdministrativeEJB extends AbstractEJB
     }
 
     /**
-     * Saves a list of valuations that are already associated with a service.
-     *
+     * Used to save a list of valuations. Can also be used to save a single valuation
+     * if the items list contains 1 valuation element. If the passed argument
+     * serviceId is not null a new transaction is created if one is not already associated 
+     * associated with this list.
+     * 
      * @param items
      * @param serviceId
      * @return list of saved valuations.
      */
     @Override
+    @RolesAllowed(RolesConstants.APPLICATION_EDIT_APPS)
     public List<Valuation> saveValuations(List<Valuation> items, String serviceId) {
         if (serviceId != null) {
-            TransactionBasic transaction = transactionEJB.createTransaction(serviceId, TransactionBasic.class);
+            TransactionBasic transaction = transactionEJB.getTransactionByServiceId(serviceId, true, TransactionBasic.class);
             LocalInfo.setTransactionId(transaction.getId());
          } 
         if (items != null && items.size() > 0) {
