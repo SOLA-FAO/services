@@ -181,6 +181,12 @@ public interface SystemEJBLocal extends AbstractEJBLocal {
     List<EmailTask> getEmailsToSend();
     
     /**
+     * See {@linkplain SystemEJB#getEmails()
+     * SystemEJB.getEmails
+     */
+    List<EmailTask> getEmails();
+    
+    /**
      * See {@linkplain SystemEJB#saveEmailTask(EmailTask)
      * SystemEJB.saveEmailTask
      */

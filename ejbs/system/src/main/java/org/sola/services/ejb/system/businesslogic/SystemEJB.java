@@ -541,6 +541,14 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
     }
 
     /**
+     * Returns all email tasks
+     */
+    @Override
+    public List<EmailTask> getEmails(){
+        return getRepository().getEntityList(EmailTask.class);
+    }
+    
+    /**
      * Saves email task.
      *
      * @param emailTask Email task to save

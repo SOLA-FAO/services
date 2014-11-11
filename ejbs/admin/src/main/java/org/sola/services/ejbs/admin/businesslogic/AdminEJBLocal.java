@@ -30,6 +30,7 @@ package org.sola.services.ejbs.admin.businesslogic;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import org.apache.ibatis.session.Configuration;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Role;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.User;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Group;
@@ -47,6 +48,11 @@ public interface AdminEJBLocal {
      */
     List<User> getUsers();
 
+    /**
+     * See {@linkplain AdminEJB#getDbConfiguration()}
+     */
+    Configuration getDbConfiguration();
+    
     /**
      * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#getUser(java.lang.String)
      * AdminEJB.getUser}

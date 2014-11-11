@@ -51,6 +51,8 @@ public interface CommonRepository {
      */
     public static final String CONNECT_CONFIG_FILE_NAME = "mybatisConnectionConfig.xml";
 
+    DatabaseConnectionManager getDbConnectionManager();
+    
     void setDbConnectionManager(DatabaseConnectionManager dbConnectionManager);
 
     <T extends AbstractEntity> T saveEntity(T entity);

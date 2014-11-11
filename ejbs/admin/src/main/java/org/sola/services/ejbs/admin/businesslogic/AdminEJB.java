@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,9 +43,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
-import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.Configuration;
 import org.sola.common.ConfigConstants;
 import org.sola.common.DateUtility;
 import org.sola.common.EmailVariables;
@@ -94,7 +92,14 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     public List<User> getUsers() {
         return getRepository().getEntityList(User.class);
     }
-
+    
+    /** Returns database configuration related to the EJB. */
+    @RolesAllowed(RolesConstants.ADMIN_MANAGE_SETTINGS)
+    @Override
+    public Configuration getDbConfiguration() {
+        return getRepository().getDbConnectionManager().getSqlSessionFactory().getConfiguration();
+    }
+    
     /**
      * Returns the details of the user with the specified user name.
      *

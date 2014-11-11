@@ -86,6 +86,7 @@ public class CommonRepositoryImpl implements CommonRepository {
      * Returns the {@linkplain DatabaseConnectionManager} used for this instance
      * of the repository.
      */
+    @Override
     public DatabaseConnectionManager getDbConnectionManager() {
         return dbConnectionManager;
     }
