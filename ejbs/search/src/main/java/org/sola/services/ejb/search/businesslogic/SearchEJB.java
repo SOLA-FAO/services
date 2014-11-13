@@ -722,6 +722,8 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(BaUnitSearchResult.QUERY_PARAM_RRR_TYPE_CODE, searchParams.getRrrTypeCode());
         params.put(BaUnitSearchResult.QUERY_PARAM_RRR_SUB_TYPE_CODE, searchParams.getRrrSubTypeCode());
         params.put(BaUnitSearchResult.QUERY_PARAM_USER_NAME, getUserName());
+        params.put(BaUnitSearchResult.QUERY_PARAM_APPLICATION_NR, searchParams.getApplicationNr());
+        params.put(BaUnitSearchResult.QUERY_PARAM_APPLICATION_ID, searchParams.getApplicationId());
         return getRepository().getEntityList(BaUnitSearchResult.class, params);
     }
 

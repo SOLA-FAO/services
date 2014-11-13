@@ -49,6 +49,8 @@ public class BaUnitSearchParams extends AbstractEntity {
     private String description;
     private String rrrTypeCode; 
     private String rrrSubTypeCode; 
+    private String applicationNr; 
+    private String applicationId; 
 
     public BaUnitSearchParams() {
         super();
@@ -164,6 +166,22 @@ public class BaUnitSearchParams extends AbstractEntity {
 
     public void setRrrSubTypeCode(String rrrSubTypeCode) {
         this.rrrSubTypeCode = rrrSubTypeCode;
+    }
+
+    public String getApplicationNr() {
+        return applicationNr;
+    }
+
+    public void setApplicationNr(String applicationNr) {
+        this.applicationNr = applicationNr;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
     }
 
     /**

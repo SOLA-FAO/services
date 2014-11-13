@@ -37,11 +37,11 @@ import org.sola.services.common.repository.entities.AbstractCodeEntity;
  *
  * @author soladev
  */
-@Table(name = "public_display_type", schema = "application")
+@Table(name = "notify_relationship_type", schema = "application")
 @DefaultSorter(sortString = "display_value")
-public class PublicDisplayItemType extends AbstractCodeEntity {
+public class NotifyRelationshipType extends AbstractCodeEntity {
 
-    public PublicDisplayItemType() {
+    public NotifyRelationshipType() {
         super();
     }
 

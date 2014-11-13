@@ -30,6 +30,7 @@
 package org.sola.services.ejb.application.repository.entities;
 
 import javax.persistence.Table;
+import org.sola.services.common.repository.DefaultSorter;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
 
 /**
@@ -37,6 +38,7 @@ import org.sola.services.common.repository.entities.AbstractCodeEntity;
  * @author soladev
  */
 @Table(name = "public_display_status", schema = "application")
+@DefaultSorter(sortString = "display_value")
 public class PublicDisplayItemStatus extends AbstractCodeEntity {
 
     public PublicDisplayItemStatus() {

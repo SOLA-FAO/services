@@ -50,6 +50,8 @@ public class BaUnitSearchResult extends AbstractReadOnlyEntity {
     public static final String QUERY_PARAM_RRR_TYPE_CODE = "rrrTypeCode";
     public static final String QUERY_PARAM_RRR_SUB_TYPE_CODE = "rrrSubTypeCode";
     public static final String QUERY_PARAM_USER_NAME = "userName";
+    public static final String QUERY_PARAM_APPLICATION_NR = "appNr";
+    public static final String QUERY_PARAM_APPLICATION_ID = "appId";
     public static final String QUERY_ORDER_BY = "prop.name_firstpart, prop.name_lastpart";
 
     @Id

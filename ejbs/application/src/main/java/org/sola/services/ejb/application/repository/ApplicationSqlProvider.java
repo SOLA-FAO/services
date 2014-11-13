@@ -29,7 +29,7 @@
  */
 package org.sola.services.ejb.application.repository;
 
-import org.apache.ibatis.jdbc.SqlBuilder.*;
+import org.apache.ibatis.jdbc.SqlBuilder;
 import static org.apache.ibatis.jdbc.SqlBuilder.*;
 
 /**
@@ -42,6 +42,7 @@ public class ApplicationSqlProvider {
 
     public static final String PARAM_SERVICE_ID = "serviceId";
     public static final String PARAM_USERNAME = "userName";
+    public static final String PARAM_BA_UNIT_ID = "baUnitId";
 
     /**
      * Creates an Insert statement for the application_spatial_unit table based
@@ -66,6 +67,50 @@ public class ApplicationSqlProvider {
         String sql = SQL();
         sql = "INSERT INTO application.application_spatial_unit"
                 + " (spatial_unit_id, application_id, change_user) " + sql;
+        return sql;
+    }
+
+    /**
+     * Creates a SQL statement to retrieve notification parties based on the
+     * underlying titles for a State Land property
+     */
+    public static String buildSelectNotificationPartiesSql(boolean isCurrent) {
+        BEGIN();
+        SELECT("DISTINCT #{" + PARAM_SERVICE_ID + "} AS service_id");
+        SELECT("pfr.party_id AS party_id");
+        SELECT("CASE WHEN r.is_primary THEN 'owner' "
+                + "  WHEN r.type_code = 'occupation' THEN 'occupier' "
+                + "  ELSE 'rightholder' END AS relationship_type_code");
+        SELECT("ba.id AS description");
+        FROM("administrative.ba_unit ba");
+        FROM("administrative.rrr r");
+        FROM("administrative.party_for_rrr pfr");
+        WHERE("r.ba_unit_id = ba.id");
+        WHERE("r.status_code = ba.status_code");
+        WHERE("pfr.rrr_id = r.id");
+        if (isCurrent) {
+            // This is a current Ba Unit, so reference the parties linked to it
+            WHERE("ba.id = #{" + PARAM_BA_UNIT_ID + "}");
+        } else {
+            // This is a pending Ba Unit that may have current underlying titles.
+            // Use the details of the underlying title to identify the notification parties
+            FROM("administrative.required_relationship_baunit req");
+            WHERE("req.to_ba_unit_id = #{" + PARAM_BA_UNIT_ID + "}");
+            WHERE("req.relation_code = 'underlyingTitle'");
+            WHERE("ba.id = req.from_ba_unit_id");
+        }
+        WHERE("NOT EXISTS (SELECT n.party_id"
+                + "        FROM   application.notify n "
+                + "        WHERE  n.party_id = pfr.party_id"
+                + "        AND    n.service_id = #{" + PARAM_SERVICE_ID + "}"
+                + "        UNION "
+                + "        SELECT nh.party_id"
+                + "        FROM   application.notify_historic nh "
+                + "        WHERE  nh.party_id = pfr.party_id "
+                + "        AND    nh.change_action = 'd' "
+                + "        AND    nh.service_id = #{" + PARAM_SERVICE_ID + "})");
+
+        String sql = SqlBuilder.SQL();
         return sql;
     }
 }

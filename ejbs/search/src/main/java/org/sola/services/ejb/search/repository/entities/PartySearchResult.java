@@ -34,7 +34,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.sola.common.messaging.ServiceMessage;
-import org.sola.services.common.repository.AccessFunctions;
 import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.common.repository.Redact;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;

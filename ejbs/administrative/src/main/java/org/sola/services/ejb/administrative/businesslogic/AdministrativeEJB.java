@@ -214,7 +214,8 @@ public class AdministrativeEJB extends AbstractEJB
     /**
      * Saves any updates to an existing BA Unit. Can also be used to create a
      * new BA Unit, however this method does not set any default values on the
-     * BA Unit like null null null null null null null null null null null null     {@linkplain #createBaUnit(java.lang.String, org.sola.services.ejb.administrative.repository.entities.BaUnit)
+     * BA Unit like null null null null null null null null null null null null
+     * null null null     {@linkplain #createBaUnit(java.lang.String, org.sola.services.ejb.administrative.repository.entities.BaUnit)
      * createBaUnit}. Will also create a new Transaction record for the BA Unit
      * if the Service is not already associated to a Transaction.
      *
@@ -751,5 +752,29 @@ public class AdministrativeEJB extends AbstractEJB
             }
             getRepository().clearLoadInhibitors();
         }
+    }
+
+    /**
+     * Returns a list of ba units matching the supplied ids.
+     * <p>
+     * No role is required to execute this method.</p>
+     *
+     * @param baUnitIds The list of baUnit ids
+     */
+    @Override
+    public List<BaUnitBasic> getSummaryBaUnits(List<String> baUnitIds) {
+        return getRepository().getEntityListByIds(BaUnitBasic.class, baUnitIds);
+    }
+
+    /**
+     * Returns a summary ba unit matching the supplied id.
+     * <p>
+     * No role is required to execute this method.</p>
+     *
+     * @param baUnitId The id of the BA Unit
+     */
+    @Override
+    public BaUnitBasic getSummaryBaUnit(String baUnitId) {
+        return getRepository().getEntity(BaUnitBasic.class, baUnitId);
     }
 }
