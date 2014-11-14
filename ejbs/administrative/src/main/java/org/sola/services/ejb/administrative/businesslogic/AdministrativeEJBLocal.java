@@ -219,4 +219,16 @@ public interface AdministrativeEJBLocal extends AbstractSolaTransactionEJBLocal 
      * AdministrativeEJB.assignTeam}.
      */
     void assignTeam(List<BaUnitBasic> properties, String teamId);
+
+    /**
+     * See {@linkplain AdministrativeEJB#getSummaryBaUnits(java.util.List)
+     * AdministrativeEJB.getSummaryBaUnits}.
+     */
+    List<BaUnitBasic> getSummaryBaUnits(List<String> baUnitIds);
+
+    /**
+     * See {@linkplain AdministrativeEJB#getSummaryBaUnit(java.lang.String)
+     * AdministrativeEJB.getSummaryBaUnit}.
+     */
+    BaUnitBasic getSummaryBaUnit(String baUnitId);
 }

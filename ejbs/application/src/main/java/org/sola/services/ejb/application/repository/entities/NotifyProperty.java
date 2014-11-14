@@ -29,20 +29,43 @@
  */
 package org.sola.services.ejb.application.repository.entities;
 
+import javax.persistence.Column;
+import javax.persistence.Id;
 import javax.persistence.Table;
-import org.sola.services.common.repository.DefaultSorter;
-import org.sola.services.common.repository.entities.AbstractCodeEntity;
+import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 
 /**
+ * Entity representing the application.notify_property table.
  *
  * @author soladev
  */
-@Table(name = "public_display_type", schema = "application")
-@DefaultSorter(sortString = "display_value")
-public class PublicDisplayItemType extends AbstractCodeEntity {
+@Table(name = "notify_property", schema = "application")
+public class NotifyProperty extends AbstractVersionedEntity {
 
-    public PublicDisplayItemType() {
+    @Id
+    @Column(name = "notify_id")
+    private String notifyId;
+    @Id
+    @Column(name = "ba_unit_id")
+    private String baUnitId;
+
+    public NotifyProperty() {
         super();
     }
 
+    public String getNotifyId() {
+        return notifyId;
+    }
+
+    public void setNotifyId(String notifyId) {
+        this.notifyId = notifyId;
+    }
+
+    public String getBaUnitId() {
+        return baUnitId;
+    }
+
+    public void setBaUnitId(String baUnitId) {
+        this.baUnitId = baUnitId;
+    }
 }

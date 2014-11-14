@@ -27,10 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.sola.services.ejb.administrative.repository.entities;
 
 import javax.persistence.Column;
@@ -61,6 +57,13 @@ public class BaUnitBasic extends AbstractReadOnlyEntity {
     private String description;
     @Column(name = "rowversion")
     private int rowVersion;
+    @Column(insertable = false, updatable = false, name = "state_land_status_code")
+    @AccessFunctions(onSelect = "administrative.get_state_land_status(id)")
+    private String stateLandStatusCode;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    private String classificationCode;
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
 
     public BaUnitBasic() {
         super();
@@ -80,11 +83,7 @@ public class BaUnitBasic extends AbstractReadOnlyEntity {
     }
 
     public void setStatusCode(String statusCode) {
-        // Prevent changes to the status code if the value has been loaded from the database. 
-        // Updates to the status code are made via the BaUnitStatusChanger
-        if (isNew()) {
-            this.statusCode = statusCode;
-        }
+        this.statusCode = statusCode;
     }
 
     public String getTransactionId() {
@@ -92,10 +91,7 @@ public class BaUnitBasic extends AbstractReadOnlyEntity {
     }
 
     public void setTransactionId(String transactionId) {
-        // Prevent changes to the transaction id if the value has been loaded from the database.
-        if (isNew()) {
-            this.transactionId = transactionId;
-        }
+        this.transactionId = transactionId;
     }
 
     public String getName() {
@@ -146,4 +142,29 @@ public class BaUnitBasic extends AbstractReadOnlyEntity {
         this.rowVersion = rowVersion;
     }
 
+    public String getStateLandStatusCode() {
+        return stateLandStatusCode;
+    }
+
+    public void setStateLandStatusCode(String stateLandStatusCode) {
+        this.stateLandStatusCode = stateLandStatusCode;
+    }
+
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
+    }
 }

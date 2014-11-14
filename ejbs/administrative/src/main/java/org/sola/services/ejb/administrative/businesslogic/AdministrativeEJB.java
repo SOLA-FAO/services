@@ -843,4 +843,28 @@ public class AdministrativeEJB extends AbstractEJB
             getRepository().clearLoadInhibitors();
         }
     }
+
+    /**
+     * Returns a list of ba units matching the supplied ids.
+     * <p>
+     * No role is required to execute this method.</p>
+     *
+     * @param baUnitIds The list of baUnit ids
+     */
+    @Override
+    public List<BaUnitBasic> getSummaryBaUnits(List<String> baUnitIds) {
+        return getRepository().getEntityListByIds(BaUnitBasic.class, baUnitIds);
+    }
+
+    /**
+     * Returns a summary ba unit matching the supplied id.
+     * <p>
+     * No role is required to execute this method.</p>
+     *
+     * @param baUnitId The id of the BA Unit
+     */
+    @Override
+    public BaUnitBasic getSummaryBaUnit(String baUnitId) {
+        return getRepository().getEntity(BaUnitBasic.class, baUnitId);
+    }
 }

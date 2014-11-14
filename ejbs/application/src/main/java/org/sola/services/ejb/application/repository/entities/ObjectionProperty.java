@@ -29,20 +29,44 @@
  */
 package org.sola.services.ejb.application.repository.entities;
 
+import javax.persistence.Column;
+import javax.persistence.Id;
 import javax.persistence.Table;
-import org.sola.services.common.repository.DefaultSorter;
-import org.sola.services.common.repository.entities.AbstractCodeEntity;
+import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
+import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 
 /**
+ * Entity representing the application.objection_property table.
  *
  * @author soladev
  */
-@Table(name = "public_display_type", schema = "application")
-@DefaultSorter(sortString = "display_value")
-public class PublicDisplayItemType extends AbstractCodeEntity {
+@Table(name = "objection_property", schema = "application")
+public class ObjectionProperty extends AbstractVersionedEntity {
 
-    public PublicDisplayItemType() {
+    @Id
+    @Column(name = "objection_id")
+    private String objectionId;
+    @Id
+    @Column(name = "ba_unit_id")
+    private String baUnitId;
+
+    public ObjectionProperty() {
         super();
     }
 
+    public String getObjectionId() {
+        return objectionId;
+    }
+
+    public void setObjectionId(String objectionId) {
+        this.objectionId = objectionId;
+    }
+
+    public String getBaUnitId() {
+        return baUnitId;
+    }
+
+    public void setBaUnitId(String baUnitId) {
+        this.baUnitId = baUnitId;
+    }
 }

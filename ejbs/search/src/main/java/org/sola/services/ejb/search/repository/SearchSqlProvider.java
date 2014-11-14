@@ -482,7 +482,7 @@ public class SearchSqlProvider {
             FROM("administrative.rrr rrr LEFT OUTER JOIN administrative.notation n ON n.rrr_id = rrr.id");
             WHERE("rrr.ba_unit_id = prop.id");
             WHERE("rrr.status_code = 'current'");
-            WHERE("system.has_security_clearance(#{" + BaUnitSearchResult.QUERY_PARAM_USER_NAME + "}, rrr.classification_code)"); 
+            WHERE("system.has_security_clearance(#{" + BaUnitSearchResult.QUERY_PARAM_USER_NAME + "}, rrr.classification_code)");
         }
 
         if (!StringUtility.isEmpty(params.getOwnerName())) {
@@ -579,6 +579,56 @@ public class SearchSqlProvider {
                 criteriaProvided = true;
                 WHERE("rrr.sub_type_code = #{" + BaUnitSearchResult.QUERY_PARAM_RRR_SUB_TYPE_CODE + "}");
             }
+        }
+
+        if (!StringUtility.isEmpty(params.getApplicationId()) || !StringUtility.isEmpty(params.getApplicationNr())) {
+            criteriaProvided = true;
+            // Build the nested query string for the application id and application nr criteria
+            String nestedQuery
+                    = " WITH app_tmp AS ( "
+                    + " SELECT a.id AS app_id, t.id AS trans_id "
+                    + " FROM application.application a, "
+                    + "      application.service ser, "
+                    + "      transaction.transaction t "
+                    + " WHERE ser.application_id = a.id "
+                    + " AND   t.from_service_id = ser.id ";
+            // Add the criteria into the query
+            if (!StringUtility.isEmpty(params.getApplicationNr())) {
+                nestedQuery += " AND compare_strings(#{" + BaUnitSearchResult.QUERY_PARAM_APPLICATION_NR
+                        + "}, COALESCE(a.nr, ''))";
+            }
+            if (!StringUtility.isEmpty(params.getApplicationId())) {
+                nestedQuery += " AND a.id = #{" + BaUnitSearchResult.QUERY_PARAM_APPLICATION_ID + "}";
+            }
+            nestedQuery += " )";
+            // Build the links to the tables related to application that may reference property
+            nestedQuery += "  SELECT ap.ba_unit_id "
+                    + " FROM application.application_property ap, "
+                    + " app_tmp "
+                    + " WHERE ap.application_id = app_tmp.app_id "
+                    + " AND   ap.ba_unit_id IS NOT NULL "
+                    + " UNION "
+                    + " SELECT ba_app.id "
+                    + " FROM administrative.ba_unit ba_app, "
+                    + " app_tmp "
+                    + " WHERE ba_app.transaction_id = app_tmp.trans_id "
+                    + " UNION "
+                    + " SELECT ba_tar.ba_unit_id "
+                    + " FROM administrative.ba_unit_target ba_tar, "
+                    + " app_tmp "
+                    + " WHERE ba_tar.transaction_id = app_tmp.trans_id "
+                    + " UNION "
+                    + " SELECT r_app.ba_unit_id "
+                    + " FROM administrative.rrr r_app, "
+                    + " app_tmp "
+                    + " WHERE r_app.transaction_id = app_tmp.trans_id "
+                    + " UNION "
+                    + " SELECT n_app.ba_unit_id "
+                    + " FROM administrative.notation n_app, "
+                    + " app_tmp "
+                    + " WHERE n_app.transaction_id = app_tmp.trans_id ";
+
+            WHERE("prop.id IN (" + nestedQuery + ")");
         }
 
         if (!criteriaProvided) {

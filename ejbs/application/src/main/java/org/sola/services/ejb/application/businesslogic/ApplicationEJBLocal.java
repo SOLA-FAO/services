@@ -314,4 +314,34 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
      * ApplicationEJB.getPublicDisplayItems}.
      */
     List<PublicDisplayItem> getPublicDisplayItems(String serviceId);
+
+    /**
+     * See {@linkplain ApplicationEJB#savePublicDisplayItems(java.util.List)
+     * ApplicationEJB.savePublicDisplayItems}.
+     */
+    List<PublicDisplayItem> savePublicDisplayItems(List<PublicDisplayItem> items);
+
+    /**
+     * See {@linkplain ApplicationEJB#getObjections(java.lang.String)
+     * ApplicationEJB.getObjections}.
+     */
+    List<Objection> getObjections(String serviceId);
+
+    /**
+     * See {@linkplain ApplicationEJB#saveObjections(java.util.List)
+     * ApplicationEJB.saveObjections}.
+     */
+    List<Objection> saveObjections(List<Objection> objections);
+
+    /**
+     * See {@linkplain ApplicationEJB#getNotifyParties(java.lang.String, boolean) 
+     * ApplicationEJB.getNotifyParties}.
+     */
+    List<Notify> getNotifyParties(String serviceId, boolean generateParties);
+
+    /**
+     * See {@linkplain ApplicationEJB#saveNotifyParties(java.util.List)
+     * ApplicationEJB.saveNotifyParties}.
+     */
+    List<Notify> saveNotifyParties(List<Notify> notifyParties);
 }

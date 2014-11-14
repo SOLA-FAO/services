@@ -37,11 +37,11 @@ import org.sola.services.common.repository.entities.AbstractCodeEntity;
  *
  * @author soladev
  */
-@Table(name = "public_display_type", schema = "application")
+@Table(name = "objection_status", schema = "application")
 @DefaultSorter(sortString = "display_value")
-public class PublicDisplayItemType extends AbstractCodeEntity {
+public class ObjectionStatus extends AbstractCodeEntity {
 
-    public PublicDisplayItemType() {
+    public ObjectionStatus() {
         super();
     }
 
