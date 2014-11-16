@@ -42,6 +42,7 @@ import org.sola.services.common.repository.ExternalEJB;
 import org.sola.services.common.repository.Redact;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
+import org.sola.services.ejb.administrative.businesslogic.AdministrativeEJBLocal;
 import org.sola.services.ejb.source.businesslogic.SourceEJBLocal;
 import org.sola.services.ejb.source.repository.entities.Source;
 
@@ -75,6 +76,10 @@ public class Valuation extends AbstractVersionedEntity {
     @ChildEntityList(parentIdField = "valuationId", childIdField = "sourceId",
             manyToManyClass = SourceDescribesValuation.class)
     private List<Source> sourceList;
+    @ExternalEJB(ejbLocalClass = AdministrativeEJBLocal.class, loadMethod = "getSummaryBaUnits")
+    @ChildEntityList(parentIdField = "valuationId", childIdField = "baUnitId",
+            manyToManyClass = ValuationProperty.class, readOnly = true)
+    private List<BaUnitBasic> propertyList;
     @Column(name = "source")
     private String source;
     @Column(name = "description")
@@ -255,6 +260,14 @@ public class Valuation extends AbstractVersionedEntity {
      */
     public void setRedactCode(String redactCode) {
         this.redactCode = redactCode;
+    }
+    
+    public void setPropertyList(List<BaUnitBasic> propertyList) {
+        this.propertyList = propertyList;
+    }
+
+    public List<BaUnitBasic> getPropertyList() {
+        return propertyList;
     }
     
     @Override
