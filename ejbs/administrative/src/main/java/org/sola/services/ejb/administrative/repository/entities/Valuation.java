@@ -37,6 +37,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import org.sola.common.RolesConstants;
 import org.sola.services.common.LocalInfo;
+import org.sola.services.common.repository.ChildEntity;
 import org.sola.services.common.repository.ChildEntityList;
 import org.sola.services.common.repository.ExternalEJB;
 import org.sola.services.common.repository.Redact;
@@ -76,10 +77,8 @@ public class Valuation extends AbstractVersionedEntity {
     @ChildEntityList(parentIdField = "valuationId", childIdField = "sourceId",
             manyToManyClass = SourceDescribesValuation.class)
     private List<Source> sourceList;
-    @ExternalEJB(ejbLocalClass = AdministrativeEJBLocal.class, loadMethod = "getSummaryBaUnits")
-    @ChildEntityList(parentIdField = "valuationId", childIdField = "baUnitId",
-            manyToManyClass = ValuationProperty.class, readOnly = true)
-    private List<BaUnitBasic> propertyList;
+     @ChildEntity(childIdField = "baUnitId", readOnly=true)
+    private BaUnitBasic baUnitBasic;
     @Column(name = "source")
     private String source;
     @Column(name = "description")
@@ -261,14 +260,16 @@ public class Valuation extends AbstractVersionedEntity {
     public void setRedactCode(String redactCode) {
         this.redactCode = redactCode;
     }
-    
-    public void setPropertyList(List<BaUnitBasic> propertyList) {
-        this.propertyList = propertyList;
+
+    public BaUnitBasic getBaUnitBasic() {
+        return baUnitBasic;
     }
 
-    public List<BaUnitBasic> getPropertyList() {
-        return propertyList;
+    public void setBaUnitBasic(BaUnitBasic baUnitBasic) {
+        this.baUnitBasic = baUnitBasic;
     }
+    
+   
     
     @Override
     public void preSave() {
