@@ -55,7 +55,7 @@ public class SourceDescribesValuation extends AbstractVersionedEntity {
         super();
     }
 
-    public String geValuationId() {
+    public String getValuationId() {
         return valuationId;
     }
 

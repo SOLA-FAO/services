@@ -491,7 +491,7 @@ public class AdministrativeEJB extends AbstractEJB
     @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
     public List<Valuation> getValuations(String serviceId) {
         TransactionBasic transaction
-                = transactionEJB.getTransactionByServiceId(serviceId, false, TransactionBasic.class);
+                = transactionEJB.getTransactionByServiceId(serviceId, true, TransactionBasic.class);
         Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, Valuation.QUERY_WHERE_BYTRANSACTIONID);
         params.put(Valuation.QUERY_PARAMETER_TRANSACTION_ID, transaction.getId());
