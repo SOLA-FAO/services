@@ -83,6 +83,12 @@ public interface AdministrativeEJBLocal extends AbstractSolaTransactionEJBLocal 
      * AdministrativeEJB.getSourceBaUnitRelationTypes}
      */
     List<SourceBaUnitRelationType> getSourceBaUnitRelationTypes(String languageCode);
+    
+    /**
+     * see {@linkplain AdministrativeEJB#getValuationTypes(java.lang.String)
+     * AdministrativeEJB.getValuationTypes}
+     */
+    List<ValuationType> getValuationTypes(String languageCode);
 
     /**
      * see {@linkplain AdministrativeEJB#getBaUnitById(java.lang.String)
@@ -109,6 +115,20 @@ public interface AdministrativeEJBLocal extends AbstractSolaTransactionEJBLocal 
      * AdministrativeEJB.saveBaUnit}
      */
     BaUnit saveBaUnit(String serviceId, BaUnit baUnit);
+    
+      /**
+     * See {@linkplain AdministrativeEJB#saveValuation(java.lang.String,
+     * org.sola.services.ejb.administrative.repository.entities.Valuation)
+     * AdministrativeEJB.saveValuation}
+     */
+    Valuation saveValuation(String serviceId, Valuation valuation);
+    
+      /**
+     * See {@linkplain AdministrativeEJB#saveValuations(
+     * java.util.List<org.sola.services.ejb.administrative.repository.entities.Valuation>, java.lang.String serviceId)
+     * AdministrativeEJB.saveValuations}
+     */
+    List<Valuation> saveValuations(List<Valuation> listOfValuations, String serviceId);
 
     /**
      * See {@linkplain AdministrativeEJB#saveNotation(
@@ -122,6 +142,12 @@ public interface AdministrativeEJBLocal extends AbstractSolaTransactionEJBLocal 
      * AdministrativeEJB.getBaUnitsByTransactionId}
      */
     List<BaUnit> getBaUnitsByTransactionId(String transactionId);
+    
+     /**
+     * See {@link AdministrativeEJB#getValuations(java.lang.String) AdministrativeEJB.getValuations}
+     */
+    List<Valuation> getValuations(String serviceId);
+    
 
     /**
      * See {@linkplain AdministrativeEJB#getBaUnitRelTypes(java.lang.String)

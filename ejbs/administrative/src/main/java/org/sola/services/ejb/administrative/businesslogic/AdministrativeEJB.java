@@ -169,6 +169,18 @@ public class AdministrativeEJB extends AbstractEJB
     }
 
     /**
+     * Retrieves all valuation types.
+     *
+     * @param languageCode The language code to use for localization of display
+     * values.
+     * @return
+     */
+    @Override
+    public List<ValuationType> getValuationTypes(String languageCode) {
+        return getRepository().getCodeList(ValuationType.class, languageCode);
+    }
+
+    /**
      * Locates a BA Unit using by matching the first part and last part of the
      * BA Unit name. First part and last part must be an exact match.
      *
@@ -244,6 +256,65 @@ public class AdministrativeEJB extends AbstractEJB
     }
 
     /**
+     * Saves any updates to an existing Valuation. Can also be used to create a
+     * new Valuation, however this method does not set any default values on the
+     * Valuation like null null null null null null null null null null null
+     * null .It will also create a new Transaction record for the Valuation if
+     * the Service is not already associated to a Transaction.
+     *
+     * <p>
+     * Requires the {@linkplain RolesConstants.APPLICATION_EDIT_APPS}
+     * role</p>
+     *
+     * @param serviceId The identifier of the Service the Valuation is being
+     * created as part of
+     * @param valuation The details of the Valuation to create
+     * @return The updated Valuation
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_EDIT_APPS)
+    public Valuation saveValuation(String serviceId, Valuation valuation) {
+        if (valuation == null) {
+            return null;
+        }
+        TransactionBasic transaction
+                = transactionEJB.getTransactionByServiceId(serviceId, true, TransactionBasic.class);
+        LocalInfo.setTransactionId(transaction.getId());
+        return getRepository().saveEntity(valuation);
+    }
+
+    /**
+     * Used to save a list of valuations. Can also be used to save a single valuation
+     * if the items list contains 1 valuation element. If the passed argument
+     * serviceId is not null a new transaction is created if one is not already associated 
+     * associated with this list.
+     * 
+     * @param items
+     * @param serviceId
+     * @return list of saved valuations.
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_EDIT_APPS)
+    public List<Valuation> saveValuations(List<Valuation> items, String serviceId) {
+        if (serviceId != null) {
+            TransactionBasic transaction = transactionEJB.getTransactionByServiceId(serviceId, true, TransactionBasic.class);
+            LocalInfo.setTransactionId(transaction.getId());
+         } 
+        if (items != null && items.size() > 0) {
+            ListIterator<Valuation> it = items.listIterator();
+            while (it.hasNext()) {
+                Valuation item = it.next();
+                it.remove();
+                Valuation savedItem = getRepository().saveEntity(item);
+                if (savedItem != null) {
+                    it.add(savedItem);
+                }
+            }
+        }
+        return items;
+    }
+
+    /**
      * Added for State Land to allow individual BaUnitNotation records to be
      * saved.
      * <p>
@@ -256,7 +327,8 @@ public class AdministrativeEJB extends AbstractEJB
     @Override
     @RolesAllowed({RolesConstants.ADMINISTRATIVE_BA_UNIT_SAVE,
         RolesConstants.ADMINISTRATIVE_NOTATION_SAVE})
-    public BaUnitNotation saveNotation(BaUnitNotation notation) {
+    public BaUnitNotation saveNotation(BaUnitNotation notation
+    ) {
         if (notation == null) {
             return null;
         }
@@ -270,7 +342,8 @@ public class AdministrativeEJB extends AbstractEJB
      * @return The BA Unit details or null if the identifier is invalid.
      */
     @Override
-    public BaUnit getBaUnitById(String id) {
+    public BaUnit getBaUnitById(String id
+    ) {
         BaUnit result = null;
         if (id != null) {
             result = getRepository().getEntity(BaUnit.class, id);
@@ -300,7 +373,8 @@ public class AdministrativeEJB extends AbstractEJB
         RolesConstants.APPLICATION_VALIDATE})
     public List<ValidationResult> approveTransaction(
             String transactionId, String approvedStatus,
-            boolean validateOnly, String languageCode) {
+            boolean validateOnly, String languageCode
+    ) {
         List<ValidationResult> validationResult = new ArrayList<ValidationResult>();
 
         if (!this.isInRole(RolesConstants.APPLICATION_APPROVE)) {
@@ -406,6 +480,22 @@ public class AdministrativeEJB extends AbstractEJB
         params.put(CommonSqlProvider.PARAM_WHERE_PART, BaUnit.QUERY_WHERE_BY_TRANSACTION_ID_EXTENDED);
         params.put(BaUnit.QUERY_PARAMETER_TRANSACTIONID, transactionId);
         return getRepository().getEntityList(BaUnit.class, params);
+    }
+
+    /**
+     * Returns all Valuations that are associated to the specified service
+     *
+     * @param serviceId The Service identifier
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
+    public List<Valuation> getValuations(String serviceId) {
+        TransactionBasic transaction
+                = transactionEJB.getTransactionByServiceId(serviceId, true, TransactionBasic.class);
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, Valuation.QUERY_WHERE_BYTRANSACTIONID);
+        params.put(Valuation.QUERY_PARAMETER_TRANSACTION_ID, transaction.getId());
+        return getRepository().getEntityList(Valuation.class, params);
     }
 
     /**

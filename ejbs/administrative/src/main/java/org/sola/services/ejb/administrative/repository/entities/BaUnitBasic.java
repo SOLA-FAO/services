@@ -29,6 +29,7 @@
  */
 package org.sola.services.ejb.administrative.repository.entities;
 
+import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -64,7 +65,11 @@ public class BaUnitBasic extends AbstractReadOnlyEntity {
     private String classificationCode;
     @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
     private String redactCode;
-
+    @Column(insertable = false, updatable = false, name = "area")
+    @AccessFunctions(onSelect = "(SELECT COALESCE(u.size, 0)  FROM administrative.ba_unit_area u WHERE u.ba_unit_id = administrative.ba_unit.id)")
+    private BigDecimal area;
+   
+   
     public BaUnitBasic() {
         super();
     }
@@ -167,4 +172,13 @@ public class BaUnitBasic extends AbstractReadOnlyEntity {
     public void setRedactCode(String redactCode) {
         this.redactCode = redactCode;
     }
+
+    public BigDecimal getArea() {
+        return area;
+    }
+
+    public void setArea(BigDecimal area) {
+        this.area = area;
+    }
+    
 }
