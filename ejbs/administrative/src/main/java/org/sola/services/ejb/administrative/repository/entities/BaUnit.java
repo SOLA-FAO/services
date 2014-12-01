@@ -40,6 +40,7 @@ import org.sola.services.common.LocalInfo;
 import org.sola.services.common.repository.*;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
+import org.sola.services.ejb.administrative.businesslogic.AdministrativeEJBLocal;
 import org.sola.services.ejb.cadastre.businesslogic.CadastreEJBLocal;
 import org.sola.services.ejb.cadastre.repository.entities.CadastreObject;
 import org.sola.services.ejb.party.businesslogic.PartyEJBLocal;
@@ -125,8 +126,8 @@ public class BaUnit extends AbstractVersionedEntity {
     @AccessFunctions(onSelect = "administrative.get_ba_unit_pending_action(id)")
     private String pendingActionCode;
     // Not used for SOLA State Land
-   // @Column(insertable = false, updatable = false, name = "calculated_area_size")
-   // @AccessFunctions(onSelect = "administrative.get_calculated_area_size_action(#{" + QUERY_PARAMETER_COLIST + "})")
+    // @Column(insertable = false, updatable = false, name = "calculated_area_size")
+    // @AccessFunctions(onSelect = "administrative.get_calculated_area_size_action(#{" + QUERY_PARAMETER_COLIST + "})")
     private BigDecimal calculatedAreaSize;
     @Column()
     private String description;
@@ -140,6 +141,8 @@ public class BaUnit extends AbstractVersionedEntity {
     @ChildEntityList(parentIdField = "baUnitId", childIdField = "partyId",
             manyToManyClass = BaUnitAsParty.class, readOnly = true)
     private List<Party> partyList;
+    @ChildEntityList(parentIdField = "baUnitId")
+    private List<Valuation> valuationList;
 
     public BigDecimal getCalculatedAreaSize() {
         return calculatedAreaSize;
@@ -313,6 +316,16 @@ public class BaUnit extends AbstractVersionedEntity {
     public void setPartyList(List<Party> partyList) {
         this.partyList = partyList;
     }
+
+    public List<Valuation> getValuationList() {
+        return valuationList;
+    }
+
+    public void setValuationList(List<Valuation> valuationList) {
+        this.valuationList = valuationList;
+    }
+    
+    
 
     @Override
     public String getClassificationCode() {
