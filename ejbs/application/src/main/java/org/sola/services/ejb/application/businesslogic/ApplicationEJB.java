@@ -1003,7 +1003,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * before calling null null null null null null null null null null null
      * null null null null null null null null null null null null null null
      * null null null null null null null null null null null null null null
-     * null null null null null null null     {@linkplain #takeActionAgainstApplication(org.sola.services.ejb.application.repository.entities.ApplicationActionTaker,
+     * null null null null null null null null     {@linkplain #takeActionAgainstApplication(org.sola.services.ejb.application.repository.entities.ApplicationActionTaker,
      * java.lang.String, java.lang.String, int) takeActionAgainstApplication.
      *
      * @param applicationId The identifier of the application to perform the action against
@@ -1684,6 +1684,62 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
             }
         }
         return notifyParties;
+    }
+
+    /**
+     * Retrieves all negotiations associated to a service.
+     * <p>
+     * Requires the {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
+     *
+     * @param serviceId Id of the service to retrieve negotiations for
+     * @return Negotiations records
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
+    public List<Negotiate> getNegotiations(String serviceId) {
+        List<Negotiate> result = null;
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, Objection.QUERY_WHERE_BYSERVICEID);
+        params.put(Negotiate.QUERY_PARAMETER_SERVICE_ID, serviceId);
+        result = getRepository().getEntityList(Negotiate.class, params);
+        return result;
+    }
+    
+    /**
+     * Saves changes to all Negotiate records associated to a service.
+     * <p>
+     * Requires the {@linkplain RolesConstants#SERVICE_START_NEGOTIATE}
+     * role.</p>
+     *
+     * @param negotiations
+     * @return the list of negotiations for the service after they have been
+     * saved.
+     */
+    @Override
+    @RolesAllowed(RolesConstants.SERVICE_START_NEGOTIATE)
+    public List<Negotiate> saveNegotiations(List<Negotiate> negotiations) {
+        if (negotiations != null && negotiations.size() > 0) {
+            String serviceId = negotiations.get(0).getServiceId();
+            ListIterator<Negotiate> it = negotiations.listIterator();
+            while (it.hasNext()) {
+                Negotiate item = it.next();
+                it.remove();
+                Negotiate savedItem = getRepository().saveEntity(item);
+                if (savedItem != null) {
+                    it.add(savedItem);
+                }
+            }
+            String actionNote = "";
+            if (negotiations.size() == 1) {
+                actionNote = "1 Negotiation";
+            } else {
+                actionNote = negotiations.size() + " Negotiations";
+            }
+            Service s = getEntityById(Service.class, serviceId);
+            s.setActionNotes(actionNote);
+            saveEntity(s);
+        }
+        return negotiations;
     }
 
 }

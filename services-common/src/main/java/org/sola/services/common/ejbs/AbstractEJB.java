@@ -103,7 +103,8 @@ import org.sola.services.common.repository.entities.AbstractEntity;
     RolesConstants.SERVICE_START_CHECKLIST,
     RolesConstants.SERVICE_START_PUBLIC_DISPLAY,
     RolesConstants.SERVICE_START_OBJECTIONS,
-    RolesConstants.SERVICE_START_NOTIFY
+    RolesConstants.SERVICE_START_NOTIFY,
+    RolesConstants.SERVICE_START_NEGOTIATE
 })
 public abstract class AbstractEJB implements AbstractEJBLocal {
 
