@@ -334,7 +334,7 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
     List<Objection> saveObjections(List<Objection> objections);
 
     /**
-     * See {@linkplain ApplicationEJB#getNotifyParties(java.lang.String, boolean) 
+     * See {@linkplain ApplicationEJB#getNotifyParties(java.lang.String, boolean)
      * ApplicationEJB.getNotifyParties}.
      */
     List<Notify> getNotifyParties(String serviceId, boolean generateParties);
@@ -344,4 +344,16 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
      * ApplicationEJB.saveNotifyParties}.
      */
     List<Notify> saveNotifyParties(List<Notify> notifyParties);
+
+    /**
+     * See {@linkplain ApplicationEJB#getNegotiations(java.lang.String)
+     * ApplicationEJB.getNegotiations}.
+     */
+    List<Negotiate> getNegotiations(String serviceId);
+
+    /**
+     * See {@linkplain ApplicationEJB#saveNegotiations(java.util.List)
+     * ApplicationEJB.saveNegotiations}.
+     */
+    List<Negotiate> saveNegotiations(List<Negotiate> negotiations);
 }
