@@ -30,6 +30,7 @@
 package org.sola.services.ejb.application.repository.entities;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -68,15 +69,14 @@ public class Negotiate extends AbstractVersionedEntity {
     private String statusCode;
     @Column
     private String description;
+    @Column(name = "notification_date")
+    private Date notificationDate;
     @Redact(minClassification = RolesConstants.CLASSIFICATION_CONFIDENTIAL)
-    @Column(name = "valuation_amount")
-    private BigDecimal valuationAmount;
+    @Column(name = "initial_amount")
+    private BigDecimal initialAmount;
     @Redact(minClassification = RolesConstants.CLASSIFICATION_CONFIDENTIAL)
-    @Column(name = "offer_amount")
-    private BigDecimal offerAmount;
-    @Redact(minClassification = RolesConstants.CLASSIFICATION_CONFIDENTIAL)
-    @Column(name = "agreed_amount")
-    private BigDecimal agreedAmount;
+    @Column(name = "final_amount")
+    private BigDecimal finalAmount;
     @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
     private String classificationCode;
     @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
@@ -133,28 +133,28 @@ public class Negotiate extends AbstractVersionedEntity {
         this.statusCode = statusCode;
     }
 
-    public BigDecimal getValuationAmount() {
-        return valuationAmount;
+    public Date getNotificationDate() {
+        return notificationDate;
     }
 
-    public void setValuationAmount(BigDecimal valuationAmount) {
-        this.valuationAmount = valuationAmount;
+    public void setNotificationDate(Date notificationDate) {
+        this.notificationDate = notificationDate;
     }
 
-    public BigDecimal getOfferAmount() {
-        return offerAmount;
+    public BigDecimal getInitialAmount() {
+        return initialAmount;
     }
 
-    public void setOfferAmount(BigDecimal offerAmount) {
-        this.offerAmount = offerAmount;
+    public void setInitialAmount(BigDecimal initialAmount) {
+        this.initialAmount = initialAmount;
     }
 
-    public BigDecimal getAgreedAmount() {
-        return agreedAmount;
+    public BigDecimal getFinalAmount() {
+        return finalAmount;
     }
 
-    public void setAgreedAmount(BigDecimal agreedAmount) {
-        this.agreedAmount = agreedAmount;
+    public void setFinalAmount(BigDecimal finalAmount) {
+        this.finalAmount = finalAmount;
     }
 
     public String getDescription() {
