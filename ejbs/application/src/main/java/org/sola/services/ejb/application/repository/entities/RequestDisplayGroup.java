@@ -29,31 +29,20 @@
  */
 package org.sola.services.ejb.application.repository.entities;
 
-import java.util.List;
 import javax.persistence.Table;
-import org.sola.services.common.repository.ChildEntityList;
+import org.sola.services.common.repository.DefaultSorter;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
 
 /**
+ * Entity representing the application.request_display_group code table
  *
  * @author soladev
  */
-@Table(name = "checklist_group", schema = "application")
-public class ChecklistGroup extends AbstractCodeEntity {
+@Table(name = "request_display_group", schema = "application")
+@DefaultSorter(sortString = "display_value")
+public class RequestDisplayGroup extends AbstractCodeEntity {
 
-    @ChildEntityList(parentIdField = "checklistGroupCode", childIdField = "checklistItemCode",
-            manyToManyClass = ChecklistItemInGroup.class, readOnly = true)
-    private List<ChecklistItem> checklistItemList;
-
-    public ChecklistGroup() {
+    public RequestDisplayGroup() {
         super();
-    }
-
-    public List<ChecklistItem> getChecklistItemList() {
-        return checklistItemList;
-    }
-
-    public void setChecklistItemList(List<ChecklistItem> checklistItemList) {
-        this.checklistItemList = checklistItemList;
     }
 }

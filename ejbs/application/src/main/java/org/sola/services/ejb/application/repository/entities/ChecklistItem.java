@@ -27,6 +27,7 @@
  */
 package org.sola.services.ejb.application.repository.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Table;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
 
@@ -37,17 +38,18 @@ import org.sola.services.common.repository.entities.AbstractCodeEntity;
 @Table(name = "checklist_item", schema = "application")
 public class ChecklistItem extends AbstractCodeEntity{
 
-    private int display_order; 
+    @Column(name = "display_order")
+    private int displayOrder; 
     
     public ChecklistItem(){
         super();
     }   
 
-    public int getDisplay_order() {
-        return display_order;
+    public int getDisplayOrder() {
+        return displayOrder;
     }
 
-    public void setDisplay_order(int display_order) {
-        this.display_order = display_order;
+    public void setDisplayOrder(int displayOrder) {
+        this.displayOrder = displayOrder;
     }
 }
