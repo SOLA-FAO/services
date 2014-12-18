@@ -422,6 +422,8 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
             BrValidation brForValidation, String languageCode,
             HashMap<String, Serializable> parameters) {
 
+        // Set the language code for the br parameters
+        parameters.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, languageCode);
         BrCurrent br = this.getBrCurrent(brForValidation.getBrId(), languageCode);
         ValidationResult result = new ValidationResult();
         result.setName(br.getId());
