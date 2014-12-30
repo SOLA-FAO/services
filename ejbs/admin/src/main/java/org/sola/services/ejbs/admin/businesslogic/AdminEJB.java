@@ -42,27 +42,18 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.model.FileHeader;
 import org.apache.ibatis.session.Configuration;
 import org.sola.common.ConfigConstants;
 import org.sola.common.DateUtility;
 import org.sola.common.EmailVariables;
-import org.sola.common.FileUtility;
 import org.sola.common.RolesConstants;
-import org.sola.common.SOLAException;
 import org.sola.common.StringUtility;
-import org.sola.common.messaging.MessageUtility;
-import org.sola.common.messaging.ServiceMessage;
 import org.sola.services.common.EntityAction;
 import org.sola.services.common.LocalInfo;
-import org.sola.services.common.br.ValidationResult;
 import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.ejb.system.br.Result;
 import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
-import org.sola.services.ejb.system.repository.entities.BrValidation;
-import org.sola.services.ejbs.admin.businesslogic.repository.entities.ConsolidationConfig;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.GroupSummary;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Language;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Role;
@@ -664,9 +655,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     }
 
     /**
-     * It generates a script with the extracted records during the consolidation
-     * process. The generated script can be used to consolidate the records to
-     * another database.
+     * Not used.
      *
      * @return The file name as it is saved in the server and ready for
      * download.
@@ -675,113 +664,16 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
      */
     @RolesAllowed(RolesConstants.CONSOLIDATION_EXTRACT)
     @Override
-    public String consolidationExtract(String processName, boolean everything, String password) {
-        String sqlStatement = "select system.consolidation_extract(#{current_user}, #{everything}, #{process_name}) as vl";
-        String schemaName = "consolidation";
-        Map params = new HashMap();
-        params.put(CommonSqlProvider.PARAM_QUERY, sqlStatement);
-        params.put("current_user", getUser(getUserName()).getId());
-        params.put("everything", everything);
-        params.put("process_name", processName);
-        try {
-            startProcessLog(processName);
-            Boolean consolidationSchemaReady = getRepository().getScalar(Boolean.class, params);
-            if (!consolidationSchemaReady) {
-                throw new SOLAException(ServiceMessage.ADMIN_WS_EXTRACTION_CONSOLIDATION_SCHEMA_FAILED);
-            }
-            //Extract the script from the schema consolidation
-            ArrayList filesToAdd = new ArrayList();
-            //Extract script for schema structure only
-            updateProcessLog(processName, "Retrieve script for schema structure...");
-            sqlStatement = "select system.get_text_from_schema_only(#{consolidation_schema})";
-            params.clear();
-            params.put(CommonSqlProvider.PARAM_QUERY, sqlStatement);
-            params.put("consolidation_schema", schemaName);
-            String scriptPart = getRepository().getScalar(String.class, params);
-            updateProcessLog(processName, "done");
-            setProcessProgress(processName, getProcessProgress(processName, false) + 1);
-            int fileIndex = 0;
-            String filePath = FileUtility.createFileFromContent(String.format("%s_%04d_schema.sql", schemaName, fileIndex), scriptPart);
-            setProcessProgress(processName, getProcessProgress(processName, false) + 1);
-            filesToAdd.add(filePath);
-
-            //Extract config table data
-            ArrayList filesOfConfigTableData = extractTableRows(
-                    processName, schemaName, "config", 10000, fileIndex);
-            fileIndex = fileIndex + filesOfConfigTableData.size();
-            filesToAdd.addAll(filesOfConfigTableData);
-
-            //Extract the data for each table found in consolidation config table
-            params.clear();
-            params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, ConsolidationConfig.ORDER_BY);
-            List<ConsolidationConfig> consolidationConfigList =
-                    getRepository().getEntityList(ConsolidationConfig.class, params);
-
-            for (ConsolidationConfig consolidationConfig : consolidationConfigList) {
-                ArrayList extractedFiles = extractTableRows(
-                        processName, schemaName,
-                        consolidationConfig.getConsolidatedTableName(),
-                        consolidationConfig.getNrRowsAtOnce(), fileIndex);
-                fileIndex = fileIndex + extractedFiles.size();
-                filesToAdd.addAll(extractedFiles);
-                setProcessProgress(processName, getProcessProgress(processName, false) + 5);
-            }
-            updateProcessLog(processName, "Compress all generated scripts...");
-            String compressedFilePath = FileUtility.compress(
-                    systemEJB.checkRuleGetResultSingle("consolidation-extraction-file-name", null).getValue().toString(),
-                    filesToAdd, password);
-            updateProcessLog(processName, "done");
-            updateProcessLog(processName, "Finished with success!");
-            setProcessProgress(processName, getProcessProgress(processName, false) + 10);
-            return compressedFilePath;
-        } catch (Exception ex) {
-            updateProcessLog(processName, String.format("%s\r\n%s",
-                    MessageUtility.getLocalizedMessage(ServiceMessage.ADMIN_WS_EXTRACTION_FAILED).getMessage(),
-                    ex.getMessage()));
-            throw new SOLAException(ServiceMessage.ADMIN_WS_EXTRACTION_FAILED, ex);
-        }
+    public String consolidationExtract(
+            boolean generateConsolidationSchema, boolean everything, boolean dumpToFile) {
+        Runtime.getRuntime().
+        return "extract";
     }
 
-    private ArrayList extractTableRows(
-            String processName, String schemaName, String tableName,
-            int rowsAtOnce, int fileIndex) throws IOException {
-
-        String sqlStatement = "select system.get_text_from_schema_table(#{schema_name}, #{table_name}, #{rows_at_once}, #{start_row_nr})";
-        Map params = new HashMap();
-        params.put(CommonSqlProvider.PARAM_QUERY, sqlStatement);
-        params.put("schema_name", schemaName);
-
-        updateProcessLog(processName,
-                String.format("Retrieve script for table:%s  - rows at once:%s   ... ",
-                tableName, rowsAtOnce));
-        params.put("table_name", tableName);
-        params.put("rows_at_once", rowsAtOnce);
-        int fromRowNumber = 1;
-        ArrayList filesToAdd = new ArrayList();
-        String scriptPart;
-        do {
-            updateProcessLog(processName, String.format("    From row: %s ", fromRowNumber));
-            params.put("start_row_nr", fromRowNumber);
-            scriptPart = getRepository().getScalar(String.class, params);
-            if (!scriptPart.isEmpty()) {
-                String filePath = FileUtility.createFileFromContent(
-                        String.format("%s_%04d_%s-start_row_%s.sql", schemaName, ++fileIndex, tableName, fromRowNumber),
-                        scriptPart);
-                filesToAdd.add(filePath);
-                updateProcessLog(processName, "    Rows extracted. File created.");
-            } else {
-                updateProcessLog(processName, "    No rows extracted. No file created.");
-            }
-            fromRowNumber += rowsAtOnce;
-        } while (!scriptPart.isEmpty());
-        updateProcessLog(processName, "done");
-        return filesToAdd;
-    }
 
     /**
-     * It takes a file name that is in the server cache folder which is supposed
-     * to be the consolidated records and makes the consolidation.
-     *
+     * Not used.
+     * 
      * @param processName
      * @param languageCode
      * @param fileInServer
@@ -790,74 +682,8 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
      */
     @RolesAllowed(RolesConstants.CONSOLIDATION_CONSOLIDATE)
     @Override
-    public void consolidationConsolidate(String processName, String languageCode, String fileInServer, String password) {
-
-        String sqlStatementUpload = "select system.run_script(#{script}) as vl";
-        String sqlStatementConsolidate = "select system.consolidation_consolidate(#{current_user}, #{process_name}) as vl";
-        //Start process progress and log
-        try {
-            startProcessLog(processName);
-            // Run all the scripts in the archive one by one
-            updateProcessLog(processName, "Extracting and loading scripts to the database");
-            Map params = new HashMap();
-            params.clear();
-            params.put(CommonSqlProvider.PARAM_QUERY, sqlStatementUpload);
-            ZipFile zipFile = FileUtility.getArchiveFile(fileInServer, password);
-            for (int fileHeaderIndex = 0;
-                    fileHeaderIndex < zipFile.getFileHeaders().size();
-                    fileHeaderIndex++) {
-                //Get the script from the archive
-                FileHeader fileHeader = (FileHeader) zipFile.getFileHeaders().get(fileHeaderIndex);
-                updateProcessLog(processName, String.format("  - Script: %s ", fileHeader.getFileName()));
-                updateProcessLog(processName, "      extract...");
-                String script = new String(FileUtility.getArchiveFileContent(zipFile, fileHeader));
-                updateProcessLog(processName, "      done");
-                updateProcessLog(processName, "      load to database...");
-                params.put("script", script);
-                //Execute the script
-                getRepository().getScalar(String.class, params);
-                updateProcessLog(processName, "      done");
-                setProcessProgress(processName, getProcessProgress(processName, false) + 2);
-            }
-            updateProcessLog(processName, "done");
-            updateProcessLog(processName, "Validating consolidation schema against the other tables...");
-            //It will check for consistancy before making the consolidation
-            List<ValidationResult> validationResultList = validateBeforeConsolidation(languageCode);
-            setProcessProgress(processName,
-                    getProcessProgress(processName, false) + (validationResultList.size() * 2));
-
-            for (ValidationResult vr : validationResultList) {
-                String brResult = String.format("    BR:%s    Severity:%s    Passed:%s    Feedback:%s",
-                        vr.getName(), vr.getSeverity(), vr.isSuccessful(), vr.getFeedback());
-                updateProcessLog(processName, brResult);
-            }
-            setProcessProgress(processName, getProcessProgress(processName, false) + 2);
-
-            if (!systemEJB.validationSucceeded(validationResultList)) {
-                //If the validation fails the whole transaction is rolledback.
-                throw new RuntimeException("Validation failed.");
-            } else {
-                updateProcessLog(processName, "Validation finished with success.");
-            }
-
-            //Initiate the consolidation from consolidation schema to main tables
-            params.clear();
-            params.put(CommonSqlProvider.PARAM_QUERY, sqlStatementConsolidate);
-            params.put("current_user", getUser(getUserName()).getId());
-            params.put("process_name", processName);
-            getRepository().getScalar(String.class, params);
-        } catch (Exception ex) {
-            updateProcessLog(processName, String.format("%s\r\n%s",
-                    MessageUtility.getLocalizedMessage(ServiceMessage.ADMIN_WS_CONSOLIDATION_FAILED).getMessage(),
-                    ex.getMessage()));
-            throw new SOLAException(ServiceMessage.ADMIN_WS_CONSOLIDATION_FAILED, ex);
-        }
-    }
-
-    private List<ValidationResult> validateBeforeConsolidation(String languageCode) {
-        List<BrValidation> brValidationList = this.systemEJB.getBrForConsolidation();
-        List<ValidationResult> validationResultList = this.systemEJB.checkRulesGetValidation(brValidationList, languageCode, null);
-        return validationResultList;
+    public String consolidationConsolidate(String extractedFile, boolean mergeConsolidationSchema) {
+        return "consolidate";
     }
 
     /**
@@ -975,42 +801,14 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         getRepository().getScalar(Void.class, params);
     }
 
+    /**
+     * Not used.
+     * 
+     * @param processName
+     * @return 
+     */
     @Override
     public String getProcessLog(String processName) {
-        String sqlStatement = "select system.process_log_get(#{process_name}) as vl";
-        Map params = new HashMap();
-        params.put(CommonSqlProvider.PARAM_QUERY, sqlStatement);
-        params.put("process_name", processName);
-        return getRepository().getScalar(String.class, params);
-    }
-
-    /**
-     * Updates the log of the process.
-     *
-     * @param processName Process name
-     * @param logInput log input
-     */
-    @Override
-    public void updateProcessLog(String processName, String logInput) {
-        String sqlStatement = "select system.process_log_update(#{process_name}, #{log_input}) as vl";
-        Map params = new HashMap();
-        params.put(CommonSqlProvider.PARAM_QUERY, sqlStatement);
-        params.put("process_name", processName);
-        params.put("log_input", logInput);
-        getRepository().getScalar(String.class, params);
-    }
-
-    /**
-     * Starts the log of the process.
-     *
-     * @param processName Process name
-     */
-    @Override
-    public void startProcessLog(String processName) {
-        String sqlStatement = "select system.process_log_start(#{process_name}) as vl";
-        Map params = new HashMap();
-        params.put(CommonSqlProvider.PARAM_QUERY, sqlStatement);
-        params.put("process_name", processName);
-        getRepository().getScalar(String.class, params);
+        return "";
     }
 }

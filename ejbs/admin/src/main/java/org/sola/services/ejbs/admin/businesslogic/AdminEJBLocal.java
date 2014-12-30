@@ -208,16 +208,16 @@ public interface AdminEJBLocal {
     List<Language> getLanguages(String lang);
     
     /**
-     * See {@linkplain AdminEJB#consolidationExtract(java.lang.String, boolean, java.lang.String)
+     * See {@linkplain AdminEJB#consolidationExtract(boolean, boolean, boolean)
      * AdminEJB.consolidationExtract}
      */
-    String consolidationExtract(String processName, boolean everything, String password);
+    String consolidationExtract(boolean generateConsolidationSchema, boolean everything, boolean dumpToFile);
 
     /**
-     * See {@linkplain AdminEJB#consolidationConsolidate(String, String, String, String)
+     * See {@linkplain AdminEJB#consolidationConsolidate(String, boolean)
      * AdminEJB.consolidationConsolidate}
      */
-    void consolidationConsolidate(String processName, String languageCode, String fileInServer, String password);
+    String consolidationConsolidate(String extractedFile, boolean mergeConsolidationSchema);
     
     /**
      * See {@linkplain AdminEJB#restoreUserPassword(String)}
@@ -263,16 +263,4 @@ public interface AdminEJBLocal {
      * AdminEJB.getProcessLog}
      */
     String getProcessLog(String processName);
-
-    /**
-     * See {@linkplain AdminEJB#updateProcessLog(String, String)
-     * AdminEJB.updateProcessLog}
-     */
-    void updateProcessLog(String processName, String logInput);
-
-    /**
-     * See {@linkplain AdminEJB#startProcessLog(String)
-     * AdminEJB.startProcessLog}
-     */
-    void startProcessLog(String processName);
 }
