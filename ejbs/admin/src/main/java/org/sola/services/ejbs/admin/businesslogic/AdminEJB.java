@@ -666,7 +666,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     @Override
     public String consolidationExtract(
             boolean generateConsolidationSchema, boolean everything, boolean dumpToFile) {
-        Runtime.getRuntime().
+        Runtime.getRuntime();
         return "extract";
     }
 
