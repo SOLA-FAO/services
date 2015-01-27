@@ -29,6 +29,8 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
     private String statusCode;
     @Column(name = "status_name")
     private String statusName;
+    @Column(name="claim_area")
+    private Long claimArea;
     @Column(name="rowversion")
     private int version;
 
@@ -43,7 +45,7 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
     public static final String PARAM_SEARCH_BY_USER = "searchByUser";
     public static final String PARAM_POINT = "pointParam";
     private static final String SELECT_PART = 
-            "select c.id, c.nr, c.lodgement_date, c.challenge_expiry_date, c.decision_date, c.description, \n"
+            "select c.id, c.nr, c.lodgement_date, c.claim_area, c.challenge_expiry_date, c.decision_date, c.description, \n"
             + "c.claimant_id, (p.name || ' ' || coalesce(p.last_name, '')) as claimant_name,\n"
             + "c.challenged_claim_id, c.status_code, c.rowversion, get_translation(cs.display_value, #{" 
             + CommonSqlProvider.PARAM_LANGUAGE_CODE + "}) as status_name\n"
@@ -171,6 +173,14 @@ public class ClaimSearchResult extends AbstractReadOnlyEntity {
 
     public void setStatusName(String statusName) {
         this.statusName = statusName;
+    }
+
+    public Long getClaimArea() {
+        return claimArea;
+    }
+
+    public void setClaimArea(Long claimArea) {
+        this.claimArea = claimArea;
     }
 
     public int getVersion() {
