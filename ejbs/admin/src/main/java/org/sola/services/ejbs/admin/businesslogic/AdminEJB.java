@@ -66,7 +66,7 @@ import org.sola.services.ejbs.admin.businesslogic.repository.entities.UserGroup;
  * roles.
  */
 @Stateless
-@EJB(name = "java:global/SOLA/AdminEJBLocal", beanInterface = AdminEJBLocal.class)
+@EJB(name = "java:app/AdminEJBLocal", beanInterface = AdminEJBLocal.class)
 public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
 
     @EJB

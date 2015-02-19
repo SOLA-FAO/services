@@ -51,7 +51,7 @@ import org.sola.services.ejb.system.repository.entities.BrValidation;
  * the administrative schema.
  */
 @Stateless
-@EJB(name = "java:global/SOLA/CadastreEJBLocal", beanInterface = CadastreEJBLocal.class)
+@EJB(name = "java:app/CadastreEJBLocal", beanInterface = CadastreEJBLocal.class)
 public class CadastreEJB extends AbstractEJB implements CadastreEJBLocal {
 
     @EJB
