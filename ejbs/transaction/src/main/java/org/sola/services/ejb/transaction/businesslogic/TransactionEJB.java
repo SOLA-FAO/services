@@ -57,7 +57,7 @@ import org.sola.services.ejb.transaction.repository.entities.*;
  * actions against transaction data.
  */
 @Stateless
-@EJB(name = "java:global/SOLA_SL/TransactionEJBLocal", beanInterface = TransactionEJBLocal.class)
+@EJB(name = "java:app/SOLA_SL/TransactionEJBLocal", beanInterface = TransactionEJBLocal.class)
 public class TransactionEJB extends AbstractEJB implements TransactionEJBLocal {
 
     @EJB

@@ -47,7 +47,7 @@ import org.sola.services.ejb.party.repository.entities.*;
  * details.
  */
 @Stateless
-@EJB(name = "java:global/SOLA_SL/PartyEJBLocal", beanInterface = PartyEJBLocal.class)
+@EJB(name = "java:app/SOLA_SL/PartyEJBLocal", beanInterface = PartyEJBLocal.class)
 public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
 
     /**

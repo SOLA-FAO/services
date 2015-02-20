@@ -57,7 +57,7 @@ import org.sola.services.ejb.transaction.repository.entities.TransactionType;
  * source details.
  */
 @Stateless
-@EJB(name = "java:global/SOLA_SL/SourceEJBLocal", beanInterface = SourceEJBLocal.class)
+@EJB(name = "java:app/SOLA_SL/SourceEJBLocal", beanInterface = SourceEJBLocal.class)
 public class SourceEJB extends AbstractEJB implements SourceEJBLocal {
 
     @EJB

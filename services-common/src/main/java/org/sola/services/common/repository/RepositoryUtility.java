@@ -348,7 +348,7 @@ public class RepositoryUtility {
     public static <T> T getEJB(Class<T> ejbLocalClass) {
         T ejb = null;
 
-        String ejbLookupName = "java:global/SOLA_SL/" + ejbLocalClass.getSimpleName();
+        String ejbLookupName = "java:app/SOLA_SL/" + ejbLocalClass.getSimpleName();
         try {
             InitialContext ic = new InitialContext();
             ejb = (T) ic.lookup(ejbLookupName);
@@ -363,7 +363,7 @@ public class RepositoryUtility {
     public static <T> T tryGetEJB(Class<T> ejbLocalClass) {
         T ejb = null;
 
-        String ejbLookupName = "java:global/SOLA_SL/" + ejbLocalClass.getSimpleName();
+        String ejbLookupName = "java:app/SOLA_SL/" + ejbLocalClass.getSimpleName();
         try {
             InitialContext ic = new InitialContext();
             ejb = (T) ic.lookup(ejbLookupName);

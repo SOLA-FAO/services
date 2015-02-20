@@ -5,12 +5,12 @@
     <parent>
         <artifactId>sola-ejbs</artifactId>
         <groupId>org.sola.services</groupId>
-        <version>sl-018</version>
+        <version>v1502a</version>
     </parent>
 
     <groupId>org.sola.services.ejbs</groupId>
     <artifactId>sola-scheduler</artifactId>
-    <version>sl-018</version>
+    <version>v1502a</version>
     <packaging>ejb</packaging>
     
     <name>EJB Scheduler</name>
