@@ -125,9 +125,9 @@ public interface AdminEJBLocal {
     
     /**
      * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#createCommunityRecorderUser(org.sola.services.ejbs.admin.businesslogic.repository.entities.User)
-     * AdminEJB.saveUser}
+     * AdminEJB.createCommunityUser}
      */
-    User createCommunityRecorderUser(User user);
+    User createCommunityUser(User user);
 
     /**
      * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#changePassword(java.lang.String, java.lang.String)
