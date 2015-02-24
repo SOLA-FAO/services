@@ -44,6 +44,8 @@ import org.sola.services.common.repository.ExternalEJB;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 import org.sola.services.ejb.address.businesslogic.AddressEJBLocal;
 import org.sola.services.ejb.address.repository.entities.Address;
+import org.sola.services.ejb.source.businesslogic.SourceEJBLocal;
+import org.sola.services.ejb.source.repository.entities.Source;
 
 /**
  * Entity representing the party.party table. 
@@ -100,13 +102,56 @@ public class Party extends AbstractVersionedEntity {
     private Address address;
     @ChildEntityList(parentIdField = "partyId")
     private List<PartyRole> roleList;
+//    @ChildEntityList(parentIdField = "partyId", childIdField = "groupId",
+//    manyToManyClass = PartyMember.class)
+    @ChildEntityList(parentIdField = "id")
+    private List<GroupParty> groupList;
+//    @ChildEntityList(parentIdField = "party_id")
+//    private List<PartyMember> partyMemberList;
     @Column(name = "party.is_rightholder(id) AS is_rightholder", insertable=false, updatable=false)
     private boolean rightHolder;
+     @ExternalEJB(ejbLocalClass = SourceEJBLocal.class,
+    loadMethod = "getSources", saveMethod = "saveSource")
+    @ChildEntityList(parentIdField = "partyId", childIdField = "sourceId",
+    manyToManyClass = SourceDescribesParty.class)
+    private List<Source> sourceList;
+   
     
     public Party() {
         super();
     }
 
+//    public List<PartyMember> getPartyMemberList() {
+//        return partyMemberList;
+//    }
+//
+//    public void setPartyMemberList(List<PartyMember> partyMemberList) {
+//        this.partyMemberList = partyMemberList;
+//    }
+//    
+    
+    
+    
+
+    public List<GroupParty> getGroupList() {
+        
+        groupList = groupList == null ? new ArrayList<GroupParty>() : groupList;
+        
+        return groupList;
+    }
+
+    public void setGroupList(List<GroupParty> groupList) {
+        this.groupList = groupList;
+    }
+
+    public List<Source> getSourceList() {
+        return sourceList;
+    }
+
+    public void setSourceList(List<Source> sourceList) {
+        this.sourceList = sourceList;
+    }
+     
     public String getId() {
         id = id == null ? generateId() : id;
         return id;

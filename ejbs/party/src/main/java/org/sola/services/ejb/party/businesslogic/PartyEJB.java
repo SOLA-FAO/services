@@ -35,10 +35,13 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import org.sola.common.RolesConstants;
 import org.sola.common.SOLAAccessException;
+import org.sola.services.common.LocalInfo;
 import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.ejb.address.repository.entities.Address;
 import org.sola.services.ejb.party.repository.entities.*;
+import org.sola.services.ejb.transaction.businesslogic.TransactionEJBLocal;
+import org.sola.services.ejb.transaction.repository.entities.TransactionBasic;
 
 /**
  * EJB to manage data in the party schema. Supports retrieving and saving party details.
@@ -46,6 +49,8 @@ import org.sola.services.ejb.party.repository.entities.*;
 @Stateless
 @EJB(name = "java:global/SOLA/PartyEJBLocal", beanInterface = PartyEJBLocal.class)
 public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
+@EJB
+    private TransactionEJBLocal transactionEJB;
 
     /**
      * Sets the entity package for the EJB to Party.class.getPackage().getName(). This is used to
@@ -75,7 +80,23 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
     public Party getParty(String id) {
         return getRepository().getEntity(Party.class, id);
     }
-
+    
+    @Override
+    public GroupParty getGroupParty(String id) {
+        return getRepository().getEntity(GroupParty.class, id);
+    }
+     @Override
+    public PartyMember getPartyMember(String partyId, String groupId) {
+        
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, PartyMember.QUERY_WHERE_BYPARTYID);
+//        params.put(CommonSqlProvider.PARAM_QUERY, PartyMember.QUERY_WHERE_BYGROUPID);
+        params.put(PartyMember.QUERY_PARAMETER_PARTYID, partyId);
+        params.put(PartyMember.QUERY_PARAMETER_GROUPID, groupId);
+        
+        return getRepository().getEntity(PartyMember.class, params);
+    }
+    
     /**
      * Returns a list of parties matching the supplied ids. <p>No role is required to execute this
      * method.</p>
@@ -146,6 +167,16 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
     public List<GenderType> getGenderTypes(String languageCode) {
         return getRepository().getCodeList(GenderType.class, languageCode);
     }
+    
+     /**
+     * Retrieves all party.groupParty_type code values.
+     *
+     * @param languageCode The language code to use for localization of display values.
+     */
+    @Override
+    public List<GroupPartyType> getGroupPartyTypes(String languageCode) {
+        return getRepository().getCodeList(GroupPartyType.class, languageCode);
+    }
 
     /**
      * Returns all parties that have the lodgingAgent party role. Note that the address and party
@@ -174,4 +205,42 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
     public List<PartyRoleType> getPartyRoles(String languageCode) {
         return getRepository().getCodeList(PartyRoleType.class, languageCode);
     }
+    
+    
+     /**
+     * Can be used to create a new groupParty or save any updates to the details of
+     * an existing groupParty. <p>Requires the
+     * {@linkplain RolesConstants#PATY_SAVE} role.</p>
+     *
+     * @param groupParty The groupParty to create/save
+     * @return The groupParty after the save is completed.
+     */
+    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE, 
+    RolesConstants.APPLICATION_EDIT_APPS, RolesConstants.APPLICATION_CREATE_APPS})
+   public GroupParty saveGroupParty(GroupParty groupParty) {
+        return getRepository().saveEntity(groupParty);
+    }
+    
+    
+     /**
+     * Can be used to create a new groupParty or save any updates to the details of
+     * an existing groupParty. <p>Requires the
+     * {@linkplain RolesConstants#PATY_SAVE} role.</p>
+     *
+     * @param PartyMember The groupParty to create/save
+     * @return The groupParty after the save is completed.
+     */
+    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE, 
+    RolesConstants.APPLICATION_EDIT_APPS, RolesConstants.APPLICATION_CREATE_APPS})
+   public PartyMember savePartyMember(PartyMember partyMember, String serviceId) {
+        
+        TransactionBasic transaction =
+                transactionEJB.getTransactionByServiceId(serviceId, true, TransactionBasic.class);
+        LocalInfo.setTransactionId(transaction.getId());
+        
+        return getRepository().saveEntity(partyMember);
+    }
+    
+    
+    
 }

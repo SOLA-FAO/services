@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.ejb.application.businesslogic;
@@ -40,7 +42,9 @@ import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.faults.SOLAValidationException;
 import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.ejb.administrative.businesslogic.AdministrativeEJBLocal;
+import org.sola.services.ejb.administrative.repository.entities.NotifiablePartyForBaUnit;
 import org.sola.services.ejb.application.repository.entities.*;
+import org.sola.services.ejb.party.businesslogic.PartyEJBLocal;
 import org.sola.services.ejb.party.repository.entities.Party;
 import org.sola.services.ejb.source.businesslogic.SourceEJBLocal;
 import org.sola.services.ejb.source.repository.entities.Source;
@@ -68,6 +72,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     private TransactionEJBLocal transactionEJB;
     @EJB
     private AdministrativeEJBLocal administrativeEJB;
+    @EJB
+    private PartyEJBLocal partyEJB;
 
     /**
      * Sets the entity package for the EJB to
@@ -123,18 +129,36 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     }
 
     /**
+     * Returns an application based on the id value. <p>Requires the
+     * {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
+     *
+     * @param id The id of the application to retrieve
+     * @return The found application or null.
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
+    public Service getService(String id) {
+        Service result = null;
+        if (id != null) {
+            result = getRepository().getEntity(Service.class, id);
+        }
+        return result;
+    }
+
+    /**
      * Creates a new application record and any new child objects. Sets the
      * initial action for the application (e.g. lodged) using a business rule.
      * Also sets the lodged date and expected completion date. <p>Requires the
      * {@linkplain RolesConstants#APPLICATION_CREATE_APPS} role.</p>
      *
      * @param application The application to insert
-     * @param languageCode 
+     * @param languageCode
      * @return The application after the insert.
      */
     @Override
     @RolesAllowed(RolesConstants.APPLICATION_CREATE_APPS)
     public Application createApplication(Application application, String languageCode) {
+
         if (application == null) {
             return application;
         }
@@ -153,6 +177,9 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
         application.getContactPerson().setTypeCode(Party.TYPE_CODE_NATURAL_PERSON);
         application = getRepository().saveEntity(application);
         checkSpatialUnitsStatus(application, languageCode);
+        String action = "Lodge";
+        sendMailToNotifiable(application, action);
+
 
         return application;
     }
@@ -305,7 +332,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
      * {@linkplain RolesConstants#APPLICATION_CREATE_APPS} role.</p>
      *
      * @param application
-     * @param languageCode 
+     * @param languageCode
      * @return The application after the save is completed.
      */
     @Override
@@ -336,8 +363,57 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
         treatApplicationSources(application);
         application = getRepository().saveEntity(application);
         checkSpatialUnitsStatus(application, languageCode);
+        String action = "Update";
+        sendMailToNotifiable(application, action);
 
         return application;
+    }
+
+    private void sendMailToNotifiable(Application application, String action) {
+
+        // Send email
+        if (systemEJB.isEmailServiceEnabled()) {
+
+            String adminAddress = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_ADDRESS, "");
+            String adminName = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_NAME, "");
+            String msgBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_REC_NOTIFIABLE_BODY, "");
+            String msgSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_NOTIFIABLE_SUBJECT, "");
+
+            for (Iterator<ApplicationProperty> it = application.getPropertyList().iterator(); it.hasNext();) {
+                ApplicationProperty appProperty = it.next();
+//                appProperty.getBaUnitId();
+
+
+                List<NotifiablePartyForBaUnit> notifiablePartyList = administrativeEJB.getNotifiableParties("", "", appProperty.getNameFirstpart() + "/" + appProperty.getNameLastpart(), "", "");
+
+                for (Iterator<NotifiablePartyForBaUnit> itNotPar = notifiablePartyList.iterator(); itNotPar.hasNext();) {
+                    NotifiablePartyForBaUnit notifiableParty = itNotPar.next();
+
+
+                    if (notifiableParty != null) {
+
+                        Party partyToNotify = partyEJB.getParty(notifiableParty.getPartyId());
+                        String partyName = partyToNotify.getName() + " " + partyToNotify.getLastName();
+                        String partyEmail = partyToNotify.getEmail();
+                        Party targetParty = partyEJB.getParty(notifiableParty.getTargetPartyId());
+                        String targetPartyName = targetParty.getName() + " " + targetParty.getLastName();
+
+
+                        msgSubject = msgSubject.replace(EmailVariables.BA_UNIT_NAME, notifiableParty.getBaunitName());
+                        msgSubject = msgSubject.replace(EmailVariables.ACTION_TO_NOTIFY, action);
+
+                        msgBody = msgBody.replace(EmailVariables.NOTIFIABLE_PARTY_NAME, partyName);
+                        msgBody = msgBody.replace(EmailVariables.TARGET_PARTY_NAME, targetPartyName);
+                        msgBody = msgBody.replace(EmailVariables.BA_UNIT_NAME, notifiableParty.getBaunitName());
+                        msgBody = msgBody.replace(EmailVariables.SENDING_OFFICE, adminName);
+                        msgBody = msgBody.replace(EmailVariables.ACTION_TO_NOTIFY, action);
+
+                        systemEJB.sendEmail(partyName, partyEmail, msgBody, msgSubject);
+                    }
+                }
+            }
+
+        }
     }
 
     /**
@@ -475,6 +551,10 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.APPLICATION_SERVICE_COMPLETE)
     public List<ValidationResult> serviceActionComplete(
             String serviceId, String languageCode, int rowVersion) {
+        String applicationId = getService(serviceId).getApplicationId();
+        Application application = getApplication(applicationId);
+        String action = ServiceActionType.COMPLETE;
+        sendMailToNotifiable(application, action);
         return this.takeActionAgainstService(
                 serviceId, ServiceActionType.COMPLETE, languageCode, rowVersion);
     }
@@ -499,6 +579,11 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.APPLICATION_SERVICE_REVERT)
     public List<ValidationResult> serviceActionRevert(
             String serviceId, String languageCode, int rowVersion) {
+        String applicationId = getService(serviceId).getApplicationId();
+        Application application = getApplication(applicationId);
+        String action = ServiceActionType.REVERT;
+        sendMailToNotifiable(application, action);
+
         return this.takeActionAgainstService(
                 serviceId, ServiceActionType.REVERT, languageCode, rowVersion);
     }
@@ -551,6 +636,10 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.APPLICATION_SERVICE_CANCEL)
     public List<ValidationResult> serviceActionCancel(
             String serviceId, String languageCode, int rowVersion) {
+        String applicationId = getService(serviceId).getApplicationId();
+        Application application = getApplication(applicationId);
+        String action = ServiceActionType.CANCEL;
+        sendMailToNotifiable(application, action);
         return this.takeActionAgainstService(
                 serviceId, ServiceActionType.CANCEL, languageCode, rowVersion);
     }
@@ -577,6 +666,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.APPLICATION_WITHDRAW)
     public List<ValidationResult> applicationActionWithdraw(
             String applicationId, String languageCode, int rowVersion) {
+        String action = ApplicationActionType.WITHDRAW;
+        sendMailToNotifiable(getApplication(applicationId), action);
         return this.takeActionAgainstApplication(
                 applicationId, ApplicationActionType.WITHDRAW, languageCode, rowVersion);
     }
@@ -603,6 +694,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.APPLICATION_REJECT)
     public List<ValidationResult> applicationActionCancel(
             String applicationId, String languageCode, int rowVersion) {
+        String action = ApplicationActionType.CANCEL;
+        sendMailToNotifiable(getApplication(applicationId), action);
         return this.takeActionAgainstApplication(
                 applicationId, ApplicationActionType.CANCEL, languageCode, rowVersion);
     }
@@ -627,6 +720,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.APPLICATION_REQUISITE)
     public List<ValidationResult> applicationActionRequisition(
             String applicationId, String languageCode, int rowVersion) {
+        String action = ApplicationActionType.REQUISITION;
+        sendMailToNotifiable(getApplication(applicationId), action);
         return this.takeActionAgainstApplication(
                 applicationId, ApplicationActionType.REQUISITION, languageCode, rowVersion);
     }
@@ -675,8 +770,13 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.APPLICATION_APPROVE)
     public List<ValidationResult> applicationActionApprove(
             String applicationId, String languageCode, int rowVersion) {
+        String action = ApplicationActionType.APPROVE;
+        sendMailToNotifiable(getApplication(applicationId), action);
         return this.takeActionAgainstApplication(
                 applicationId, ApplicationActionType.APPROVE, languageCode, rowVersion);
+
+
+
     }
 
     /**
@@ -699,6 +799,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.APPLICATION_ARCHIVE)
     public List<ValidationResult> applicationActionArchive(
             String applicationId, String languageCode, int rowVersion) {
+        String action = ApplicationActionType.ARCHIVE;
+        sendMailToNotifiable(getApplication(applicationId), action);
         return this.takeActionAgainstApplication(
                 applicationId, ApplicationActionType.ARCHIVE, languageCode, rowVersion);
     }
@@ -721,6 +823,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.APPLICATION_DISPATCH)
     public List<ValidationResult> applicationActionDespatch(
             String applicationId, String languageCode, int rowVersion) {
+        String action = ApplicationActionType.DISPATCH;
+        sendMailToNotifiable(getApplication(applicationId), action);
         return this.takeActionAgainstApplication(
                 applicationId, ApplicationActionType.DISPATCH, languageCode, rowVersion);
     }
@@ -747,15 +851,16 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.APPLICATION_LAPSE)
     public List<ValidationResult> applicationActionLapse(
             String applicationId, String languageCode, int rowVersion) {
+        String action = ApplicationActionType.LAPSE;
+        sendMailToNotifiable(getApplication(applicationId), action);
         return this.takeActionAgainstApplication(
                 applicationId, ApplicationActionType.LAPSE, languageCode, rowVersion);
     }
 
     /**
      * Sets the assignee id on the application to the id of the user specified
-     * as well as setting the action code on the application to
-     * <cpde>assign</code> to indicate the application has been assigned.
-     * <p>Requires the {@linkplain RolesConstants#APPLICATION_ASSIGN_TO_OTHERS}
+     * as well as setting the action code on the application to <cpde>assign</code>
+     * to indicate the application has been assigned. <p>Requires the {@linkplain RolesConstants#APPLICATION_ASSIGN_TO_OTHERS}
      * or the {@linkplain RolesConstants#APPLICATION_ASSIGN_TO_YOURSELF}
      * role.</p>
      *
@@ -1265,7 +1370,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     }
 
     private void checkSpatialUnitsStatus(Application application, String languageCode) {
-        if (application.getCadastreObjectList()!= null && application.getCadastreObjectList().isEmpty()) {
+        if (application.getCadastreObjectList() != null && application.getCadastreObjectList().isEmpty()) {
             return;
         }
         List<BrValidation> brValidationList =
@@ -1303,7 +1408,46 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     @RolesAllowed(RolesConstants.APPLICATION_TRANSFER)
     public List<ValidationResult> applicationActionTransfer(
             String applicationId, String languageCode, int rowVersion) {
+        String action = ApplicationActionType.TRANSFER;
+        sendMailToNotifiable(getApplication(applicationId), action);
         return this.takeActionAgainstApplication(
                 applicationId, ApplicationActionType.TRANSFER, languageCode, rowVersion);
+    }
+
+    @Override
+    public CancelNotification getCancelNotification(String partyId, String targetPartyId, String name, String application, String service) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(CancelNotification.QUERY_PARAM_SERVICE, service);
+        params.put(CancelNotification.QUERY_PARAM_NAME, name);
+        params.put(CancelNotification.QUERY_PARAM_PARTY, partyId);
+        params.put(CancelNotification.QUERY_PARAM_TARGET_PARTY, targetPartyId);
+//                    params.put(CommonSqlProvider.PARAM_WHERE_PART, CancelNotification.QUERY_WHERE_SEARCHBY_PARTY);
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, CancelNotification.QUERY_WHERE_SEARCHBY_SERVICE);
+        params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+        return getRepository().getEntity(CancelNotification.class, params);
+    }
+
+    @Override
+    public List<CancelNotification> getCancelNotifications(String partyId, String targetPartyId, String name, String application, String service) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(CancelNotification.QUERY_PARAM_SERVICE, service);
+        params.put(CancelNotification.QUERY_PARAM_NAME, name);
+//        params.put(CancelNotification.QUERY_PARAM_APPLICATION, application);
+//        params.put(CancelNotification.QUERY_PARAM_PARTY, partyId);
+//        params.put(CancelNotification.QUERY_PARAM_TARGET_PARTY, targetPartyId);
+
+//        if (!partyId.equals("") && !targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
+//            params.put(CommonSqlProvider.PARAM_WHERE_PART, CancelNotification.QUERY_WHERE_PARTY_PROPERTY);
+//        } else {
+//            if (partyId.equals("") && targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
+//                params.put(CommonSqlProvider.PARAM_WHERE_PART, CancelNotification.QUERY_WHERE_APPLICATION_PROPERTY);
+////                params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+//            } else {
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, CancelNotification.QUERY_WHERE_SEARCHBY_SERVICE);
+//                params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+//            }
+//        }
+
+        return getRepository().getEntityList(CancelNotification.class, params);
     }
 }

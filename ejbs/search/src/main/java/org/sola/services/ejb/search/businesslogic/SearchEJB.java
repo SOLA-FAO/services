@@ -498,7 +498,65 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put(PartySearchResult.QUERY_PARAM_ROLE_TYPE_CODE, searchParams.getRoleTypeCode());
         return getRepository().getEntityList(PartySearchResult.class, params);
     }
+    
+    
+      /**
+     * Executes a search across all parties using the search criteria provided.
+     * Partial matches are supported for the party name criteria.
+     *
+     * @param searchParams The criteria to use for the search.
+     * @return A maximum of 101 parties that match the search criteria.
+     */
+    @Override
+    public List<PartyPropertySearchResult> searchPartiesProperty(PartySearchParams searchParams, String partyId) {
+        if (searchParams.getName() == null) {
+            searchParams.setName("");
+        }
+        if (searchParams.getTypeCode() == null) {
+            searchParams.setTypeCode("");
+        }
+        if (searchParams.getRoleTypeCode() == null) {
+            searchParams.setRoleTypeCode("");
+        }
 
+        searchParams.setName(searchParams.getName().trim());
+
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, searchParams.getLocale());
+        params.put(CommonSqlProvider.PARAM_QUERY, PartyPropertySearchResult.SEARCH_QUERY);
+        params.put(PartyPropertySearchResult.QUERY_PARAM_NAME, searchParams.getName());
+        params.put(PartyPropertySearchResult.QUERY_PARAM_TYPE_CODE, searchParams.getTypeCode());
+        params.put(PartyPropertySearchResult.QUERY_PARAM_ROLE_TYPE_CODE, searchParams.getRoleTypeCode());
+        params.put(PartyPropertySearchResult.QUERY_PARAM_PARTY_ID, partyId);
+        return getRepository().getEntityList(PartyPropertySearchResult.class, params);
+    }
+
+    
+       /**
+     * Executes a search across all parties using the search criteria provided.
+     * Partial matches are supported for the party name criteria.
+     *
+     * @param searchParams The criteria to use for the search.
+     * @return A maximum of 101 parties that match the search criteria.
+     */
+    @Override
+    public List<NotifiablePartySearchResult> searchNotifiableParties(PartySearchParams searchParams, String service) {
+        if (searchParams.getName() == null) {
+            searchParams.setName("");
+        }
+
+        searchParams.setName(searchParams.getName().trim());
+
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, searchParams.getLocale());
+        params.put(CommonSqlProvider.PARAM_QUERY, NotifiablePartySearchResult.SEARCH_QUERY);
+        params.put(NotifiablePartySearchResult.QUERY_PARAM_NAME, searchParams.getName());
+        params.put(NotifiablePartySearchResult.QUERY_PARAM_SERVICE, service);
+        return getRepository().getEntityList(NotifiablePartySearchResult.class, params);
+    }
+
+    
+    
     /**
      * Used for navigation (i.e. pan and zoom) of the Map. Executes a dynamic
      * layer query using the bounding box details provided in the search

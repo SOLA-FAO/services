@@ -43,7 +43,22 @@ public interface PartyEJBLocal extends AbstractEJBLocal {
      * PartyEJB.getParty}.
      */
     Party getParty(String id);
-
+    
+     /**
+     * See {@linkplain PartyEJB#getGroupParty(java.lang.String)
+     * PartyEJB.getGroupParty}.
+     */
+    GroupParty getGroupParty(String id);
+    
+    
+    
+     /**
+     * See {@linkplain PartyEJB#getGroupParty(java.lang.String)
+     * PartyEJB.getPartyMember}.
+     */
+    PartyMember getPartyMember(String partyId, String groupId);
+    
+    
     /**
      * See {@linkplain PartyEJB#getParties(java.util.List)
      * PartyEJB.getParties}.
@@ -55,7 +70,22 @@ public interface PartyEJBLocal extends AbstractEJBLocal {
      * PartyEJB.saveParty}.
      */
     Party saveParty(Party party);
+    
+    
+    /**
+     * See {@linkplain PartyEJB#saveGroupParty(org.sola.services.ejb.party.repository.entities.GroupParty)
+     * PartyEJB.saveGroupParty}.
+     */
+    GroupParty saveGroupParty(GroupParty groupParty);
+    
+    
+    /**
+     * See {@linkplain PartyEJB#savePartyMember(org.sola.services.ejb.party.repository.entities.PartyMember)
+     * PartyEJB.savePartyMember}.
+     */
+    PartyMember savePartyMember(PartyMember partyMember, String serviceId);
 
+    
     /**
      * See {@linkplain PartyEJB#getCommunicationTypes(java.lang.String)
      * PartyEJB.getCommunicationTypes}.
@@ -85,6 +115,13 @@ public interface PartyEJBLocal extends AbstractEJBLocal {
      * PartyEJB.getGenderTypes}.
      */
     List<GenderType> getGenderTypes(String languageCode);
+    
+    
+    /**
+     * See {@linkplain PartyEJB#getGroupPartyTypes(java.lang.String)
+     * PartyEJB.getGroupPartyTypes}.
+     */
+    List<GroupPartyType> getGroupPartyTypes(String languageCode);
 
     /**
      * See {@linkplain PartyEJB#getAgents()

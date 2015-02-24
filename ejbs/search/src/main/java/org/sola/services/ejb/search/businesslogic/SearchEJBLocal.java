@@ -122,7 +122,20 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
      * SearchEJB.searchParties}.
      */
     List<PartySearchResult> searchParties(PartySearchParams searchParams);
+     
+    /**
+     * See {@linkplain SearchEJB#searchPartiesProperty(org.sola.services.ejb.search.repository.entities.PartySearchParams)
+     * SearchEJB.searchParties}.
+     */
+    List<PartyPropertySearchResult> searchPartiesProperty(PartySearchParams searchParams, String party_id);
+    
+     /**
+     * See {@linkplain SearchEJB#searchPartiesProperty(org.sola.services.ejb.search.repository.entities.PartySearchParams)
+     * SearchEJB.searchParties}.
+     */
+    List<NotifiablePartySearchResult> searchNotifiableParties(PartySearchParams searchParams, String service);
 
+    
     /**
      * See {@linkplain SearchEJB#searchSources(org.sola.services.ejb.search.repository.entities.SourceSearchParams)
      * SearchEJB.searchSources}.
