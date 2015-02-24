@@ -15,7 +15,7 @@ import org.sola.services.ejb.refdata.entities.Language;
  * Implements methods to manage the claim and it's related objects
  */
 @Stateless
-@EJB(name = "java:global/SOLA/RefDataEJBLocal", beanInterface = RefDataEJBLocal.class)
+@EJB(name = "java:app/RefDataEJBLocal", beanInterface = RefDataEJBLocal.class)
 public class RefDataEJB extends AbstractEJB implements RefDataEJBLocal {
 
     @Override

@@ -66,7 +66,7 @@ import org.sola.services.ejbs.admin.businesslogic.repository.entities.UserGroup;
  * roles.
  */
 @Stateless
-@EJB(name = "java:global/SOLA/AdminEJBLocal", beanInterface = AdminEJBLocal.class)
+@EJB(name = "java:app/AdminEJBLocal", beanInterface = AdminEJBLocal.class)
 public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
 
     @EJB
@@ -329,15 +329,15 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
      * @return
      */
     @Override
-    public User createCommunityRecorderUser(User user) {
+    public User createCommunityUser(User user) {
         // Check community group exists
-        Group group = getRepository().getEntity(Group.class, Group.COMMUNITY_RECORDER_GROUP_ID);
+        Group group = getRepository().getEntity(Group.class, Group.COMMUNITY_GROUP_ID);
         if (group == null) {
             // Create group and assign roles
             group = new Group();
-            group.setId(Group.COMMUNITY_RECORDER_GROUP_ID);
-            group.setName(Group.COMMUNITY_RECORDER_GROUP_NAME);
-            group.setDescription(Group.COMMUNITY_RECORDER_GROUP_DESCRIPTION);
+            group.setId(Group.COMMUNITY_GROUP_ID);
+            group.setName(Group.COMMUNITY_GROUP_NAME);
+            group.setDescription(Group.COMMUNITY_GROUP_DESCRIPTION);
             getRepository().saveEntity(group);
         }
 

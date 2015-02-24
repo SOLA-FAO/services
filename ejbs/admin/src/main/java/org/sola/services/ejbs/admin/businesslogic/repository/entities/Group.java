@@ -46,9 +46,9 @@ public class Group extends AbstractEntity {
     @Column(name = "description")
     private String description;
     
-    public static final String COMMUNITY_RECORDER_GROUP_ID = "CommunityRecorders";
-    public static final String COMMUNITY_RECORDER_GROUP_NAME = "Community recorders";
-    public static final String COMMUNITY_RECORDER_GROUP_DESCRIPTION = "Community recorders users, who can submit claims";
+    public static final String COMMUNITY_GROUP_ID = "CommunityMembers";
+    public static final String COMMUNITY_GROUP_NAME = "Community members";
+    public static final String COMMUNITY_GROUP_DESCRIPTION = "Community memebers, who can view claims";
     
     @ChildEntityList(parentIdField = "groupId", cascadeDelete=true)
     private List<GroupRole> groupRoles;

@@ -259,9 +259,15 @@ public class RepositoryUtility {
     public static <T extends AbstractEJBLocal> T getEJB(Class<T> ejbLocalClass) {
         T ejb = null;
 
-        String ejbLookupName = "java:global/SOLA/" + ejbLocalClass.getSimpleName();
+        String ejbLookupName = "";
+        
         try {
             InitialContext ic = new InitialContext();
+            
+            //String moduleName = (String) ic.lookup("java:module/ModuleName");
+            //String appName = (String) ic.lookup("java:app/AppName");
+            
+            ejbLookupName = "java:app/" + ejbLocalClass.getSimpleName();
             ejb = (T) ic.lookup(ejbLookupName);
         } catch (NamingException ex) {
             throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
@@ -274,9 +280,11 @@ public class RepositoryUtility {
     public static <T extends AbstractEJBLocal> T tryGetEJB(Class<T> ejbLocalClass) {
         T ejb = null;
 
-        String ejbLookupName = "java:global/SOLA/" + ejbLocalClass.getSimpleName();
+        String ejbLookupName = "";
         try {
             InitialContext ic = new InitialContext();
+            
+            ejbLookupName = "java:app/" + ejbLocalClass.getSimpleName();
             ejb = (T) ic.lookup(ejbLookupName);
         } catch (NamingException ex) {
             // Ignore the naming exception and return null; 
