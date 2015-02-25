@@ -97,9 +97,6 @@ public interface AdminEJBLocal {
     /** See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#isUserActiveByEmail(java.lang.String)} */
     boolean isUserActiveByEmail(String email);
     
-    /** See {@link org.sola.services.ejbs.admin.businesslogic.AdminEJB#activeteCommuninityRecorderUser(java.lang.String, java.lang.String) }*/
-    boolean activeteCommuninityRecorderUser(String userName, String activationCode);
-    
     /**
      * See {@linkplain org.sola.services.ejbs.admin.businesslogic.AdminEJB#getCurrentUser()
      * AdminEJB.getCurrentUser}

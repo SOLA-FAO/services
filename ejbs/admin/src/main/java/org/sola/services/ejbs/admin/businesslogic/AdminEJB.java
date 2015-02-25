@@ -83,14 +83,16 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     public List<User> getUsers() {
         return getRepository().getEntityList(User.class);
     }
-    
-    /** Returns database configuration related to the EJB. */
+
+    /**
+     * Returns database configuration related to the EJB.
+     */
     @RolesAllowed(RolesConstants.ADMIN_MANAGE_SETTINGS)
     @Override
     public Configuration getDbConfiguration() {
         return getRepository().getDbConnectionManager().getSqlSessionFactory().getConfiguration();
     }
-    
+
     /**
      * Returns the details of the user with the specified user name.
      *
@@ -248,34 +250,6 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     }
 
     /**
-     * Activates community recorder user
-     *
-     * @param userName User name
-     * @param activationCode Activation code
-     * @return
-     */
-    @Override
-    public boolean activeteCommuninityRecorderUser(String userName, String activationCode) {
-        User user = getUserInfo(userName);
-        if (user == null || user.getUserName() == null || user.getUserName().equals("")) {
-            return false;
-        }
-
-        // Check activation code
-        if (user.getActivationCode() == null || !user.getActivationCode().equals(activationCode)) {
-            return false;
-        }
-
-        // Activate user
-        if (!user.isActive()) {
-            user.setActive(true);
-            user.setActivationExpiration(null);
-            getRepository().saveEntity(user);
-        }
-        return true;
-    }
-
-    /**
      * Returns the details for the currently authenticated user.
      *
      * <p>
@@ -305,6 +279,21 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     @RolesAllowed({RolesConstants.ADMIN_MANAGE_SECURITY, RolesConstants.ADMIN_CHANGE_PASSWORD})
     @Override
     public User saveUser(User user) {
+        User oldUser = getUserInfo(user.getUserName());
+        if (oldUser != null) {
+            if (!oldUser.isActive() && user.isActive()) {
+                // Send email
+                if (systemEJB.isEmailServiceEnabled() && !StringUtility.isEmpty(user.getEmail())) {
+                    String msgBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_ACTIVATION_BODY, "");
+                    String msgSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_ACTIVATION_SUBJECT, "");
+
+                    msgBody = msgBody.replace(EmailVariables.FULL_USER_NAME, user.getFirstName());
+                    msgBody = msgBody.replace(EmailVariables.USER_NAME, user.getUserName());
+
+                    systemEJB.sendEmail(user.getFullName(), user.getEmail(), msgBody, msgSubject);
+                }
+            }
+        }
         return getRepository().saveEntity(user);
     }
 
@@ -342,11 +331,11 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         }
 
         // Generate activation code
-        String code = UUID.randomUUID().toString().substring(0, 8);
-        int timeOut = Integer.valueOf(systemEJB.getSetting(ConfigConstants.ACCOUNT_ACTIVATION_TIMEOUT, "70"));
-
-        user.setActivationCode(code);
-        user.setActivationExpiration(DateUtility.addTime(Calendar.getInstance().getTime(), timeOut, Calendar.HOUR));
+        //String code = UUID.randomUUID().toString().substring(0, 8);
+        //int timeOut = Integer.valueOf(systemEJB.getSetting(ConfigConstants.ACCOUNT_ACTIVATION_TIMEOUT, "70"));
+        //user.setActivationCode(code);
+        user.setActive(false);
+        //user.setActivationExpiration(DateUtility.addTime(Calendar.getInstance().getTime(), timeOut, Calendar.HOUR));
 
         // Create user
         UserGroup ug = new UserGroup(user.getId(), group.getId());
@@ -366,13 +355,13 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
             String msgSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_REG_SUBJECT, "");
             String activationPage = StringUtility.empty(LocalInfo.getBaseUrl());
             activationPage += "/user/regactivation.xhtml";
-            String activationUrl = activationPage + "?user=" + user.getUserName() + "&code=" + code;
+            //String activationUrl = activationPage + "?user=" + user.getUserName() + "&code=" + code;
 
             msgBody = msgBody.replace(EmailVariables.FULL_USER_NAME, user.getFirstName());
             msgBody = msgBody.replace(EmailVariables.USER_NAME, user.getUserName());
-            msgBody = msgBody.replace(EmailVariables.ACTIVATION_LINK, activationUrl);
+            //msgBody = msgBody.replace(EmailVariables.ACTIVATION_LINK, activationUrl);
             msgBody = msgBody.replace(EmailVariables.ACTIVATION_PAGE, activationPage);
-            msgBody = msgBody.replace(EmailVariables.ACTIVATION_CODE, code);
+            //msgBody = msgBody.replace(EmailVariables.ACTIVATION_CODE, code);
 
             systemEJB.sendEmail(user.getFullName(), user.getEmail(), msgBody, msgSubject);
 
@@ -618,7 +607,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     /**
      * Checks if the current user has been assigned one or more of the null null
      * null null null null null null null null null null null null null null
-     * null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
+     * null null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
      * {@linkplain RolesConstants#ADMIN_MANAGE_REFDATA} or
      * {@linkplain RolesConstants#ADMIN_MANAGE_SETTINGS} security roles.
      * <p>
@@ -647,7 +636,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     @Override
     public List<Language> getLanguages(String lang) {
         Map params = new HashMap<String, Object>();
-        if(lang != null){
+        if (lang != null) {
             params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, lang);
         }
         params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, "item_order");
@@ -670,10 +659,9 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         return "extract";
     }
 
-
     /**
      * Not used.
-     * 
+     *
      * @param processName
      * @param languageCode
      * @param fileInServer
@@ -803,9 +791,9 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
 
     /**
      * Not used.
-     * 
+     *
      * @param processName
-     * @return 
+     * @return
      */
     @Override
     public String getProcessLog(String processName) {
