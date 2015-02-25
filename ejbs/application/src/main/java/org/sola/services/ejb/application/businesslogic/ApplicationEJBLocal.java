@@ -49,6 +49,12 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
      * ApplicationEJB.getApplication}.
      */
     Application getApplication(String id);
+    
+    /**
+     * See {@linkplain ApplicationEJB#getService(java.lang.String)
+     * ApplicationEJB.getService}.
+     */
+    Service getService(String id);
 
     /**
      * See {@linkplain ApplicationEJB#createApplication(org.sola.services.ejb.application.repository.entities.Application, String)
@@ -270,4 +276,9 @@ public interface ApplicationEJBLocal extends AbstractEJBLocal {
      */
     List<ValidationResult> applicationActionTransfer(
             String applicationId, String languageCode, int rowVersion);
+    
+    CancelNotification getCancelNotification(String partyId, String targetPartyId, String name, String application, String service);
+    
+    List<CancelNotification> getCancelNotifications(String partyId, String targetPartyId, String name, String application, String service);
+    
 }

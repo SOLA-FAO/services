@@ -17,6 +17,11 @@
             <artifactId>sola-address</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sola-source</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
        
 </project>

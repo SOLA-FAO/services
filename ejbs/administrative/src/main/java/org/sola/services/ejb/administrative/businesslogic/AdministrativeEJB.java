@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.ejb.administrative.businesslogic;
@@ -177,6 +179,65 @@ public class AdministrativeEJB extends AbstractEJB
         return getRepository().getEntity(BaUnit.class, params);
     }
 
+    @Override
+    public NotifiablePartyForBaUnit getNotifiableParty(String partyId, String targetPartyId, String name, String application, String service) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_APPLICATION, application);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_SERVICE, service);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_NAME, name);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_PARTY, partyId);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_TARGET_PARTY, targetPartyId);
+
+        if (!partyId.equals("") && !targetPartyId.equals("") && !name.equals("") && !application.equals("") && !service.equals("")) {
+            params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_ALL);
+            params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+            params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, NotifiablePartyForBaUnit.QUERY_ORDER_BY);
+        } else {
+            if (!partyId.equals("") && !targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
+                params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_PARTY_PROPERTY);
+                params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+                params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, NotifiablePartyForBaUnit.QUERY_ORDER_BY);
+            } else {
+                if (partyId.equals("") && targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
+                    params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_APPLICATION_PROPERTY);
+                    params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+                    params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, NotifiablePartyForBaUnit.QUERY_ORDER_BY);
+                } else {
+                    params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_APPLICATION_SERVICE);
+                    params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+                    params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, NotifiablePartyForBaUnit.QUERY_ORDER_BY);
+                }
+            }
+        }
+
+        return getRepository().getEntity(NotifiablePartyForBaUnit.class, params);
+    }
+
+    @Override
+    public List<NotifiablePartyForBaUnit> getNotifiableParties(String partyId, String targetPartyId, String name, String application, String service) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_APPLICATION, application);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_SERVICE, service);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_NAME, name);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_PARTY, partyId);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_TARGET_PARTY, targetPartyId);
+//        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_BAUNITID, baunitId);
+
+        if (!partyId.equals("") && !targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
+            params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_PARTY_PROPERTY);
+        } else {
+            if (partyId.equals("") && targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
+                params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_APPLICATION_PROPERTY);
+//                params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+            } else {
+                params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_APPLICATION_SERVICE);
+//                params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+            }
+        }
+
+        return getRepository().getEntityList(NotifiablePartyForBaUnit.class, params);
+    }
+
     /**
      * Creates a new BA Unit with a default status of pending and a default type
      * of basicPropertyUnit. Will also create a new Transaction record for the
@@ -229,6 +290,8 @@ public class AdministrativeEJB extends AbstractEJB
         TransactionBasic transaction =
                 transactionEJB.getTransactionByServiceId(serviceId, true, TransactionBasic.class);
         LocalInfo.setTransactionId(transaction.getId());
+
+
         return getRepository().saveEntity(baUnit);
     }
 
@@ -650,8 +713,8 @@ public class AdministrativeEJB extends AbstractEJB
         result = getRepository().executeFunction(queryParams, SysRegStatus.class);
         return result;
     }
-    
-	 @Override
+
+    @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
     public List<SysRegGender> getSysRegGender(String searchString, String languageCode) {
         List<SysRegGender> result;
@@ -661,8 +724,7 @@ public class AdministrativeEJB extends AbstractEJB
         result = getRepository().executeFunction(queryParams, SysRegGender.class);
         return result;
     }
-    
-	
+
     @Override
     @RolesAllowed(RolesConstants.ADMINISTRATIVE_SYSTEMATIC_REGISTRATION)
     public List<SysRegProgress> getSysRegProgress(SysRegManagementParams params, String languageCode) {
@@ -677,5 +739,27 @@ public class AdministrativeEJB extends AbstractEJB
         queryParams.put(SysRegProgress.QUERY_PARAMETER_LASTPART, params.getNameLastpart());
         result = getRepository().executeFunction(queryParams, SysRegProgress.class);
         return result;
+    }
+
+    /**
+     * Can be used to create a new groupParty or save any updates to the details
+     * of an existing groupParty. <p>Requires the
+     * {@linkplain RolesConstants#PATY_SAVE} role.</p>
+     *
+     * @param groupParty The groupParty to create/save
+     * @return The groupParty after the save is completed.
+     */
+    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE,
+        RolesConstants.APPLICATION_EDIT_APPS, RolesConstants.APPLICATION_CREATE_APPS})
+    public NotifiablePartyForBaUnit saveNotifiableParty(NotifiablePartyForBaUnit notifiableParty) {
+        
+        if (notifiableParty.getCancelServiceId()!= null) {
+        TransactionBasic transaction =
+                transactionEJB.getTransactionByServiceId(notifiableParty.getCancelServiceId(), true, TransactionBasic.class);
+        LocalInfo.setTransactionId(transaction.getId());
+        }
+        
+        
+        return getRepository().saveEntity(notifiableParty);
     }
 }

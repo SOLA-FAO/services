@@ -179,5 +179,23 @@ public interface AdministrativeEJBLocal extends AbstractSolaTransactionEJBLocal 
 	
 	List<SysRegGender> getSysRegGender(String searchString, String languageCode);
     
+   /**
+     * See {@linkplain AdministrativeEJB#getBaUnitByCode(java.lang.String, java.lang.String)
+     * AdministrativeEJB.getNotifiableParty}
+     */
+    NotifiablePartyForBaUnit getNotifiableParty(String partyId, String targetPartyId,String name, String application, String service);
+  /**
+     * See {@linkplain AdministrativeEJB#getBaUnitByCode(java.lang.String, java.lang.String)
+     * AdministrativeEJB.getNotifiableParty}
+     */
+    List <NotifiablePartyForBaUnit> getNotifiableParties(String partyId, String targetPartyId,String name, String application, String service);
     
+    /**
+     * See {@linkplain AdministrativeEJB#saveBaUnit(java.lang.String,
+     * org.sola.services.ejb.administrative.repository.entities.BaUnit)
+     * AdministrativeEJB.saveBaUnit}
+     */
+    NotifiablePartyForBaUnit saveNotifiableParty(NotifiablePartyForBaUnit notifiableParty);
+
+ 
 }
