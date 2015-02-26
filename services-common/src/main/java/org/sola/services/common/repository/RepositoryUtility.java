@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 /*
@@ -36,22 +38,26 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.apache.commons.lang.ClassUtils;
+import org.sola.common.DateUtility;
+import org.sola.common.RolesConstants;
 import org.sola.common.SOLAException;
+import org.sola.common.StringUtility;
 import org.sola.common.logging.LogUtility;
+import org.sola.common.messaging.MessageUtility;
 import org.sola.common.messaging.ServiceMessage;
+import org.sola.services.common.LocalInfo;
 import org.sola.services.common.ejbs.AbstractEJBLocal;
+import org.sola.services.common.repository.entities.AbstractEntityInfo;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.ChildEntityInfo;
 import org.sola.services.common.repository.entities.ColumnInfo;
@@ -65,6 +71,7 @@ public class RepositoryUtility {
     private static Map<String, List<ColumnInfo>> entityColumns = new HashMap<String, List<ColumnInfo>>();
     private static Map<String, List<ColumnInfo>> entityIdColumns = new HashMap<String, List<ColumnInfo>>();
     private static Map<String, String> entityTableNames = new HashMap<String, String>();
+    private static Map<String, Boolean> entityCacheable = new HashMap<String, Boolean>();
     private static Map<String, String> sorterExpressions = new HashMap<String, String>();
     private static Map<String, List<ChildEntityInfo>> childEntities = new HashMap<String, List<ChildEntityInfo>>();
 
@@ -228,7 +235,7 @@ public class RepositoryUtility {
                         throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
                                 // The ChildEntity annoation is not configured correctly
                                 new Object[]{"ChildEntity annotation is not configured correclty on "
-                            + entityClass.getSimpleName() + "." + field.getName()});
+                                    + entityClass.getSimpleName() + "." + field.getName()});
                     }
 
                     childInfo = new ChildEntityInfo(field.getName(), field.getType(), insert,
@@ -256,18 +263,12 @@ public class RepositoryUtility {
         return children;
     }
 
-    public static <T extends AbstractEJBLocal> T getEJB(Class<T> ejbLocalClass) {
+    public static <T> T getEJB(Class<T> ejbLocalClass) {
         T ejb = null;
 
-        String ejbLookupName = "";
-        
+        String ejbLookupName = "java:app/" + ejbLocalClass.getSimpleName();
         try {
             InitialContext ic = new InitialContext();
-            
-            //String moduleName = (String) ic.lookup("java:module/ModuleName");
-            //String appName = (String) ic.lookup("java:app/AppName");
-            
-            ejbLookupName = "java:app/" + ejbLocalClass.getSimpleName();
             ejb = (T) ic.lookup(ejbLookupName);
         } catch (NamingException ex) {
             throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
@@ -277,14 +278,12 @@ public class RepositoryUtility {
         return ejb;
     }
 
-    public static <T extends AbstractEJBLocal> T tryGetEJB(Class<T> ejbLocalClass) {
+    public static <T> T tryGetEJB(Class<T> ejbLocalClass) {
         T ejb = null;
 
-        String ejbLookupName = "";
+        String ejbLookupName = "java:app/" + ejbLocalClass.getSimpleName();
         try {
             InitialContext ic = new InitialContext();
-            
-            ejbLookupName = "java:app/" + ejbLocalClass.getSimpleName();
             ejb = (T) ic.lookup(ejbLookupName);
         } catch (NamingException ex) {
             // Ignore the naming exception and return null; 
@@ -292,6 +291,41 @@ public class RepositoryUtility {
         return ejb;
     }
 
+//    public static <T extends AbstractEJBLocal> T getEJB(Class<T> ejbLocalClass) {
+//        T ejb = null;
+//
+//        String ejbLookupName = "";
+//        
+//        try {
+//            InitialContext ic = new InitialContext();
+//            
+//            //String moduleName = (String) ic.lookup("java:module/ModuleName");
+//            //String appName = (String) ic.lookup("java:app/AppName");
+//            
+//            ejbLookupName = "java:app/" + ejbLocalClass.getSimpleName();
+//            ejb = (T) ic.lookup(ejbLookupName);
+//        } catch (NamingException ex) {
+//            throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
+//                    // Capture the specific details so they are added to the log
+//                    new Object[]{"Unable to locate EJB " + ejbLookupName, ex});
+//        }
+//        return ejb;
+//    }
+//
+//    public static <T extends AbstractEJBLocal> T tryGetEJB(Class<T> ejbLocalClass) {
+//        T ejb = null;
+//
+//        String ejbLookupName = "";
+//        try {
+//            InitialContext ic = new InitialContext();
+//            
+//            ejbLookupName = "java:app/" + ejbLocalClass.getSimpleName();
+//            ejb = (T) ic.lookup(ejbLookupName);
+//        } catch (NamingException ex) {
+//            // Ignore the naming exception and return null; 
+//        }
+//        return ejb;
+//    }
     /**
      * Issue #192 Compare two arrays to determine if they are equal or not.
      * Performs a deep comparison of all array members using the Arrays.equal
@@ -351,6 +385,169 @@ public class RepositoryUtility {
             } catch (ParseException ex) {
                 LogUtility.log("Unable to compare geometries. Parse Error:" + ex.getMessage(), ex);
                 result = false;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Checks the Security Classification to ensure the user has the appropriate
+     * clearance to view the record details. The security clearance assigned to
+     * a user will grant them access to all records that have the same or lower
+     * security classification. Where a specialty classification is being used,
+     * the user must have that clearance assigned (as a security role) or have a
+     * clearance level of Top Secret.
+     *
+     * @param classificationCode The security classification to check
+     * @return true user has the appropriate security clearance to view the
+     * entity, false otherwise.
+     */
+    public static boolean hasSecurityClearance(String classificationCode) {
+        boolean result;
+        if (StringUtility.isEmpty(classificationCode)
+                || RolesConstants.CLASSIFICATION_UNRESTRICTED.equals(classificationCode)) {
+            result = true;
+        } else if (RolesConstants.CLASSIFICATION_RESTRICTED.equals(classificationCode)) {
+            result = LocalInfo.isInRole(RolesConstants.CLASSIFICATION_RESTRICTED,
+                    RolesConstants.CLASSIFICATION_CONFIDENTIAL,
+                    RolesConstants.CLASSIFICATION_SECRET,
+                    RolesConstants.CLASSIFICATION_TOPSECRET);
+        } else if (RolesConstants.CLASSIFICATION_CONFIDENTIAL.equals(classificationCode)) {
+            result = LocalInfo.isInRole(RolesConstants.CLASSIFICATION_CONFIDENTIAL,
+                    RolesConstants.CLASSIFICATION_SECRET,
+                    RolesConstants.CLASSIFICATION_TOPSECRET);
+        } else if (RolesConstants.CLASSIFICATION_SECRET.equals(classificationCode)) {
+            result = LocalInfo.isInRole(RolesConstants.CLASSIFICATION_SECRET,
+                    RolesConstants.CLASSIFICATION_TOPSECRET);
+        } else if (RolesConstants.CLASSIFICATION_TOPSECRET.equals(classificationCode)) {
+            result = LocalInfo.isInRole(RolesConstants.CLASSIFICATION_TOPSECRET);
+        } else {
+            // Specialty Classification so allow users with that clearance or 
+            // TOP SECRET to view it. Note that the Speciality Classification must
+            // be statically declared using the @DeclareRoles annotation on 
+            // AbstractEJB otherwise it will be ignored by the isInRole check. 
+            result = LocalInfo.isInRole(classificationCode,
+                    RolesConstants.CLASSIFICATION_TOPSECRET);
+        }
+        return result;
+    }
+
+    /**
+     * Indicates if an entity can be cached for fast access. Used for reference
+     * codes that are not frequently updated.
+     *
+     * @param <T>
+     * @param entityClass The entity class to check for the cacheable annotation
+     * @return true if the Cacheable Annotation value is true, false otherwise.
+     */
+    public static <T extends AbstractReadOnlyEntity> boolean isCachable(Class<T> entityClass) {
+        boolean result = false;
+        if (entityCacheable.containsKey(entityClass.getName())) {
+            result = entityCacheable.get(entityClass.getName());
+        } else {
+            Cacheable cacheableAnnotation = entityClass.getAnnotation(Cacheable.class);
+            if (cacheableAnnotation == null && entityClass.getSuperclass() != null
+                    && AbstractReadOnlyEntity.class.isAssignableFrom(entityClass.getSuperclass())) {
+                result = isCachable((Class<AbstractReadOnlyEntity>) entityClass.getSuperclass());
+            }
+            if (cacheableAnnotation != null) {
+                result = cacheableAnnotation.value();
+                // Set the cacheable state of the entity based on the value of the
+                // Cacheable annotation
+                entityCacheable.put(entityClass.getName(), result);
+            } else {
+                // Set the cacheable state for this entity. Note that the result 
+                // may hve been inherited from a super class. 
+                entityCacheable.put(entityClass.getName(), result);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Determines if the the contents of a field need to be redacted or not
+     * based on the security clearance assigned to the user and the minimum
+     * redact classification for the field. The minimum redaction classification
+     * can be overridden by setting the redact_code field on the entity
+     * explicitly.
+     *
+     * @param columnInfo The column info for the field being checked
+     * @param redactCode The override redact code set on the entity.
+     * @return true if the content of the field must be redacted, false
+     * otherwise.
+     */
+    public static boolean isRedactRequired(AbstractEntityInfo columnInfo, String redactCode) {
+        boolean result = false;
+        if (columnInfo.isRedact()) {
+            if (!StringUtility.isEmpty(redactCode)) {
+                // An override redact code is set, so check if the user has this
+                // security clearance. If not, redact the field. 
+                result = !hasSecurityClearance(redactCode);
+            } else {
+                // No override redact code, so check if the user has the minimum
+                // classificaiton required (where one is set). If not, redact the field
+                result = !hasSecurityClearance(columnInfo.getMinRedactClassification());
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Attempts to obtain the appropriate redacted value for a field. This
+     * method attempts to provide a redacted value that matches the type of the
+     * field. The messageCode on the Redact annotation can be used to indicate
+     * the a custom redact value.
+     *
+     * @param columnInfo
+     * @return The value to use to redact the field or null.
+     */
+    public static Object getRedactedValue(ColumnInfo columnInfo) {
+        Object result = null;
+        Class<?> fieldType;
+        String msg;
+        if (columnInfo.getFieldType().isPrimitive()) {
+            fieldType = ClassUtils.primitiveToWrapper(columnInfo.getFieldType());
+        } else {
+            fieldType = columnInfo.getFieldType();
+        }
+        if (!StringUtility.isEmpty(columnInfo.getRedactMessageCode())) {
+            // Determine the message to use when redacting the field
+            msg = MessageUtility.getLocalizedMessageText(columnInfo.getRedactMessageCode(),
+                    LocalInfo.get(CommonSqlProvider.PARAM_LANGUAGE_CODE, String.class));
+            if (String.class.isAssignableFrom(fieldType)
+                    || Character.class.isAssignableFrom(fieldType)
+                    || char.class.isAssignableFrom(fieldType)) {
+                // The field is a string or char type
+                result = msg;
+            } else if (Date.class.isAssignableFrom(fieldType)) {
+                // The field is a date, use the DateUtility to parse the date time based
+                // on the specified redact date format
+                String dateFormat = MessageUtility.getLocalizedMessageText(ServiceMessage.REDACT_DATE_FORMAT);
+                result = DateUtility.convertToDate(msg, dateFormat);
+                if (result == null) {
+                    org.sola.services.common.logging.LogUtility.log("Unable to parse redacted date "
+                            + "value for " + columnInfo.getColumnName() + ". Date must be "
+                            + "in " + dateFormat + " format. See RepositoryUtility.getRedactedValue", Level.SEVERE);
+                }
+            } else {
+                // The field is not a string or char, so attempt to convert the 
+                //redact message to the appropriate data type
+                try {
+                    result = fieldType.getConstructor(String.class).newInstance(msg);
+                } catch (Exception e) {
+                    org.sola.services.common.logging.LogUtility.log("Failed to cast redact "
+                            + "value for " + columnInfo.getColumnName(), e);
+                }
+            }
+        } else {
+            // No redact message code is provided, so try to create a default object to use
+            // for the redact value. 
+            try {
+                result = fieldType.newInstance();
+            } catch (Exception ex) {
+                org.sola.services.common.logging.LogUtility.log("Failed to instantiate default"
+                        + " redact value for " + columnInfo.getColumnName(), ex);
             }
         }
         return result;

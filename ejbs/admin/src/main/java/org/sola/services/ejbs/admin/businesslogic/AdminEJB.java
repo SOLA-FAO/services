@@ -49,6 +49,7 @@ import org.sola.common.EmailVariables;
 import org.sola.common.RolesConstants;
 import org.sola.common.StringUtility;
 import org.sola.services.common.EntityAction;
+import org.sola.services.common.EntityTable;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.repository.CommonSqlProvider;
@@ -811,4 +812,35 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     public String getProcessLog(String processName) {
         return "";
     }
+  /**
+     * Updates the security classifications for a list of entities and
+     * identified by the entityTable and entity ids
+     *
+     * @param entityIds The ids of the entities to update
+     * @param entityTable Enumeration indicating the entity table to update
+     * @param classificationCode The new classification code to assign to the
+     * entities
+     * @param redactCode The new redactCode to assign to the entities
+     */
+    @RolesAllowed(RolesConstants.CLASSIFICATION_CHANGE_CLASS)
+    @Override
+    public void saveSecurityClassifications(List<String> entityIds, EntityTable entityTable,
+            String classificationCode, String redactCode) {
+        
+        Map params = new HashMap<String, Object>();
+        String updateSql
+                = " UPDATE " + entityTable.getTable()
+                + " SET classification_code = #{classCode}, "
+                + "     redact_code = #{redactCode}, "
+                + "     change_user = #{user} "
+                + " WHERE id IN (" 
+                + CommonSqlProvider.prepareListParams(entityIds, params) + ") ";
+
+        params.put(CommonSqlProvider.PARAM_QUERY, updateSql);
+        params.put("classCode", classificationCode);
+        params.put("redactCode", redactCode);
+        params.put("user", getCurrentUser().getUserName());
+        getRepository().bulkUpdate(params);
+    }
 }
+
