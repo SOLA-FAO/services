@@ -46,7 +46,6 @@ import org.sola.services.common.LocalInfo;
 import org.sola.services.common.ejbs.AbstractEJBLocal;
 import org.sola.services.common.faults.FaultUtility;
 import org.sola.services.common.repository.entities.*;
-import org.sola.services.ejb.cache.businesslogic.CacheEJBLocal;
 
 /**
  * Implementation of the {@linkplain CommonRepository} interface that uses the
@@ -62,7 +61,6 @@ public class CommonRepositoryImpl implements CommonRepository {
      */
     private static final String LOAD_INHIBITORS = "Repository.loadInhibitors";
     private DatabaseConnectionManager dbConnectionManager = null;
-    CacheEJBLocal cache;
 
     /**
      * Loads the myBatis configuration file and initializes a connection to the
@@ -89,18 +87,6 @@ public class CommonRepositoryImpl implements CommonRepository {
     @Override
     public DatabaseConnectionManager getDbConnectionManager() {
         return dbConnectionManager;
-    }
-
-    /**
-     * Retrieves the EJB cache used by the repository.
-     *
-     * @return
-     */
-    public CacheEJBLocal getCache() {
-        if (cache == null) {
-            cache = RepositoryUtility.getEJB(CacheEJBLocal.class);
-        }
-        return cache;
     }
 
     /**
@@ -339,7 +325,6 @@ public class CommonRepositoryImpl implements CommonRepository {
         return entity;
     }
 
-
     /**
      * Processes a row of the the generic result set returned from Mybatis after
      * executing an SQL query. Each column of the result is mapped to the entity
@@ -488,17 +473,6 @@ public class CommonRepositoryImpl implements CommonRepository {
             U mapper, boolean beforeSave) {
 
         for (ChildEntityInfo childInfo : entity.getChildEntityInfo()) {
-            if (entity.isRedactRequired(childInfo, entity.getRedactCode())
-                    || (childInfo.isRedact() && entity.isRedacted())) {
-                // Do not allow an update of the child or list as the entity is subject to
-                // redaction. Note that the second part of the check is to prevent cases 
-                // where the redact code has been changed by the user to a lesser value. 
-                // If the entity was redacted on load, do not allow saving of any redacted 
-                // child as this may result in data loss or duplication. It also ensures
-                // a nefarious user cannot change the details of an entity that they do 
-                // not have privileges to view. 
-                continue;
-            }
             if (AbstractEntity.class.isAssignableFrom(childInfo.getEntityClass())) {
                 if (childInfo.isListField() && !childInfo.isManyToMany()) {
                     // One to many child list
@@ -911,16 +885,13 @@ public class CommonRepositoryImpl implements CommonRepository {
             params.put(CommonSqlProvider.PARAM_WHERE_PART, whereClause);
             params.put(CommonSqlProvider.PARAM_ENTITY_CLASS, entity.getClass());
 
-            Map result = mapper.getEntity(params);
-            mapToEntity(entity, result);
-
-            /*SqlSession session = getSqlSession();
-             try {
-             Map result = getMapper(session).getEntity(params);
-             mapToEntity(entity, result);
-             } finally {
-             session.close();
-             } */
+            SqlSession session = getSqlSession();
+            try {
+                Map result = getMapper(session).getEntity(params);
+                mapToEntity(entity, result);
+            } finally {
+                session.close();
+            }
             return entity;
         }
         return entity;
@@ -939,11 +910,6 @@ public class CommonRepositoryImpl implements CommonRepository {
         if (entity != null) {
             SqlSession session = getSqlSession();
             try {
-                if (entity.isCacheable()) {
-                    // Check if the entity is cacheable before saving as the
-                    // entity can be null after the save due to deletion. 
-                    getCache().clearEntityLists(entity.getClass());
-                }
                 entity = saveEntity(entity, getMapper(session));
             } finally {
                 session.close();
@@ -1176,17 +1142,14 @@ public class CommonRepositoryImpl implements CommonRepository {
     public <T extends AbstractCodeEntity> T getCode(Class<T> codeListClass,
             String entityCode, String languageCode) {
 
-        T result = null;
-        // Obtain the code list from the cache and then locate the specific
-        // entity code. 
-        List<T> list = getCodeList(codeListClass, languageCode);
-        for (T code : list) {
-            if (code.getCode().equals(entityCode)) {
-                result = code;
-                break;
-            }
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        if (languageCode != null) {
+            params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, languageCode);
         }
-        return result;
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, "code = #{entityCode}");
+        params.put("entityCode", entityCode);
+
+        return getEntity(codeListClass, params);
     }
 
     @Override
@@ -1208,35 +1171,13 @@ public class CommonRepositoryImpl implements CommonRepository {
     public <T extends AbstractReadOnlyEntity> List<T> getEntityList(Class<T> entityClass,
             Map params) {
 
-        // Determine the Language Code for the query if it has been set
         params = params == null ? new HashMap<String, Object>() : params;
-        if (LocalInfo.get(CommonSqlProvider.PARAM_LANGUAGE_CODE) != null
-                && !params.containsKey(CommonSqlProvider.PARAM_LANGUAGE_CODE)) {
-            params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE,
-                    LocalInfo.get(CommonSqlProvider.PARAM_LANGUAGE_CODE));
-
-        }
-
-        // Determine the cache key
-        String key = null;
-        if (RepositoryUtility.isCachable(entityClass)) {
-            key = getCache().getKey(entityClass,
-                    (String) params.get(CommonSqlProvider.PARAM_LANGUAGE_CODE));
-        }
-
+        SqlSession session = getSqlSession();
         List<T> entityList = null;
-        if (!StringUtility.isEmpty(key) && getCache().isCachedList(key)) {
-            entityList = getCache().getList(entityClass, key);
-        } else {
-            SqlSession session = getSqlSession();
-            try {
-                entityList = getEntityList(entityClass, params, getMapper(session));
-            } finally {
-                session.close();
-            }
-            if (RepositoryUtility.isCachable(entityClass)) {
-                getCache().putList(key, entityList);
-            }
+        try {
+            entityList = getEntityList(entityClass, params, getMapper(session));
+        } finally {
+            session.close();
         }
         return entityList;
     }
@@ -1449,17 +1390,13 @@ public class CommonRepositoryImpl implements CommonRepository {
      * @param mapper The Mybatis mapper class used for this loading process.
      */
     public <T extends AbstractReadOnlyEntity, U extends CommonMapper> void loadChildren(T entity, U mapper) {
-        String redactCode = entity.getRedactCode();
         for (ChildEntityInfo childInfo : entity.getChildEntityInfo()) {
             if (AbstractReadOnlyEntity.class.isAssignableFrom(childInfo.getEntityClass())) {
-                Class<? extends AbstractReadOnlyEntity> childEntityClass
-                        = (Class<? extends AbstractReadOnlyEntity>) childInfo.getEntityClass();
-
-                // Determine if this child entity is being redacted. If so, do not load it. 
-                boolean redactRequired = entity.isRedactRequired(childInfo, redactCode);
+                Class<? extends AbstractReadOnlyEntity> childEntityClass =
+                        (Class<? extends AbstractReadOnlyEntity>) childInfo.getEntityClass();
                 // Check to determine if loading of this child class should be skipped or not
-                if (!isInhibitLoad(childEntityClass) && !redactRequired) {
-                    Object child;
+                if (!isInhibitLoad(childEntityClass)) {
+                    Object child = null;
                     if (childInfo.isExternalEntity()) {
                         // External Entity
                         child = getExternalEntity(entity, childInfo, mapper);
@@ -1471,14 +1408,11 @@ public class CommonRepositoryImpl implements CommonRepository {
                         child = getChildEntity(entity, childEntityClass, childInfo, mapper);
                     }
                     entity.setEntityFieldValue(childInfo, child);
+                } else {
+                    // The child entity does not inherit from the SOLA Abstract Entity classes. 
+                    // Allow the loading of the external need to be managed by the parent repository. 
+                    loadOtherEntity(entity, childInfo, mapper);
                 }
-                entity.setRedacted(redactRequired || entity.isRedacted());
-                setEntityRedactCode(entity, childInfo, redactCode);
-
-            } else {
-                // The child entity does not inherit from the SOLA Abstract Entity classes. 
-                // Allow the loading of the external need to be managed by the parent repository. 
-                loadOtherEntity(entity, childInfo, mapper);
             }
         }
     }

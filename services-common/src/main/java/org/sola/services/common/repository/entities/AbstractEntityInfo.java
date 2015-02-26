@@ -41,6 +41,9 @@ public abstract class AbstractEntityInfo {
 
     private String fieldName;
     private Class<?> fieldType;
+    private boolean redact;
+    private String minRedactClassification;
+    private String redactMessageCode;
 
     /** 
      * The name of the entity field this entity information relates to. 
@@ -65,6 +68,54 @@ public abstract class AbstractEntityInfo {
 
     public void setFieldType(Class<?> fieldType) {
         this.fieldType = fieldType;
+    }
+       /**
+     * Indicates if the field has been marked for redaction
+     */
+    public boolean isRedact() {
+        return redact;
+    }
+
+    public void setRedact(boolean redact) {
+        this.redact = redact;
+    }
+
+    /**
+     * The minimum Security Classification required by the user to prevent
+     * redaction of the field content. Usually a reference to one of the five
+     * security classification constants on the
+     * {@link org.sola.common.RolesConstants} class. Used to support bulk
+     * redaction of a specific field in cases where all entities should be
+     * redacted unless the user has the appropriate security classification. The
+     * redact_code override recorded on the entity can be used to allow specific
+     * users to view the entity unredacted even though they may not have the min
+     * classification indicated.
+     */
+    public String getMinRedactClassification() {
+        return minRedactClassification;
+    }
+
+    public void setMinRedactClassification(String minRedactClassification) {
+        this.minRedactClassification = minRedactClassification;
+    }
+
+    /**
+     * The message code indicating the message to use when replacing/redacting
+     * the content of the field. Usually a reference to constant on the
+     * {@link org.sola.common.messaging.ServiceMessage} class. If omitted, the
+     * field will be a assigned a value created by its nullary constructor (i.e.
+     * constructor without arguments). Primitive types are boxed to ensure they
+     * can be created. Not used if the field is a list of child entities as the
+     * list is not loaded
+     *
+     * @return
+     */
+    public String getRedactMessageCode() {
+        return redactMessageCode;
+    }
+
+    public void setRedactMessageCode(String redactMessageCode) {
+        this.redactMessageCode = redactMessageCode;
     }
 
     /**

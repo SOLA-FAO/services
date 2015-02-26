@@ -67,6 +67,10 @@
                             <artifactId>sola-transaction</artifactId>
                         </ejbModule>
                         <ejbModule>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>sola-cache</artifactId>
+                        </ejbModule>
+                        <ejbModule>
                             <groupId>${project.groupId}.ejbs</groupId>
                             <artifactId>sola-refdata</artifactId>
                         </ejbModule>
@@ -212,6 +216,12 @@
         <dependency>
             <groupId>${project.groupId}.ejbs</groupId>
             <artifactId>sola-refdata</artifactId>
+            <version>${project.version}</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sola-cache</artifactId>
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>

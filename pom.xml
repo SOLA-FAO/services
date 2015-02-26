@@ -29,5 +29,6 @@
         <!-- Test Projects -->
         <module>unit-tests</module>
         <module>test-common</module>
-  </modules>
+        <module>org.sola.services_sola-cache_ejb_v1502a</module>
+    </modules>
 </project>

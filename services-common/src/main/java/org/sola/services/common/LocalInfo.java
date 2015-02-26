@@ -29,6 +29,7 @@ package org.sola.services.common;
 
 import java.util.HashMap;
 import java.util.logging.Level;
+import javax.ejb.SessionContext;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -64,6 +65,8 @@ public final class LocalInfo {
     public static String USER_NAME = "Local.UserName";
     public static String TRANSACTION_ID = "Local.TransactionId";
     public static String BASE_URL = "Local.BaseUrl";
+    public static final String SESSION_CONTEXT = "Local.SessionContext";
+
 
     /**
      * @return The Transaction Synchronization Registry from the JEE container or null if it is not
@@ -126,7 +129,53 @@ public final class LocalInfo {
     public static void setTransactionId(String userName) {
         set(TRANSACTION_ID, userName, true);
     }
+    
+    
+    /**
+     * Checks if current user belongs to any of provided roles.
+     * <p>
+     * IMPORTANT: SessionContext will only recognize roles that have been
+     * statically defined using @DeclareRoles annotation on the
+     * {@linkplain org.sola.services.common.ejbs.AbstractEJB} class. Roles added
+     * to the database that are not declared on AbstractEJB are ignored.
+     * <p>
+     *
+     * @param roles List of roles to check.
+     */
+    public static boolean isInRole(String... roles) {
+        if (roles == null || roles[0] == null) {
+            // No roles to check so allow access
+            return true;
+        }
+        boolean result = false;
+        SessionContext context = get(SESSION_CONTEXT, SessionContext.class);
+        if (context != null) {
+            for (String role : roles) {
+                // If the role is not recognised, confirm it has been declared on
+                // Abstract EJB correctly. See IMPORTANT above. 
+                if (context.isCallerInRole(role)) {
+                    result = true;
+                    break;
+                }
+            }
+        } else {
+            // The session context does not exist so allow access. 
+            result = true;
+        }
+        return result;
+    }
 
+     /**
+     * Sets the session context so that it is possible to check if the current
+     * user has the appropriate Security Classification (i.e. via security
+     * roles) when loading entities from the database.
+     *
+     * @param context
+     */
+    public static void setSessionContext(SessionContext context) {
+        set(SESSION_CONTEXT, context);
+    }
+    
     /**
      * Gets the object referenced by the key value from local storage. If the key does not 
      * exist in local storage, null is returned. 

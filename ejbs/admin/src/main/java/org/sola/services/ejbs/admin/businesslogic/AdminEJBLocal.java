@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.session.Configuration;
+import org.sola.services.common.EntityTable;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Role;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.User;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Group;
@@ -260,4 +261,15 @@ public interface AdminEJBLocal {
      * AdminEJB.getProcessLog}
      */
     String getProcessLog(String processName);
+  /**
+     * See {@linkplain AdminEJB#saveSecurityClassifications(java.util.List, org.sola.services.common.EntityTable,
+     * java.lang.String, java.lang.String) saveSecurityClassifications}
+     *
+     * @param entityIds
+     * @param entityTable
+     * @param classificationCode
+     * @param redactCode
+     */
+    void saveSecurityClassifications(List<String> entityIds, EntityTable entityTable,
+            String classificationCode, String redactCode);
 }

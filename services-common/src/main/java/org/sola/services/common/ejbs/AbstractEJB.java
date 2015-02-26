@@ -92,7 +92,19 @@ import org.sola.services.common.repository.entities.AbstractEntity;
     RolesConstants.CS_ACCESS_CS,
     RolesConstants.CS_MODERATE_CLAIM,
     RolesConstants.CS_RECORD_CLAIM,
-    RolesConstants.CS_REVIEW_CLAIM
+    RolesConstants.CS_REVIEW_CLAIM,
+    RolesConstants.CLASSIFICATION_CHANGE_CLASS,
+    RolesConstants.CLASSIFICATION_UNRESTRICTED,
+    RolesConstants.CLASSIFICATION_RESTRICTED,
+    RolesConstants.CLASSIFICATION_CONFIDENTIAL,
+    RolesConstants.CLASSIFICATION_SECRET,
+    RolesConstants.CLASSIFICATION_TOPSECRET,
+    RolesConstants.CLASSIFICATION_SUPPRESSION_ORDER,
+    RolesConstants.SERVICE_START_CHECKLIST,
+    RolesConstants.SERVICE_START_PUBLIC_DISPLAY,
+    RolesConstants.SERVICE_START_OBJECTIONS,
+    RolesConstants.SERVICE_START_NOTIFY,
+    RolesConstants.SERVICE_START_NEGOTIATE
 })
 public abstract class AbstractEJB implements AbstractEJBLocal {
 
