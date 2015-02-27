@@ -61,7 +61,9 @@ public class NotifiablePartySearchResult extends AbstractReadOnlyEntity {
             + " )>0 as selProperties,"
             + " gpp.id groupPartyId,   "
             + " gpp.name groupPartyName,   "
-            + " gpp.last_name groupPartyLastName "
+            + " gpp.last_name groupPartyLastName, "
+            + " pp.classification_code, "
+            + " pp.redact_code "
             + " FROM party.party pp,"
             + " party.party tpp, "
             + " administrative.notifiable_party_for_baunit npbu,"
@@ -102,6 +104,10 @@ public class NotifiablePartySearchResult extends AbstractReadOnlyEntity {
     private String groupPartyLastName;
     @Column(name = "groupPartyId")
     private String groupPartyId;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    private String classificationCode;
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
     
    
     
@@ -196,5 +202,23 @@ public class NotifiablePartySearchResult extends AbstractReadOnlyEntity {
 
     public void setGroupPartyName(String groupPartyName) {
         this.groupPartyName = groupPartyName;
+    }
+    
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
     }
 }

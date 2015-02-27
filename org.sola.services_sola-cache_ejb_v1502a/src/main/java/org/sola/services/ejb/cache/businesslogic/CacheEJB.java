@@ -68,7 +68,7 @@ import org.sola.common.logging.LogUtility;
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 @Lock(LockType.READ)
 @AccessTimeout(value = 20, unit = SECONDS) // Only wait 20 seconds in the case of a deadlock. 
-@EJB(name = "java:app/SOLA_SL/CacheEJBLocal", beanInterface = CacheEJBLocal.class)
+@EJB(name = "java:app/CacheEJBLocal", beanInterface = CacheEJBLocal.class)
 public class CacheEJB implements CacheEJBLocal {
 
     Map<String, Object> cache = new HashMap<String, Object>();

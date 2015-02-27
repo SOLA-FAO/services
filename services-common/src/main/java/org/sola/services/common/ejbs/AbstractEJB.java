@@ -99,12 +99,7 @@ import org.sola.services.common.repository.entities.AbstractEntity;
     RolesConstants.CLASSIFICATION_CONFIDENTIAL,
     RolesConstants.CLASSIFICATION_SECRET,
     RolesConstants.CLASSIFICATION_TOPSECRET,
-    RolesConstants.CLASSIFICATION_SUPPRESSION_ORDER,
-    RolesConstants.SERVICE_START_CHECKLIST,
-    RolesConstants.SERVICE_START_PUBLIC_DISPLAY,
-    RolesConstants.SERVICE_START_OBJECTIONS,
-    RolesConstants.SERVICE_START_NOTIFY,
-    RolesConstants.SERVICE_START_NEGOTIATE
+    RolesConstants.CLASSIFICATION_SUPPRESSION_ORDER
 })
 public abstract class AbstractEJB implements AbstractEJBLocal {
 
@@ -159,18 +154,7 @@ public abstract class AbstractEJB implements AbstractEJBLocal {
      * @param roles List of roles to check.
      */
     public boolean isInRole(String... roles) {
-        boolean result = false;
-        if (roles != null) {
-            for (String role : roles) {
-                if (sessionContext.isCallerInRole(role)) {
-                    result = true;
-                    break;
-                }
-            }
-        } else {
-            result = true;
-        }
-        return result;
+        return LocalInfo.isInRole(roles);
     }
 
     /**
@@ -217,6 +201,7 @@ public abstract class AbstractEJB implements AbstractEJBLocal {
             userName = "SOLA_ANONYMOUS";
         }
         LocalInfo.setUserName(userName);
+        LocalInfo.setSessionContext(sessionContext); 
 
         beforeInvoke(ctx);
         Object result = ctx.proceed();

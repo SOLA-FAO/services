@@ -177,13 +177,16 @@ public class CommonRepositoryImpl implements CommonRepository {
 
     /**
      * Allows an array of entity classes to be set as inhibitors for a given SQL
-     * Query. <p> The Common Repository will attempt to eagerly load all child
-     * entities of an entity when that entity is loaded via a getEntity or
-     * getEntityList method. In some cases, the child entities are not required
-     * and the additional load is an unnecessary performance overhead. The Load
+     * Query.
+     * <p>
+     * The Common Repository will attempt to eagerly load all child entities of
+     * an entity when that entity is loaded via a getEntity or getEntityList
+     * method. In some cases, the child entities are not required and the
+     * additional load is an unnecessary performance overhead. The Load
      * Inhibitors allows the developer to indicate which child entities should
-     * not be loaded based on the child entity class. </p> <p> Once set, the
-     * load inhibitors remain set until the developer calls the {@linkplain
+     * not be loaded based on the child entity class. </p>
+     * <p>
+     * Once set, the load inhibitors remain set until the developer calls the {@linkplain
      * #clearLoadInhibitors()} method. This is to ensure any level of the child
      * hierarchy can be inhibited, but also means that the clear method should
      * be called once the necessary loading is complete </p>
@@ -213,8 +216,10 @@ public class CommonRepositoryImpl implements CommonRepository {
 
     /**
      * Retrieves a child entity that is in a one to one relationship with its
-     * parent entity. <p> To customize the default join criteria used to load
-     * the child entity, override the parent entity
+     * parent entity.
+     * <p>
+     * To customize the default join criteria used to load the child entity,
+     * override the parent entity
      * {@linkplain AbstractReadOnlyEntity#getChildJoinSqlParams} to return the
      * appropriately configured SQL Parameters. </p>
      *
@@ -270,9 +275,8 @@ public class CommonRepositoryImpl implements CommonRepository {
         }
         return child;
     }
-     
-    
-     /**
+
+    /**
      * Updates the redactCode for the entity to represent the
      * minRedactClassification for a column if no override redact code has been
      * set on the entity.
@@ -297,7 +301,7 @@ public class CommonRepositoryImpl implements CommonRepository {
             }
         }
     }
-    
+
     /**
      * Processes a row of the the generic result set returned from Mybatis after
      * executing an SQL query. Each column of the result is mapped to the entity
@@ -313,19 +317,19 @@ public class CommonRepositoryImpl implements CommonRepository {
      */
     private <T extends AbstractReadOnlyEntity> T mapToEntity(T entity, Map<String, Object> row) {
         if (row != null && !row.isEmpty()) {
-// Ticket #3SL. Check if the user has the appropraite security clearance
-// to view this record. If not, do not load the entity.
+            // Ticket #453. Check if the user has the appropraite security clearance
+            // to view this record. If not, do not load the entity.
             String classificationCode = (String) row.get(AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME);
             if (entity.hasSecurityClearance(classificationCode)) {
-// Ticket #3SL. Obtain the redact code for this entity
+                // Ticket #453. Obtain the redact code for this entity
                 String redactCode = (String) row.get(AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME);
                 entity.setRedacted(false);
                 for (ColumnInfo columnInfo : entity.getColumns()) {
-// Note that the row map only contains columns with non-null values
+                    // Note that the row map only contains columns with non-null values
                     if (row.containsKey(columnInfo.getColumnName().toLowerCase())) {
                         Object value = row.get(columnInfo.getColumnName().toLowerCase());
                         if (entity.isRedactRequired(columnInfo, redactCode)) {
-// The field must have its value redacted
+                            // The field must have its value redacted
                             value = entity.getRedactedValue(columnInfo);
                             entity.setRedacted(true);
                         }
@@ -339,13 +343,14 @@ public class CommonRepositoryImpl implements CommonRepository {
         return entity;
     }
 
-
     /**
      * Processes a row of the the generic result set returned from Mybatis after
      * executing an SQL query. Each column of the result is mapped to the entity
      * field based on the name of the column specified in the
      *
-     * @Column annotation. <p> Overloaded version of
+     * @Column annotation.
+     * <p>
+     * Overloaded version of
      * {@linkplain #mapToEntity(.AbstractReadOnlyEntity, Map)} that creates a
      * new instance of the entity to populate based on the entity class. </p>
      *
@@ -1015,8 +1020,8 @@ public class CommonRepositoryImpl implements CommonRepository {
         Map<String, Object> params = new HashMap<String, Object>();
 
         String parentIdField = childInfo.getParentIdField();
-        Class<? extends AbstractEntity> entityClass =
-                (Class<? extends AbstractEntity>) childInfo.getEntityClass();
+        Class<? extends AbstractEntity> entityClass
+                = (Class<? extends AbstractEntity>) childInfo.getEntityClass();
 
         if (childInfo.isManyToMany()) {
             // Get the details of the Many to Many class and the select the child id column
@@ -1024,7 +1029,7 @@ public class CommonRepositoryImpl implements CommonRepository {
 
             params.put(CommonSqlProvider.PARAM_SELECT_PART,
                     RepositoryUtility.getColumnInfo(entityClass,
-                    childInfo.getChildIdField()).getColumnName());
+                            childInfo.getChildIdField()).getColumnName());
 
         } else {
             // One to many relationship so just select the id column
@@ -1270,7 +1275,10 @@ public class CommonRepositoryImpl implements CommonRepository {
 
     /**
      * Retrieves a list of entities by generating a where clause based on the
-     * list of entity ids. <p> Uses and IN clause for the SQL query. </p> <p>
+     * list of entity ids.
+     * <p>
+     * Uses and IN clause for the SQL query. </p>
+     * <p>
      * Overloaded version of {@linkplain #getEntityListByIds(java.lang.Class, java.util.List,
      * java.util.Map) } that defaults the parameter map to null. </p>
      *
@@ -1288,9 +1296,11 @@ public class CommonRepositoryImpl implements CommonRepository {
 
     /**
      * Retrieves a list of entities by generating a where clause based on the
-     * list of entity ids. <p> Uses and IN clause for the SQL query. If a
-     * PARAM_WHERE_PART is provided in the params map, the IN clause is ANDed to
-     * the existing PARAM_WHERE_PART.</p>
+     * list of entity ids.
+     * <p>
+     * Uses and IN clause for the SQL query. If a PARAM_WHERE_PART is provided
+     * in the params map, the IN clause is ANDed to the existing
+     * PARAM_WHERE_PART.</p>
      *
      * @param <T> The generic type of the entity being loaded. Must be a
      * descendent of {@linkplain AbstractReadOnlyEntity}
@@ -1336,10 +1346,11 @@ public class CommonRepositoryImpl implements CommonRepository {
 
     /**
      * Loads the child entity lists for both One to Many and Many to Many
-     * associations. <p> To customize the default join criteria used to load the
-     * child entity list, override
-     * {@linkplain AbstractReadOnlyEntity#getChildJoinSqlParams} to return the
-     * appropriately configured SQL Parameters. </p>
+     * associations.
+     * <p>
+     * To customize the default join criteria used to load the child entity
+     * list, override {@linkplain AbstractReadOnlyEntity#getChildJoinSqlParams}
+     * to return the appropriately configured SQL Parameters. </p>
      *
      * @param <T> The generic type of the parent entity. Must be a descendent of
      * {@linkplain AbstractReadOnlyEntity}
@@ -1370,10 +1381,11 @@ public class CommonRepositoryImpl implements CommonRepository {
 
     /**
      * Loads the child entity lists for both One to Many and Many to Many
-     * associations. <p> To customize the default join criteria used to load the
-     * child entity list, override
-     * {@linkplain AbstractReadOnlyEntity#getChildJoinSqlParams} to return the
-     * appropriately configured SQL Parameters. </p>
+     * associations.
+     * <p>
+     * To customize the default join criteria used to load the child entity
+     * list, override {@linkplain AbstractReadOnlyEntity#getChildJoinSqlParams}
+     * to return the appropriately configured SQL Parameters. </p>
      *
      * @param <T> The generic type of the parent entity. Must be a descendent of
      * {@linkplain AbstractReadOnlyEntity}
@@ -1402,8 +1414,8 @@ public class CommonRepositoryImpl implements CommonRepository {
 
             if (childInfo.isManyToMany()) {
                 // Get the details of the Many to Many class
-                Class<? extends AbstractEntity> manyToManyClass =
-                        (Class<? extends AbstractEntity>) childInfo.getManyToManyClass();
+                Class<? extends AbstractEntity> manyToManyClass
+                        = (Class<? extends AbstractEntity>) childInfo.getManyToManyClass();
 
                 // Get the parent and child column names on the Many to Many class
                 String parentIdColumn = RepositoryUtility.getColumnInfo(manyToManyClass,
@@ -1595,8 +1607,8 @@ public class CommonRepositoryImpl implements CommonRepository {
 
         if (params == null || !params.containsKey(CommonSqlProvider.PARAM_QUERY)) {
             throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED, new Object[]{
-                        "No dynamic SQL to execute!", "params=" + params
-                    });
+                "No dynamic SQL to execute!", "params=" + params
+            });
         }
 
         ArrayList<HashMap> result = null;
@@ -1622,8 +1634,8 @@ public class CommonRepositoryImpl implements CommonRepository {
     public int bulkUpdate(Map params) {
         if (params == null || !params.containsKey(CommonSqlProvider.PARAM_QUERY)) {
             throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED, new Object[]{
-                        "No dynamic SQL to execute!", "params=" + params
-                    });
+                "No dynamic SQL to execute!", "params=" + params
+            });
         }
 
         int result = 0;

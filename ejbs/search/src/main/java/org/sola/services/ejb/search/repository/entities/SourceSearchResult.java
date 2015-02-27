@@ -53,7 +53,8 @@ public class SourceSearchResult extends AbstractReadOnlyEntity {
     public static final String SELECT_PART = "SELECT s.id, s.la_nr, s.reference_nr, s.archive_id, s.ext_archive_id, s.type_code, "
             + " get_translation(st.display_value, #{" + CommonSqlProvider.PARAM_LANGUAGE_CODE + "}) AS typeDisplayValue, "
             + " s.acceptance, s.recordation, s.submission, s.transaction_id, s.status_code, s.owner_name, s.version, s.description, "
-            + " get_translation(t.display_value, #{" + CommonSqlProvider.PARAM_LANGUAGE_CODE + "}) AS statusDisplayValue ";
+            + " get_translation(t.display_value, #{" + CommonSqlProvider.PARAM_LANGUAGE_CODE + "}) AS statusDisplayValue, "
+            + " s.classification_code, s.redact_code ";
     
     public static final String FROM_PART = " FROM (source.source AS s LEFT JOIN transaction.reg_status_type AS t on s.status_code = t.code) "
             + " LEFT JOIN source.administrative_source_type AS st ON s.type_code = st.code ";
@@ -109,6 +110,10 @@ public class SourceSearchResult extends AbstractReadOnlyEntity {
     private String description;
     @Column(name="transaction_id")
     private String transactionId;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    private String classificationCode;
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
     
     public SourceSearchResult() {
         super();
@@ -240,5 +245,23 @@ public class SourceSearchResult extends AbstractReadOnlyEntity {
 
     public void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
+    }
+    
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
     }
 }

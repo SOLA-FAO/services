@@ -56,7 +56,9 @@ public class PartyPropertySearchResult extends AbstractReadOnlyEntity {
             + "WHERE ( baunit_name = bu.name_firstpart||'/'||bu.name_lastpart)"
             + " AND target_party_id = pp.id and compare_strings(#{" + QUERY_PARAM_PARTY_ID + "}, party_id))>0 as selProperties, "
             + "(select count ('x') from administrative.notifiable_party_for_baunit "
-            + "WHERE (target_party_id = pp.id  and compare_strings(#{" + QUERY_PARAM_PARTY_ID + "}, party_id))) as total "
+            + "WHERE (target_party_id = pp.id  and compare_strings(#{" + QUERY_PARAM_PARTY_ID + "}, party_id))) as total, "
+            + "pp.classification_code, "
+            + "pp.redact_code "
             + "FROM party.party pp, "
             + "administrative.ba_unit bu, "
             + "administrative.party_for_rrr  pr, "
@@ -88,6 +90,10 @@ public class PartyPropertySearchResult extends AbstractReadOnlyEntity {
     private boolean selProperties;
     @Column(name = "total")
     private Long total;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    private String classificationCode;
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
    
     
     public PartyPropertySearchResult() {
@@ -164,6 +170,24 @@ public class PartyPropertySearchResult extends AbstractReadOnlyEntity {
 
     public void setTotal(Long total) {
         this.total = total;
+    }
+    
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
     }
     
 }

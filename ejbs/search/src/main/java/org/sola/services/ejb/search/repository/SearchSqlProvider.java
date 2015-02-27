@@ -414,6 +414,8 @@ public class SearchSqlProvider {
         SELECT("prop.name_firstpart");
         SELECT("prop.name_lastpart");
         SELECT("prop.status_code");
+        SELECT("prop.classification_code");
+        SELECT("prop.redact_code");
         SELECT("(SELECT string_agg(COALESCE(p1.name, '') || ' ' || COALESCE(p1.last_name, ''), '::::') "
                 + "FROM administrative.rrr rrr1, administrative.party_for_rrr pr1, party.party p1 "
                 + "WHERE rrr1.ba_unit_id = prop.id "

@@ -49,7 +49,8 @@ public class PartySearchResult extends AbstractReadOnlyEntity {
             + "(SELECT string_agg(get_translation(r.display_value, #{" + CommonSqlProvider.PARAM_LANGUAGE_CODE + "}), ', ') "
             + "FROM party.party_role_type r "
             + "INNER JOIN party.party_role pr2 ON r.code = pr2.type_code "
-            + "WHERE pr2.party_id = p.id) as roles "
+            + "WHERE pr2.party_id = p.id) as roles, "
+            + "p.classification_code, p.redact_code "
             + "FROM party.party p LEFT JOIN party.party_role pr ON p.id = pr.party_id "
             + "WHERE (CASE WHEN #{" + QUERY_PARAM_NAME + "} = '' THEN true ELSE "
             + "compare_strings(#{" + QUERY_PARAM_NAME + "}, COALESCE(p.name, '') || ' ' "
@@ -73,6 +74,10 @@ public class PartySearchResult extends AbstractReadOnlyEntity {
     private boolean rightHolder;
     @Column(name = "roles")
     private String roles;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    private String classificationCode;
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
     
     public PartySearchResult() {
         super();
@@ -132,5 +137,23 @@ public class PartySearchResult extends AbstractReadOnlyEntity {
 
     public void setRoles(String roles) {
         this.roles = roles;
+    }
+    
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
     }
 }
