@@ -63,6 +63,9 @@ public class Party extends AbstractVersionedEntity {
     public static final String TYPE_CODE_NATURAL_PERSON = "naturalPerson";
     public static final String QUERY_WHERE_BYTYPECODE = "type_code = #{partyTypeCode}";
     public static final String QUERY_WHERE_LODGING_AGENTS = "party.id in (select party_id from party.party_role where party.party_role.type_code = 'lodgingAgent')";
+    public static final String QUERY_PARAMETER_SERVICEID = "serviceId";
+    public static final String QUERY_WHERE_BYSERVCEID = " obscure_service_id = "
+            + "#{" + QUERY_PARAMETER_SERVICEID + "}";
     @Id
     @Column(name = "id")
     private String id;
@@ -131,6 +134,8 @@ public class Party extends AbstractVersionedEntity {
     private String classificationCode;
     @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
     private String redactCode;
+    @Column(name = "obscure_service_id")
+    private String serviceId;
 
     public Party() {
         super();
@@ -335,7 +340,7 @@ public class Party extends AbstractVersionedEntity {
     public void setRedactCode(String redactCode) {
         this.redactCode = redactCode;
     }
-    
+
     @Override
     public String getClassificationCode() {
         return classificationCode;
@@ -344,5 +349,13 @@ public class Party extends AbstractVersionedEntity {
     @Override
     public String getRedactCode() {
         return redactCode;
+    }
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
     }
 }

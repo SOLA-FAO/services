@@ -18,6 +18,7 @@
         <!-- Common Projects -->
         <module>../common/rules</module>
         <module>../common/common</module>
+        <module>cache</module>
         <!-- Service Utility Projects -->
         <module>services-common</module>
         <!-- EJB Projects -->
@@ -29,6 +30,5 @@
         <!-- Test Projects -->
         <module>unit-tests</module>
         <module>test-common</module>
-        <module>org.sola.services_sola-cache_ejb_v1502a</module>
     </modules>
 </project>

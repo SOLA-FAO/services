@@ -1,28 +1,30 @@
 /**
  * ******************************************************************************************
- * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations (FAO).
- * All rights reserved.
+ * Copyright (C) 2014 - Food and Agriculture Organization of the United Nations
+ * (FAO). All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *    1. Redistributions of source code must retain the above copyright notice,this list
- *       of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice,this list
- *       of conditions and the following disclaimer in the documentation and/or other
- *       materials provided with the distribution.
- *    3. Neither the name of FAO nor the names of its contributors may be used to endorse or
- *       promote products derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright notice,this
+ * list of conditions and the following disclaimer. 2. Redistributions in binary
+ * form must reproduce the above copyright notice,this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3. Neither the name of FAO nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,STRICT LIABILITY,OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT,STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * *********************************************************************************************
  */
 package org.sola.services.ejb.party.businesslogic;
@@ -44,20 +46,23 @@ import org.sola.services.ejb.transaction.businesslogic.TransactionEJBLocal;
 import org.sola.services.ejb.transaction.repository.entities.TransactionBasic;
 
 /**
- * EJB to manage data in the party schema. Supports retrieving and saving party details.
+ * EJB to manage data in the party schema. Supports retrieving and saving party
+ * details.
  */
 @Stateless
 @EJB(name = "java:app/PartyEJBLocal", beanInterface = PartyEJBLocal.class)
 public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
-@EJB
+
+    @EJB
     private TransactionEJBLocal transactionEJB;
 
     /**
-     * Sets the entity package for the EJB to Party.class.getPackage().getName(). This is used to
-     * restrict the save and retrieval of Code Entities.
+     * Sets the entity package for the EJB to
+     * Party.class.getPackage().getName(). This is used to restrict the save and
+     * retrieval of Code Entities.
      *
-     * @see AbstractEJB#getCodeEntity(java.lang.Class, java.lang.String, java.lang.String)
-     * AbstractEJB.getCodeEntity
+     * @see AbstractEJB#getCodeEntity(java.lang.Class, java.lang.String,
+     * java.lang.String) AbstractEJB.getCodeEntity
      * @see AbstractEJB#getCodeEntityList(java.lang.Class, java.lang.String)
      * AbstractEJB.getCodeEntityList
      * @see
@@ -81,25 +86,40 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
         return getRepository().getEntity(Party.class, id);
     }
     
+    
+    @Override
+    public Party getPartyByServiceId(String serviceId) {
+
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, Party.QUERY_WHERE_BYSERVCEID);
+        params.put(Party.QUERY_PARAMETER_SERVICEID, serviceId);
+        TransactionBasic transaction =
+                transactionEJB.getTransactionByServiceId(serviceId, false, TransactionBasic.class);
+
+        return getRepository().getEntity(Party.class, params);
+    }
+    
+    
     @Override
     public GroupParty getGroupParty(String id) {
         return getRepository().getEntity(GroupParty.class, id);
     }
-     @Override
+
+    @Override
     public PartyMember getPartyMember(String partyId, String groupId) {
-        
+
         Map params = new HashMap<String, Object>();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, PartyMember.QUERY_WHERE_BYPARTYID);
 //        params.put(CommonSqlProvider.PARAM_QUERY, PartyMember.QUERY_WHERE_BYGROUPID);
         params.put(PartyMember.QUERY_PARAMETER_PARTYID, partyId);
         params.put(PartyMember.QUERY_PARAMETER_GROUPID, groupId);
-        
+
         return getRepository().getEntity(PartyMember.class, params);
     }
-    
+
     /**
-     * Returns a list of parties matching the supplied ids. <p>No role is required to execute this
-     * method.</p>
+     * Returns a list of parties matching the supplied ids. <p>No role is
+     * required to execute this method.</p>
      *
      * @param partyIds The list of party ids
      */
@@ -109,29 +129,38 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
     }
 
     /**
-     * Can be used to create a new party or save any updates to the details of an existing party.
-     * <p>Requires the {@linkplain RolesConstants#PARTY_RIGHTHOLDERS_SAVE} or
+     * Can be used to create a new party or save any updates to the details of
+     * an existing party. <p>Requires the {@linkplain RolesConstants#PARTY_RIGHTHOLDERS_SAVE}
+     * or
      * {@linkplain RolesConstants#PARTY_SAVE} role.</p>
      *
      * @param party The party to create/save
      * @return The party after the save is completed.
-     * @throws SOLAAccessException Where the party being saved is a right holder but the user does
-     * not have the {@linkplain RolesConstants#PARTY_RIGHTHOLDERS_SAVE} role
+     * @throws SOLAAccessException Where the party being saved is a right holder
+     * but the user does not have the {@linkplain RolesConstants#PARTY_RIGHTHOLDERS_SAVE}
+     * role
      */
     @Override
-    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE, 
-    RolesConstants.APPLICATION_EDIT_APPS, RolesConstants.APPLICATION_CREATE_APPS})
+    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE,
+        RolesConstants.APPLICATION_EDIT_APPS, RolesConstants.APPLICATION_CREATE_APPS})
     public Party saveParty(Party party) {
         if (party.isRightHolder() && !isInRole(RolesConstants.PARTY_RIGHTHOLDERS_SAVE)) {
             throw new SOLAAccessException();
         }
+     if (party.getServiceId() != null){ 
+        TransactionBasic transaction =
+                transactionEJB.getTransactionByServiceId(party.getServiceId(), true, TransactionBasic.class);
+        LocalInfo.setTransactionId(transaction.getId());
+    }
+        
         return getRepository().saveEntity(party);
     }
-
+    
     /**
      * Retrieves all party.communication_type code values.
      *
-     * @param languageCode The language code to use for localization of display values.
+     * @param languageCode The language code to use for localization of display
+     * values.
      */
     @Override
     public List<CommunicationType> getCommunicationTypes(String languageCode) {
@@ -141,7 +170,8 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
     /**
      * Retrieves all party.party_type code values.
      *
-     * @param languageCode The language code to use for localization of display values.
+     * @param languageCode The language code to use for localization of display
+     * values.
      */
     @Override
     public List<PartyType> getPartyTypes(String languageCode) {
@@ -151,7 +181,8 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
     /**
      * Retrieves all party.id_type code values.
      *
-     * @param languageCode The language code to use for localization of display values.
+     * @param languageCode The language code to use for localization of display
+     * values.
      */
     @Override
     public List<IdType> getIdTypes(String languageCode) {
@@ -161,17 +192,19 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
     /**
      * Retrieves all party.gender_type code values.
      *
-     * @param languageCode The language code to use for localization of display values.
+     * @param languageCode The language code to use for localization of display
+     * values.
      */
     @Override
     public List<GenderType> getGenderTypes(String languageCode) {
         return getRepository().getCodeList(GenderType.class, languageCode);
     }
-    
-     /**
+
+    /**
      * Retrieves all party.groupParty_type code values.
      *
-     * @param languageCode The language code to use for localization of display values.
+     * @param languageCode The language code to use for localization of display
+     * values.
      */
     @Override
     public List<GroupPartyType> getGroupPartyTypes(String languageCode) {
@@ -179,9 +212,9 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
     }
 
     /**
-     * Returns all parties that have the lodgingAgent party role. Note that the address and party
-     * role details for each agent are not loaded. <p>No role is required to execute this
-     * method.</p>
+     * Returns all parties that have the lodgingAgent party role. Note that the
+     * address and party role details for each agent are not loaded. <p>No role
+     * is required to execute this method.</p>
      */
     @Override
     public List<Party> getAgents() {
@@ -199,48 +232,44 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
     /**
      * Retrieves all party.party_role_type code values.
      *
-     * @param languageCode The language code to use for localization of display values.
+     * @param languageCode The language code to use for localization of display
+     * values.
      */
     @Override
     public List<PartyRoleType> getPartyRoles(String languageCode) {
         return getRepository().getCodeList(PartyRoleType.class, languageCode);
     }
-    
-    
-     /**
-     * Can be used to create a new groupParty or save any updates to the details of
-     * an existing groupParty. <p>Requires the
+
+    /**
+     * Can be used to create a new groupParty or save any updates to the details
+     * of an existing groupParty. <p>Requires the
      * {@linkplain RolesConstants#PATY_SAVE} role.</p>
      *
      * @param groupParty The groupParty to create/save
      * @return The groupParty after the save is completed.
      */
-    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE, 
-    RolesConstants.APPLICATION_EDIT_APPS, RolesConstants.APPLICATION_CREATE_APPS})
-   public GroupParty saveGroupParty(GroupParty groupParty) {
+    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE,
+        RolesConstants.APPLICATION_EDIT_APPS, RolesConstants.APPLICATION_CREATE_APPS})
+    public GroupParty saveGroupParty(GroupParty groupParty) {
         return getRepository().saveEntity(groupParty);
     }
-    
-    
-     /**
-     * Can be used to create a new groupParty or save any updates to the details of
-     * an existing groupParty. <p>Requires the
+
+    /**
+     * Can be used to create a new groupParty or save any updates to the details
+     * of an existing groupParty. <p>Requires the
      * {@linkplain RolesConstants#PATY_SAVE} role.</p>
      *
      * @param PartyMember The groupParty to create/save
      * @return The groupParty after the save is completed.
      */
-    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE, 
-    RolesConstants.APPLICATION_EDIT_APPS, RolesConstants.APPLICATION_CREATE_APPS})
-   public PartyMember savePartyMember(PartyMember partyMember, String serviceId) {
-        
+    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE,
+        RolesConstants.APPLICATION_EDIT_APPS, RolesConstants.APPLICATION_CREATE_APPS})
+    public PartyMember savePartyMember(PartyMember partyMember, String serviceId) {
+
         TransactionBasic transaction =
                 transactionEJB.getTransactionByServiceId(serviceId, true, TransactionBasic.class);
         LocalInfo.setTransactionId(transaction.getId());
-        
+
         return getRepository().saveEntity(partyMember);
     }
-    
-    
-    
 }

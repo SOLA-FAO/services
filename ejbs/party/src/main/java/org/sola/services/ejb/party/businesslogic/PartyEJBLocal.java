@@ -50,7 +50,8 @@ public interface PartyEJBLocal extends AbstractEJBLocal {
      */
     GroupParty getGroupParty(String id);
     
-    
+     public Party getPartyByServiceId(String serviceId) ;
+
     
      /**
      * See {@linkplain PartyEJB#getGroupParty(java.lang.String)
