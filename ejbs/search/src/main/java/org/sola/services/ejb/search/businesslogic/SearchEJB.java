@@ -914,6 +914,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      * @return
      */
     @Override
+    @RolesAllowed({RolesConstants.CS_ACCESS_CS})
     public List<ClaimSpatialSearchResult> getClaimsByBox(ClaimSpatialSearchParams searchParams) {
         Map params = new HashMap();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, ClaimSpatialSearchResult.WHERE_SEARCH_BY_BOX);
@@ -932,6 +933,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      * @return
      */
     @Override
+    @RolesAllowed({RolesConstants.CS_ACCESS_CS})
     public List<ClaimSpatialSearchResult> getAllClaims() {
         Map params = new HashMap();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, ClaimSpatialSearchResult.WHERE_SEARCH_ALL);
@@ -948,6 +950,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      * @return
      */
     @Override
+    @RolesAllowed({RolesConstants.CS_ACCESS_CS})
     public ClaimSearchResult getClaimByCoordinates(String x, String y, String langCode) {
         if (StringUtility.isEmpty(x) || StringUtility.isEmpty(y)) {
             return null;
@@ -968,6 +971,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      * @return
      */
     @Override
+    @RolesAllowed({RolesConstants.CS_ACCESS_CS})
     public List<ClaimSearchResult> searchClaims(ClaimSearchParams searchParams) {
         Map params = new HashMap<String, Object>();
 
@@ -1027,6 +1031,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     @Override
+    @RolesAllowed({RolesConstants.CS_ACCESS_CS})
     public List<ClaimSearchResult> searchClaimsForReview(String langCode, boolean includeAssigned) {
         Map params = new HashMap<String, Object>();
 
@@ -1042,6 +1047,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
     }
 
     @Override
+    @RolesAllowed({RolesConstants.CS_ACCESS_CS})
     public List<ClaimSearchResult> searchClaimsForModeration(String langCode, boolean includeAssigned) {
         Map params = new HashMap<String, Object>();
 
