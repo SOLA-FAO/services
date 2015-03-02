@@ -29,8 +29,10 @@
  */
 package org.sola.services.ejbs.admin.businesslogic;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -42,10 +44,12 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.Configuration;
 import org.sola.common.ConfigConstants;
 import org.sola.common.DateUtility;
 import org.sola.common.EmailVariables;
+import org.sola.common.FileUtility;
 import org.sola.common.RolesConstants;
 import org.sola.common.StringUtility;
 import org.sola.services.common.EntityAction;
@@ -608,7 +612,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     /**
      * Checks if the current user has been assigned one or more of the null null
      * null null null null null null null null null null null null null null
-     * null null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
+     * null null null null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
      * {@linkplain RolesConstants#ADMIN_MANAGE_REFDATA} or
      * {@linkplain RolesConstants#ADMIN_MANAGE_SETTINGS} security roles.
      * <p>
@@ -656,8 +660,23 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     @Override
     public String consolidationExtract(
             boolean generateConsolidationSchema, boolean everything, boolean dumpToFile) {
-        Runtime.getRuntime();
-        return "extract";
+        String processName = String.format("extract_%s", DateUtility.formatDate(DateUtility.now(), "yyyy_MM_dd_HH_mm"));
+        String[] commands = new String[8];
+
+        commands[0] = systemEJB.getSetting("command-extract", "");
+        commands[1] = getCurrentUser().getId();
+        commands[2] = everything ? "Y" : "N";
+        commands[3] = generateConsolidationSchema ? "Y" : "N";
+        commands[4] = dumpToFile ? "Y" : "N";
+        commands[5] = processName;
+        commands[6] = systemEJB.getSetting("path-to-backup", "");
+        commands[7] = systemEJB.getSetting("path-to-process-log", "");
+        try {
+            Runtime.getRuntime().exec(commands);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        return processName;
     }
 
     /**
@@ -672,7 +691,22 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     @RolesAllowed(RolesConstants.CONSOLIDATION_CONSOLIDATE)
     @Override
     public String consolidationConsolidate(String extractedFile, boolean mergeConsolidationSchema) {
-        return "consolidate";
+        String processName = String.format("consolidate_%s", DateUtility.formatDate(DateUtility.now(), "yyyy_MM_dd_HH_mm"));
+        String[] commands = new String[8];
+
+        commands[0] = systemEJB.getSetting("command-consolidate", "");
+        commands[1] = getCurrentUser().getId();
+        commands[2] = mergeConsolidationSchema ? "Y" : "N";
+        commands[3] = extractedFile.isEmpty() ? "N/A" : extractedFile;
+        commands[4] = processName;
+        commands[5] = systemEJB.getSetting("path-to-backup", "");
+        commands[6] = systemEJB.getSetting("path-to-process-log", "");
+        try {
+            Runtime.getRuntime().exec(commands);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        return processName;
     }
 
     /**
@@ -798,9 +832,18 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
      */
     @Override
     public String getProcessLog(String processName) {
-        return "";
+        processName = processName + ".log";
+        String logFilename = FileUtility.sanitizeFileName(processName, true);
+        String pathToProcessLog = systemEJB.getSetting("path-to-process-log", "");
+        String fullPathToLog = String.format("%s/%s", pathToProcessLog, logFilename);
+        try {
+            return FileUtils.readFileToString(new File(fullPathToLog));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
-  /**
+
+    /**
      * Updates the security classifications for a list of entities and
      * identified by the entityTable and entity ids
      *
@@ -814,14 +857,13 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     @Override
     public void saveSecurityClassifications(List<String> entityIds, EntityTable entityTable,
             String classificationCode, String redactCode) {
-        
+
         Map params = new HashMap<String, Object>();
-        String updateSql
-                = " UPDATE " + entityTable.getTable()
+        String updateSql = " UPDATE " + entityTable.getTable()
                 + " SET classification_code = #{classCode}, "
                 + "     redact_code = #{redactCode}, "
                 + "     change_user = #{user} "
-                + " WHERE id IN (" 
+                + " WHERE id IN ("
                 + CommonSqlProvider.prepareListParams(entityIds, params) + ") ";
 
         params.put(CommonSqlProvider.PARAM_QUERY, updateSql);
@@ -831,4 +873,3 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         getRepository().bulkUpdate(params);
     }
 }
-
