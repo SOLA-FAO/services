@@ -28,6 +28,7 @@
 package org.sola.services.ejb.search.repository.entities;
 
 import java.math.BigDecimal;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -40,6 +41,7 @@ import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
  * @author soladev
  */
 @Table(name = "map_search_option", schema = "system")
+@Cacheable
 public class SpatialSearchOption extends AbstractReadOnlyEntity {
 
     public static final String QUERY_WHERE_ACTIVE = "active";

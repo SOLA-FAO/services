@@ -31,6 +31,7 @@
  */
 package org.sola.services.ejb.search.repository.entities;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -42,6 +43,7 @@ import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
  * @author Elton Manoku
  */
 @Table(name = "crs", schema = "system")
+@Cacheable
 public class Crs extends AbstractReadOnlyEntity {
 
     public static String ORDER_COLUMN = "item_order";

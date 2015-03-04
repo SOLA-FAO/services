@@ -31,6 +31,7 @@
  */
 package org.sola.services.common.repository.entities;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import org.sola.services.common.repository.Localized;
@@ -39,6 +40,7 @@ import org.sola.services.common.repository.Localized;
  * Base class for all entities based on code tables. 
  * @author soladev
  */
+@Cacheable
 public abstract class AbstractCodeEntity extends AbstractEntity {
 
     @Id
