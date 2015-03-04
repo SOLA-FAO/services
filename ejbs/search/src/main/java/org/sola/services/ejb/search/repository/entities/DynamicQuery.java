@@ -32,6 +32,7 @@
 package org.sola.services.ejb.search.repository.entities;
 
 import java.util.List;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -43,6 +44,7 @@ import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
  * @author soladev
  */
 @Table(name = "query", schema = "system")
+@Cacheable
 public class DynamicQuery extends AbstractReadOnlyEntity {
 
     @Id

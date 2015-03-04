@@ -32,9 +32,7 @@ package org.sola.services.ejbs.admin.businesslogic;
 import java.io.File;
 import java.io.IOException;
 import java.security.MessageDigest;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -612,7 +610,7 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     /**
      * Checks if the current user has been assigned one or more of the null null
      * null null null null null null null null null null null null null null
-     * null null null null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
+     * null null null null null null     {@linkplain RolesConstants#ADMIN_MANAGE_SECURITY},
      * {@linkplain RolesConstants#ADMIN_MANAGE_REFDATA} or
      * {@linkplain RolesConstants#ADMIN_MANAGE_SETTINGS} security roles.
      * <p>
@@ -871,5 +869,17 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
         params.put("redactCode", redactCode);
         params.put("user", getCurrentUser().getUserName());
         getRepository().bulkUpdate(params);
+    }
+
+    /**
+     * Clears / flushes the contents of the Repository Cache. Should be used if
+     * the Administrator updates a reference code, setting or configuration
+     * value directly in the database without using the SOLA Admin application.
+     * <p>
+     * Requires the {@linkplain RolesConstants#ADMIN_MANAGE_REFDATA} role. </p>
+     */
+    @RolesAllowed(RolesConstants.ADMIN_MANAGE_REFDATA)
+    public void flushCache() {
+        getRepository().getCache().clearAll();
     }
 }

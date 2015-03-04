@@ -27,6 +27,7 @@
  */
 package org.sola.services.ejb.system.repository.entities;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -35,6 +36,7 @@ import org.sola.services.common.repository.entities.AbstractEntity;
 
 @Table(name = "setting", schema = "system")
 @DefaultSorter(sortString = "name")
+@Cacheable
 public class Setting extends AbstractEntity {
     public static final String MAP_WEST = "map-west";
     public static final String MAP_EAST = "map-east";

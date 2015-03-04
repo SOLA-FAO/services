@@ -99,15 +99,16 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
      */
     @Override
     public List<Setting> getAllSettings() {
+        // NOTE: Will return settings from the cache by default. 
         return getRepository().getEntityList(Setting.class);
     }
 
     @Override
     @RolesAllowed(RolesConstants.ADMIN_MANAGE_SETTINGS)
-    public Setting saveSetting(Setting setting){
+    public Setting saveSetting(Setting setting) {
         return getRepository().saveEntity(setting);
     }
-    
+
     /**
      * Retrieves the value for the named setting. Constants for each setting are
      * available in {@linkplain  ConfigConstants}. If the setting does not exist,
@@ -121,18 +122,27 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
     @Override
     public String getSetting(String name, String defaultValue) {
         String result = defaultValue;
-        Setting config = getRepository().getEntity(Setting.class, name);
-        if (config != null && config.getValue() != null && config.isActive()) {
+        Setting config = getSetting(name);
+        if (config != null && config.getValue() != null) {
             result = config.getValue();
         }
         return result;
     }
 
     @Override
-    public Setting getSetting(String name){
-        return getRepository().getEntity(Setting.class, name);
+    public Setting getSetting(String name) {
+        Setting result = null;
+        // Use getAllSettings to obtain the cached settings. 
+        List<Setting> settings = getAllSettings();
+        for (Setting config : settings) {
+            if (config.getName().equals(name) && config.isActive()) {
+                result = config;
+                break;
+            }
+        }
+        return result;
     }
-    
+
     /**
      * Returns the SOLA business rule matching the id.
      *
@@ -158,22 +168,22 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
 
     @Override
     @RolesAllowed(RolesConstants.ADMIN_MANAGE_BR)
-    public boolean deleteBr(String brId){
-        if(StringUtility.isEmpty(brId)){
+    public boolean deleteBr(String brId) {
+        if (StringUtility.isEmpty(brId)) {
             return true;
         }
         Br br = getBr(brId, null);
-        if(br!=null){
+        if (br != null) {
             // Delete validations
-            if(br.getBrValidationList() != null){
-                for(BrValidation validation : br.getBrValidationList()){
+            if (br.getBrValidationList() != null) {
+                for (BrValidation validation : br.getBrValidationList()) {
                     validation.setEntityAction(EntityAction.DELETE);
                     getRepository().saveEntity(validation);
                 }
             }
             // Delete definitions
-            if(br.getBrDefinitionList() != null){
-                for(BrDefinition def : br.getBrDefinitionList()){
+            if (br.getBrDefinitionList() != null) {
+                for (BrDefinition def : br.getBrDefinitionList()) {
                     def.setEntityAction(EntityAction.DELETE);
                     getRepository().saveEntity(def);
                 }
@@ -183,7 +193,7 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
         }
         return true;
     }
-    
+
     /**
      * Can be used to create a new business rule or save any updates to the
      * details of an existing business role.
@@ -544,10 +554,10 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
      * Returns all email tasks
      */
     @Override
-    public List<EmailTask> getEmails(){
+    public List<EmailTask> getEmails() {
         return getRepository().getEntityList(EmailTask.class);
     }
-    
+
     /**
      * Saves email task.
      *
@@ -580,6 +590,7 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
 
     /**
      * Send simple email to the given address
+     *
      * @param recipientName Recipient name (full name)
      * @param recipientAddress Recipient email address
      * @param subject Subject of the message
