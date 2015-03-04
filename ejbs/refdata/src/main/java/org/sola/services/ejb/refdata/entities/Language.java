@@ -53,6 +53,9 @@ public class Language extends AbstractEntity {
     @Column(name="item_order")
     int itemOrder;
     
+    @Column(name="ltr")
+    boolean ltr;
+    
     public Language(){
         super();
     }
@@ -95,5 +98,13 @@ public class Language extends AbstractEntity {
 
     public void setItemOrder(int itemOrder) {
         this.itemOrder = itemOrder;
+    }
+
+    public boolean isLtr() {
+        return ltr;
+    }
+
+    public void setLtr(boolean ltr) {
+        this.ltr = ltr;
     }
 }

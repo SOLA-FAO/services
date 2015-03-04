@@ -914,7 +914,7 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
      * @return
      */
     @Override
-    @RolesAllowed({RolesConstants.CS_ACCESS_CS})
+    //@RolesAllowed({RolesConstants.CS_ACCESS_CS})
     public List<ClaimSpatialSearchResult> getClaimsByBox(ClaimSpatialSearchParams searchParams) {
         Map params = new HashMap();
         params.put(CommonSqlProvider.PARAM_WHERE_PART, ClaimSpatialSearchResult.WHERE_SEARCH_BY_BOX);
