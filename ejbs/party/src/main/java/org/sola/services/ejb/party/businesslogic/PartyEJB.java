@@ -85,21 +85,7 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
     public Party getParty(String id) {
         return getRepository().getEntity(Party.class, id);
     }
-    
-    
-    @Override
-    public Party getPartyByServiceId(String serviceId) {
-
-        Map params = new HashMap<String, Object>();
-        params.put(CommonSqlProvider.PARAM_WHERE_PART, Party.QUERY_WHERE_BYSERVCEID);
-        params.put(Party.QUERY_PARAMETER_SERVICEID, serviceId);
-        TransactionBasic transaction =
-                transactionEJB.getTransactionByServiceId(serviceId, false, TransactionBasic.class);
-
-        return getRepository().getEntity(Party.class, params);
-    }
-    
-    
+          
     @Override
     public GroupParty getGroupParty(String id) {
         return getRepository().getEntity(GroupParty.class, id);
@@ -147,11 +133,6 @@ public class PartyEJB extends AbstractEJB implements PartyEJBLocal {
         if (party.isRightHolder() && !isInRole(RolesConstants.PARTY_RIGHTHOLDERS_SAVE)) {
             throw new SOLAAccessException();
         }
-     if (party.getServiceId() != null){ 
-        TransactionBasic transaction =
-                transactionEJB.getTransactionByServiceId(party.getServiceId(), true, TransactionBasic.class);
-        LocalInfo.setTransactionId(transaction.getId());
-    }
         
         return getRepository().saveEntity(party);
     }

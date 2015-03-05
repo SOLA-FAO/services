@@ -134,8 +134,6 @@ public class Party extends AbstractVersionedEntity {
     private String classificationCode;
     @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
     private String redactCode;
-    @Column(name = "obscure_service_id")
-    private String serviceId;
 
     public Party() {
         super();
@@ -349,13 +347,5 @@ public class Party extends AbstractVersionedEntity {
     @Override
     public String getRedactCode() {
         return redactCode;
-    }
-
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
     }
 }
