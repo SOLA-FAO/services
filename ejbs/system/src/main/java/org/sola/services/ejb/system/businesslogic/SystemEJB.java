@@ -204,7 +204,7 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
      * @param br The business rule to save.
      * @return The updated/new business rule.
      */
-    @RolesAllowed(RolesConstants.ADMIN_MANAGE_SECURITY)
+    @RolesAllowed(RolesConstants.ADMIN_MANAGE_BR)
     @Override
     public Br saveBr(Br br) {
         return getRepository().saveEntity(br);
@@ -605,5 +605,123 @@ public class SystemEJB extends AbstractEJB implements SystemEJBLocal {
         task.setRecipientName(recipientName);
         task.setSubject(subject);
         saveEmailTask(task);
+    }
+
+    /**
+     * Returns list of available CRS
+     * @return 
+     */
+    @Override
+    public List<Crs> getCrss() {
+        return getRepository().getEntityList(Crs.class);
+    }
+
+    /**
+     * Returns CRS by provided srid
+     * @param srid srid of CRS
+     * @return 
+     */
+    @Override
+    public Crs getCrs(int srid) {
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, "srid=" + srid);
+        return getRepository().getEntity(Crs.class, params);
+    }
+
+    /**
+     * Saves provided CRS
+     * @param crs CRS object to save
+     * @return 
+     */
+    @Override
+    @RolesAllowed(RolesConstants.ADMIN_MANAGE_SETTINGS)
+    public Crs saveCrs(Crs crs) {
+        return getRepository().saveEntity(crs);
+    }
+
+    /**
+     * Returns list of layer queries
+     * @param locale Locale code
+     * @return 
+     */
+    @Override
+    public List<Query> getQueries(String locale) {
+        if(locale != null){
+            Map params = new HashMap<String, Object>();
+            params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, locale);
+            return getRepository().getEntityList(Query.class, params);
+        }
+        return getRepository().getEntityList(Query.class);
+    }
+
+    /**
+     * Returns layer query
+     * @param name Query name
+     * @param locale Locale code
+     * @return 
+     */
+    @Override
+    public Query getQuery(String name, String locale) {
+        if(locale != null){
+            Map params = new HashMap<String, Object>();
+            params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, locale);
+            params.put(CommonSqlProvider.PARAM_WHERE_PART, "name='" + name + "'");
+            return getRepository().getEntity(Query.class, params);
+        }
+        return getRepository().getEntity(Query.class, name);
+    }
+
+    /**
+     * Saves layer query
+     * @param query Query object to save
+     * @return 
+     */
+    @RolesAllowed(RolesConstants.ADMIN_MANAGE_SETTINGS)
+    @Override
+    public Query saveQuery(Query query) {
+        return getRepository().saveEntity(query);
+    }
+
+    /**
+     * Returns list of map layers
+     * @param locale Locale code
+     * @return 
+     */
+    @Override
+    public List<ConfigMapLayer> getConfigMapLayers(String locale) {
+        if(locale != null){
+            Map params = new HashMap<String, Object>();
+            params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, locale);
+            return getRepository().getEntityList(ConfigMapLayer.class, params);
+        }
+        return getRepository().getEntityList(ConfigMapLayer.class);
+    }
+
+    /**
+     * Returns map layer
+     * @param name Layer name
+     * @param locale Locale code
+     * @return 
+     */
+    @Override
+    public ConfigMapLayer getConfigMapLayer(String name, String locale) {
+        if(locale != null){
+            Map params = new HashMap<String, Object>();
+            params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, locale);
+            params.put(CommonSqlProvider.PARAM_WHERE_PART, "name='" + name + "'");
+            return getRepository().getEntity(ConfigMapLayer.class, params);
+        }
+        return getRepository().getEntity(ConfigMapLayer.class, name);
+    }
+
+    /**
+     * Saves map layer
+     * @param mapLayer Map layer to save
+     * @return 
+     */
+    @RolesAllowed(RolesConstants.ADMIN_MANAGE_SETTINGS)
+    @Override
+    public ConfigMapLayer saveConfigMapLayer(ConfigMapLayer mapLayer) {
+        return getRepository().saveEntity(mapLayer);
     }
 }

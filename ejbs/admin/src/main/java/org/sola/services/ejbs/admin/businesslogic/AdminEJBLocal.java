@@ -32,6 +32,7 @@ package org.sola.services.ejbs.admin.businesslogic;
 import java.util.List;
 import org.apache.ibatis.session.Configuration;
 import org.sola.services.common.EntityTable;
+import org.sola.services.common.ejbs.AbstractEJBLocal;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Role;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.User;
 import org.sola.services.ejbs.admin.businesslogic.repository.entities.Group;
@@ -41,7 +42,7 @@ import org.sola.services.ejbs.admin.businesslogic.repository.entities.Language;
 /**
  * Local interface for the {@linkplain AdminEJB}.
  */
-public interface AdminEJBLocal {
+public interface AdminEJBLocal extends AbstractEJBLocal {
 
     /**
      * See {@linkplain AdminEJB#getUsers()

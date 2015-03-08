@@ -38,7 +38,10 @@ import org.sola.services.ejb.system.br.Result;
 import org.sola.services.ejb.system.repository.entities.Br;
 import org.sola.services.ejb.system.repository.entities.BrReport;
 import org.sola.services.ejb.system.repository.entities.BrValidation;
+import org.sola.services.ejb.system.repository.entities.ConfigMapLayer;
+import org.sola.services.ejb.system.repository.entities.Crs;
 import org.sola.services.ejb.system.repository.entities.EmailTask;
+import org.sola.services.ejb.system.repository.entities.Query;
 import org.sola.services.ejb.system.repository.entities.Setting;
 
 /**
@@ -203,4 +206,31 @@ public interface SystemEJBLocal extends AbstractEJBLocal {
     
     /** See {@link SystemEJB#isEmailServiceEnabled() }*/
     boolean isEmailServiceEnabled();
+    
+    /** See {@link SystemEJB#getCrss()}*/
+    List<Crs> getCrss();
+    
+    /** See {@link SystemEJB#getCrs(int srid)}*/
+    Crs getCrs(int srid);
+    
+    /** See {@link SystemEJB#saveCrs(Crs crs)}*/
+    Crs saveCrs(Crs crs);
+    
+    /** See {@link SystemEJB#getQueries(String locale)}*/
+    List<Query> getQueries(String locale);
+    
+    /** See {@link SystemEJB#getQuery(String name, String locale)}*/
+    Query getQuery(String name, String locale);
+    
+    /** See {@link SystemEJB#saveQuery(Query query)}*/
+    Query saveQuery(Query query);
+    
+    /** See {@link SystemEJB#getConfigMapLayers(String locale)}*/
+    List<ConfigMapLayer> getConfigMapLayers(String locale);
+    
+    /** See {@link SystemEJB#getConfigMapLayer(String name, String locale)}*/
+    ConfigMapLayer getConfigMapLayer(String name, String locale);
+    
+    /** See {@link SystemEJB#saveConfigMapLayer(ConfigMapLayer mapLayer)}*/
+    ConfigMapLayer saveConfigMapLayer(ConfigMapLayer mapLayer);
 }
