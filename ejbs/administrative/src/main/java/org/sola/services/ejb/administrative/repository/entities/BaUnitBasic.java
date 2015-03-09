@@ -53,6 +53,10 @@ public class BaUnitBasic extends AbstractReadOnlyEntity {
     private String statusCode;
     @Column(name = "transaction_id", updatable = false)
     private String transactionId;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    private String classificationCode;
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
     
     public BaUnitBasic(){
         super();
@@ -120,5 +124,23 @@ public class BaUnitBasic extends AbstractReadOnlyEntity {
 
     public void setTypeCode(String typeCode) {
         this.typeCode = typeCode;
+    }
+    
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
     }
 }

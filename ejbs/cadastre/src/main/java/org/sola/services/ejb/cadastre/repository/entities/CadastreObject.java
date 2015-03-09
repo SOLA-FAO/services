@@ -36,6 +36,7 @@ import org.sola.services.common.LocalInfo;
 import org.sola.services.common.repository.AccessFunctions;
 import org.sola.services.common.repository.ChildEntityList;
 import org.sola.services.common.repository.ExternalEJB;
+import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.common.repository.entities.AbstractVersionedEntity;
 import org.sola.services.ejb.address.businesslogic.AddressEJBLocal;
 import org.sola.services.ejb.address.repository.entities.Address;
@@ -115,6 +116,10 @@ public class CadastreObject extends AbstractVersionedEntity {
     private String statusCode;
     @Column(name = "transaction_id", updatable = false)
     private String transactionId;
+    @Column(name = AbstractReadOnlyEntity.CLASSIFICATION_CODE_COLUMN_NAME)
+    private String classificationCode;
+    @Column(name = AbstractReadOnlyEntity.REDACT_CODE_COLUMN_NAME)
+    private String redactCode;
     @Column(name = "geom_polygon")
     @AccessFunctions(onSelect = "st_asewkb(geom_polygon)",
     onChange = "get_geometry_with_srid(#{geomPolygon})")
@@ -240,6 +245,24 @@ public class CadastreObject extends AbstractVersionedEntity {
     public void setAddressList(List<Address> addressList) {
         this.addressList = addressList;
     }
+    
+    @Override
+    public String getClassificationCode() {
+        return classificationCode;
+    }
+
+    @Override
+    public String getRedactCode() {
+        return redactCode;
+    }
+
+    public void setClassificationCode(String classificationCode) {
+        this.classificationCode = classificationCode;
+    }
+
+    public void setRedactCode(String redactCode) {
+        this.redactCode = redactCode;
+    }  
 
     /**
      * Sets the transaction Id on the entity prior to save.
