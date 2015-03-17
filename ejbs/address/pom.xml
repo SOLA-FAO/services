@@ -4,12 +4,12 @@
     <parent>
         <artifactId>sola-ejbs</artifactId>
         <groupId>org.sola.services</groupId>
-        <version>1402a-SNAPSHOT</version>
+        <version>1503a</version>
     </parent>
     <groupId>org.sola.services.ejbs</groupId>
     <artifactId>sola-address</artifactId>
     <packaging>ejb</packaging>
-    <version>1402a-SNAPSHOT</version>
+    <version>1503a</version>
     <name>EJB Address</name>
     
     <properties>
