@@ -31,6 +31,7 @@
  */
 package org.sola.services.common.repository;
 
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.ResourceBundle;
 import org.apache.ibatis.io.Resources;
@@ -111,13 +112,25 @@ public class DatabaseConnectionManager {
                 environment = SHARED_ENV;
             }
             // Load the Mybatis configuration file and the mapper classes into the SqlSessionFactory. 
-            Reader reader = Resources.getUrlAsReader(configFileUrl);
             if (sqlSessionFactory == null) {
-                sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader, environment);
+                if(environment.equalsIgnoreCase(SHARED_ENV)){
+                    // Try to get settings from the root META-INF folder
+                    System.out.println("Loading connection settings from the META-INF or WEB-INF root folder");
+                    InputStream connConf = this.getClass().getClassLoader().getResourceAsStream("../" + CommonRepository.CONNECT_CONFIG_FILE_NAME);
+                    
+                    if(connConf != null){
+                        sqlSessionFactory = new SqlSessionFactoryBuilder().build(connConf, environment);
+                    }
+                }
+                
+                if (sqlSessionFactory == null){
+                    System.out.println("Loading connection settings from local EJB");
+                    Reader reader = Resources.getUrlAsReader(configFileUrl);
+                    sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader, environment);
+                }
 
                 sqlSessionFactory.getConfiguration().addMapper(mapperClass);
                 this.mapperClass = mapperClass;
-
             }
         } catch (Exception ex) {
             throw new SOLAException(ServiceMessage.GENERAL_UNEXPECTED,
