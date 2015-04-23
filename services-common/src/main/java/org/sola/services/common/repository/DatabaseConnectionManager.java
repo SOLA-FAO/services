@@ -115,11 +115,18 @@ public class DatabaseConnectionManager {
             if (sqlSessionFactory == null) {
                 if(environment.equalsIgnoreCase(SHARED_ENV)){
                     // Try to get settings from the root META-INF folder
-                    System.out.println("Loading connection settings from the META-INF or WEB-INF root folder");
+                    System.out.println("Trying to load connection settings from the WEB-INF root folder");
                     InputStream connConf = this.getClass().getClassLoader().getResourceAsStream("../" + CommonRepository.CONNECT_CONFIG_FILE_NAME);
                     
                     if(connConf != null){
                         sqlSessionFactory = new SqlSessionFactoryBuilder().build(connConf, environment);
+                    } else {
+                        System.out.println("Trying to load connection settings from the META-INF of EAR root folder");
+                        connConf = this.getClass().getClassLoader().getResourceAsStream("../META-INF/" + CommonRepository.CONNECT_CONFIG_FILE_NAME);
+
+                        if(connConf != null){
+                            sqlSessionFactory = new SqlSessionFactoryBuilder().build(connConf, environment);
+                        } 
                     }
                 }
                 
