@@ -47,6 +47,7 @@ public class Mailer implements MailerLocal {
     @Resource
     TimerService timerService;
 
+    private String jndiSessionName = "mail/sola";
     private String adminAddress = "";
     private String adminName = "";
     private String failedSendBody = "Message send to the user #{userName} has been failed to deliver after number of attempts with the following error: <br/>#{error}";
@@ -69,6 +70,7 @@ public class Mailer implements MailerLocal {
     @Override
     public void init() {
         // Tests to determine if the mail session details are configured correctly or not. 
+        jndiSessionName = systemEJB.getSetting(ConfigConstants.EMAIL_MAILER_JNDI_NAME, "mail/sola");
         getMailSession();
         configureMailer();
         serviceInterval = Integer.parseInt(systemEJB.getSetting(ConfigConstants.EMAIL_SERVICE_INTERVAL, "10"));
@@ -106,13 +108,12 @@ public class Mailer implements MailerLocal {
      */
     private Session getMailSession() {
         Session mailSession = null;
-        String jndiSessionName = "mail/sola";
         try {
             InitialContext ic = new InitialContext();
             mailSession = (Session) ic.lookup(jndiSessionName);
         } catch (NamingException ex) {
             LogUtility.log("Failed to retrieve mail session. Check JavaMail "
-                    + "session mail/sola is configured correctly on Glassfish. ", ex);
+                    + "session " + StringUtility.empty(jndiSessionName) + " is configured correctly on Glassfish. ", ex);
         }
         return mailSession;
     }
@@ -125,7 +126,7 @@ public class Mailer implements MailerLocal {
             }
             Session mailSession = getMailSession();
             if (mailSession == null) {
-                LogUtility.log("mailSession not configured. Check mail/sola on Glassfish.");
+                LogUtility.log("mailSession not configured. Check " + StringUtility.empty(jndiSessionName) + " on Glassfish.");
                 return;
             }
 
