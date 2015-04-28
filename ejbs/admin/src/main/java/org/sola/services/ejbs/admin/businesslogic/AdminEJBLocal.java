@@ -242,11 +242,6 @@ public interface AdminEJBLocal extends AbstractEJBLocal {
     String consolidationConsolidate(String extractedFile, boolean mergeConsolidationSchema);
 
     /**
-     * See {@linkplain AdminEJB#restoreUserPassword(String)}
-     */
-    void restoreUserPassword(String email);
-
-    /**
      * See {@linkplain AdminEJB#getUserByActivationCode(String)}
      */
     User getUserByActivationCode(String activationCode);

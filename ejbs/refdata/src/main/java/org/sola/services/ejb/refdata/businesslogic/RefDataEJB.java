@@ -12,7 +12,7 @@ import org.sola.services.common.repository.entities.AbstractCodeEntity;
 import org.sola.services.ejb.refdata.entities.Language;
 
 /**
- * Implements methods to manage the claim and it's related objects
+ * Implements methods to manage reference data tables
  */
 @Stateless
 @EJB(name = "java:app/RefDataEJBLocal", beanInterface = RefDataEJBLocal.class)

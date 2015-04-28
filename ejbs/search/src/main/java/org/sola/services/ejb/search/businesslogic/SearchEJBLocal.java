@@ -212,41 +212,6 @@ public interface SearchEJBLocal extends AbstractEJBLocal {
     String getMapCenterLabel(byte[] mapCenterPoint);
     
     /**
-     * See {@linkplain SearchEJB#getClaimsByBox(org.sola.services.ejb.search.repository.entities.ClaimSpatialSearchParams)}.
-     */
-    List<ClaimSpatialSearchResult> getClaimsByBox(ClaimSpatialSearchParams searchParams);
-    
-    /**
-     * See {@linkplain SearchEJB#getClaimsByCoordinates(String, String)}.
-     */
-    ClaimSearchResult getClaimByCoordinates(String x, String y, String langCode);
-    
-    /**
-     * See {@linkplain SearchEJB#getAllClaims()}.
-     */
-    List<ClaimSpatialSearchResult> getAllClaims();
-    
-    /**
-     * See {@linkplain SearchEJB#searchClaims(org.sola.services.ejb.search.repository.entities.ClaimSearchParams)}.
-     */
-    List<ClaimSearchResult> searchClaims(ClaimSearchParams searchParams);
-    
-    /**
-     * See {@linkplain SearchEJB#searchAssignedClaims()}.
-     */
-    List<ClaimSearchResult> searchAssignedClaims(String langCode);
-    
-    /**
-     * See {@linkplain SearchEJB#searchClaimsForReview(Boolean)}.
-     */
-    List<ClaimSearchResult> searchClaimsForReview(String langCode, boolean includeAssigned);
-    
-    /**
-     * See {@linkplain SearchEJB#searchClaimsForModeration(Boolean)}.
-     */
-    List<ClaimSearchResult> searchClaimsForModeration(String langCode, boolean includeAssigned);
-        
-    /**
      * See {@linkplain SearchEJB#getPlanCadastreObjects(String)}.
      */
     List<SpatialResult> getPlanCadastreObjects(String cadastreObjectId);

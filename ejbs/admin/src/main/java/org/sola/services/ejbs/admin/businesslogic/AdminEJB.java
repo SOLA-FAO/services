@@ -282,21 +282,6 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
     @RolesAllowed({RolesConstants.ADMIN_MANAGE_SECURITY, RolesConstants.ADMIN_CHANGE_PASSWORD})
     @Override
     public User saveUser(User user) {
-        User oldUser = getUserInfo(user.getUserName());
-        if (oldUser != null) {
-            if (!oldUser.isActive() && user.isActive()) {
-                // Send email
-                if (systemEJB.isEmailServiceEnabled() && !StringUtility.isEmpty(user.getEmail())) {
-                    String msgBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_ACTIVATION_BODY, "");
-                    String msgSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_ACTIVATION_SUBJECT, "");
-
-                    msgBody = msgBody.replace(EmailVariables.FULL_USER_NAME, user.getFirstName());
-                    msgBody = msgBody.replace(EmailVariables.USER_NAME, user.getUserName());
-
-                    systemEJB.sendEmail(user.getFullName(), user.getEmail(), msgBody, msgSubject);
-                }
-            }
-        }
         return getRepository().saveEntity(user);
     }
 
@@ -349,34 +334,6 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
 
         // Set password
         changeUserPassword(user.getUserName(), passwd);
-
-        // Send email
-        if (systemEJB.isEmailServiceEnabled() && !StringUtility.isEmpty(user.getEmail())) {
-            String adminAddress = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_ADDRESS, "");
-            String adminName = systemEJB.getSetting(ConfigConstants.EMAIL_ADMIN_NAME, "");
-            String msgBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_REG_BODY, "");
-            String msgSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_REG_SUBJECT, "");
-            String activationPage = StringUtility.empty(LocalInfo.getBaseUrl());
-            activationPage += "/user/regactivation.xhtml";
-            //String activationUrl = activationPage + "?user=" + user.getUserName() + "&code=" + code;
-
-            msgBody = msgBody.replace(EmailVariables.FULL_USER_NAME, user.getFirstName());
-            msgBody = msgBody.replace(EmailVariables.USER_NAME, user.getUserName());
-            //msgBody = msgBody.replace(EmailVariables.ACTIVATION_LINK, activationUrl);
-            msgBody = msgBody.replace(EmailVariables.ACTIVATION_PAGE, activationPage);
-            //msgBody = msgBody.replace(EmailVariables.ACTIVATION_CODE, code);
-
-            systemEJB.sendEmail(user.getFullName(), user.getEmail(), msgBody, msgSubject);
-
-            if (!adminAddress.equals("")) {
-                // Send notification to admin
-                String msgAdminBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_USER_REG_BODY, "");
-                String msgAdminSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_USER_REG_SUBJECT, "");
-                msgAdminBody = msgAdminBody.replace(EmailVariables.USER_NAME, user.getUserName());
-
-                systemEJB.sendEmail(adminName, adminAddress, msgAdminBody, msgAdminSubject);
-            }
-        }
         return user;
     }
 
@@ -705,38 +662,6 @@ public class AdminEJB extends AbstractEJB implements AdminEJBLocal {
             throw new RuntimeException(ex);
         }
         return processName;
-    }
-
-    /**
-     * Restores user password by generating activation code and sending a link
-     * to the user for changing the password.
-     *
-     * @param email User's email
-     */
-    @Override
-    public void restoreUserPassword(String email) {
-        User user = getUserByEmail(email);
-        if (user == null || StringUtility.isEmpty(user.getEmail()) || !user.isActive()) {
-            return;
-        }
-
-        String code = UUID.randomUUID().toString();
-
-        user.setActivationCode(code);
-        user.setEntityAction(EntityAction.UPDATE);
-        getRepository().saveEntity(user);
-
-        // Send email
-        if (systemEJB.isEmailServiceEnabled() && !StringUtility.isEmpty(user.getEmail())) {
-            String msgBody = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_PASSWD_RESTORE_BODY, "");
-            String msgSubject = systemEJB.getSetting(ConfigConstants.EMAIL_MSG_PASSWD_RESTORE_SUBJECT, "");
-            String restoreUrl = StringUtility.empty(LocalInfo.getBaseUrl()) + "/user/pwdrestore.xhtml?code=" + code;
-
-            msgBody = msgBody.replace(EmailVariables.FULL_USER_NAME, user.getFirstName());
-            msgBody = msgBody.replace(EmailVariables.PASSWORD_RESTORE_LINK, restoreUrl);
-
-            systemEJB.sendEmail(user.getFullName(), user.getEmail(), msgBody, msgSubject);
-        }
     }
 
     /**

@@ -43,7 +43,6 @@ import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 import org.sola.services.ejb.search.repository.SearchSqlProvider;
 import org.sola.services.ejb.search.repository.entities.*;
-import static org.sola.services.ejb.search.repository.entities.ClaimSearchResult.PARAM_USERNAME;
 import org.sola.services.ejb.search.spatial.QueryForNavigation;
 import org.sola.services.ejb.search.spatial.QueryForPublicDisplayMap;
 import org.sola.services.ejb.search.spatial.QueryForSelect;
@@ -908,101 +907,6 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         return value;
     }
 
-    /**
-     * Returns list of {@link ClaimSpatialSearchResult} objects by provided
-     * bounding box.
-     *
-     * @param searchParams Search parameters
-     * @return
-     */
-    @Override
-    //@RolesAllowed({RolesConstants.CS_ACCESS_CS})
-    public List<ClaimSpatialSearchResult> getClaimsByBox(ClaimSpatialSearchParams searchParams) {
-        Map params = new HashMap();
-        params.put(CommonSqlProvider.PARAM_WHERE_PART, ClaimSpatialSearchResult.WHERE_SEARCH_BY_BOX);
-        params.put(CommonSqlProvider.PARAM_LIMIT_PART, searchParams.getLimit());
-        params.put(ClaimSearchResult.PARAM_RECORDER, getUserName());
-        params.put(ClaimSpatialSearchResult.PARAM_ENVELOPE,
-                String.format(ClaimSpatialSearchResult.ENVELOPE,
-                searchParams.getMinX(), searchParams.getMinY(),
-                searchParams.getMaxX(), searchParams.getMaxY()));
-        return getRepository().getEntityList(ClaimSpatialSearchResult.class, params);
-    }
-
-    /**
-     * Returns list of {@link ClaimSpatialSearchResult} representing all claims.
-     *
-     * @return
-     */
-    @Override
-    @RolesAllowed({RolesConstants.CS_ACCESS_CS})
-    public List<ClaimSpatialSearchResult> getAllClaims() {
-        Map params = new HashMap();
-        params.put(CommonSqlProvider.PARAM_WHERE_PART, ClaimSpatialSearchResult.WHERE_SEARCH_ALL);
-        params.put(ClaimSearchResult.PARAM_RECORDER, getUserName());
-        return getRepository().getEntityList(ClaimSpatialSearchResult.class, params);
-    }
-
-    /**
-     * Returns {@link ClaimSearchResult} by x and y coordinates.
-     *
-     * @param x X coordinate
-     * @param y Y coordinate
-     * @param langCode Language code
-     * @return
-     */
-    @Override
-    @RolesAllowed({RolesConstants.CS_ACCESS_CS})
-    public ClaimSearchResult getClaimByCoordinates(String x, String y, String langCode) {
-        if (StringUtility.isEmpty(x) || StringUtility.isEmpty(y)) {
-            return null;
-        }
-
-        String point = "POINT(" + x + " " + y + ")";
-        HashMap params = new HashMap();
-        params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_BY_POINT);
-        params.put(ClaimSearchResult.PARAM_POINT, point);
-        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, langCode);
-        return getRepository().getEntity(ClaimSearchResult.class, params);
-    }
-
-    /**
-     * Searched and returns list of {@link ClaimSearchResult}.
-     *
-     * @param searchParams Search parameters
-     * @return
-     */
-    @Override
-    @RolesAllowed({RolesConstants.CS_ACCESS_CS})
-    public List<ClaimSearchResult> searchClaims(ClaimSearchParams searchParams) {
-        Map params = new HashMap<String, Object>();
-
-        // prepare params
-        if(searchParams.getLodgementDateFrom() != null || searchParams.getLodgementDateTo() != null){
-            searchParams.setLodgementDateFrom(DateUtility.minimizeDate(searchParams.getLodgementDateFrom()));
-            searchParams.setLodgementDateTo(DateUtility.maximizeDate(searchParams.getLodgementDateTo()));
-        }
-        searchParams.setDescription(StringUtility.empty(searchParams.getDescription()));
-        searchParams.setClaimNumber(StringUtility.empty(searchParams.getClaimNumber()));
-        searchParams.setClaimantName(StringUtility.empty(searchParams.getClaimantName()));
-        searchParams.setStatusCode(StringUtility.empty(searchParams.getStatusCode()));
-        searchParams.setLanguageCode(StringUtility.empty(searchParams.getLanguageCode()));
-
-        // put params into map
-        params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH);
-        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, searchParams.getLanguageCode());
-        params.put(ClaimSearchResult.PARAM_DATE_FROM, searchParams.getLodgementDateFrom());
-        params.put(ClaimSearchResult.PARAM_DATE_TO, searchParams.getLodgementDateTo());
-        params.put(ClaimSearchResult.PARAM_DESCRIPTION, searchParams.getDescription());
-        params.put(ClaimSearchResult.PARAM_CLAIM_NUMBER, searchParams.getClaimNumber());
-        params.put(ClaimSearchResult.PARAM_NAME, searchParams.getClaimantName());
-        params.put(ClaimSearchResult.PARAM_SEARCH_BY_USER, searchParams.isSearchByUser());
-        params.put(ClaimSearchResult.PARAM_RECORDER, getUserName());
-        params.put(ClaimSearchResult.PARAM_STATUS_CODE, searchParams.getStatusCode());
-
-        return getRepository().getEntityList(ClaimSearchResult.class, params);
-    }
-
     @Override
     public List<SpatialResult> getPlanCadastreObjects(String cadastreObjectId) {
         Map params = new HashMap<String, Object>();
@@ -1020,47 +924,5 @@ public class SearchEJB extends AbstractEJB implements SearchEJBLocal {
         params.put("srid", srid);
         params.put("geom", wkbGeom);
         return getRepository().getScalar(byte[].class, params);
-    }
-
-    @Override
-    public List<ClaimSearchResult> searchAssignedClaims(String langCode) {
-        Map params = new HashMap<String, Object>();
-
-        params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_ASSIGNED_TO_USER);
-        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, langCode);
-        params.put(ClaimSearchResult.PARAM_USERNAME, getUserName());
-        return getRepository().getEntityList(ClaimSearchResult.class, params);
-    }
-
-    @Override
-    @RolesAllowed({RolesConstants.CS_ACCESS_CS})
-    public List<ClaimSearchResult> searchClaimsForReview(String langCode, boolean includeAssigned) {
-        Map params = new HashMap<String, Object>();
-
-        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, langCode);
-        
-        if(includeAssigned){
-            params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_FOR_REVIEW_ALL);
-        } else {
-            params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_FOR_REVIEW);
-        }
-        
-        return getRepository().getEntityList(ClaimSearchResult.class, params);
-    }
-
-    @Override
-    @RolesAllowed({RolesConstants.CS_ACCESS_CS})
-    public List<ClaimSearchResult> searchClaimsForModeration(String langCode, boolean includeAssigned) {
-        Map params = new HashMap<String, Object>();
-
-        params.put(CommonSqlProvider.PARAM_LANGUAGE_CODE, langCode);
-        
-        if(includeAssigned){
-            params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_FOR_MODERATION_ALL);
-        } else {
-            params.put(CommonSqlProvider.PARAM_QUERY, ClaimSearchResult.QUERY_SEARCH_FOR_MODERATION);
-        }
-        
-        return getRepository().getEntityList(ClaimSearchResult.class, params);
     }
 }
