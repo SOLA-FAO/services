@@ -50,7 +50,7 @@ import org.sola.services.common.repository.entities.AbstractCodeEntity;
  * @author soladev
  */
 @Table(name = "request_type", schema = "application")
-@DefaultSorter(sortString = "display_value")
+@DefaultSorter(sortString =  "COALESCE(display_order, 0), display_value")
 public class RequestType extends AbstractCodeEntity {
 
     public static String CADASTRE_CHANGE = "cadastreChange";
@@ -76,11 +76,12 @@ public class RequestType extends AbstractCodeEntity {
     private String rrrTypeCode;
     @ChildEntityList(parentIdField = "requestTypeCode")
     private List<RequestTypeRequiresSourceType> sourceTypeCodes;
-    @Localized
-    @Column(name = "display_group_name")
-    private String displayGroupName;
     @Column(name = "service_panel_code")
     private String servicePanelCode;
+    @Column(name = "display_group_code")
+    private String displayGroupCode;
+    @Column(name = "display_order")
+    private int displayOrder;
 
     public RequestType() {
         super();
@@ -166,19 +167,27 @@ public class RequestType extends AbstractCodeEntity {
         this.sourceTypeCodes = sourceTypeCodes;
     }
 
-    public String getDisplayGroupName() {
-        return displayGroupName;
-    }
-
-    public void setDisplayGroupName(String displayGroupName) {
-        this.displayGroupName = displayGroupName;
-    }
-
     public String getServicePanelCode() {
         return servicePanelCode;
     }
 
     public void setServicePanelCode(String servicePanelCode) {
         this.servicePanelCode = servicePanelCode;
+    }
+
+    public String getDisplayGroupCode() {
+        return displayGroupCode;
+    }
+
+    public void setDisplayGroupCode(String displayGroupCode) {
+        this.displayGroupCode = displayGroupCode;
+    }
+
+    public int getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(int displayOrder) {
+        this.displayOrder = displayOrder;
     }
 }
