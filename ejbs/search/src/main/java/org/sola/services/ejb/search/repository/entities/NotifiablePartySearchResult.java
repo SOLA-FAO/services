@@ -37,7 +37,7 @@ import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.common.repository.entities.AbstractReadOnlyEntity;
 
 @Entity
-@Table(name = "notifiable_party_for_baunit", schema = "administrative")
+@Table(name = "notifiable_party_for_baunit", schema = "application")
 public class NotifiablePartySearchResult extends AbstractReadOnlyEntity {
 
     public static final String QUERY_PARAM_NAME = "name";
@@ -52,31 +52,22 @@ public class NotifiablePartySearchResult extends AbstractReadOnlyEntity {
             + " npbu.baunit_name as properties, "
             + " npbu.party_id, "
             + " npbu.target_party_id,  "
-            + "(select count ('x') from administrative.notifiable_party_for_baunit "
+            + "(select count ('x') from application.notifiable_party_for_baunit "
             + " WHERE ( baunit_name = npbu.baunit_name"
             + " AND party_id = npbu.party_id"
             + " AND target_party_id = npbu.target_party_id"
             + " AND npbu.cancel_service_id = #{" + QUERY_PARAM_SERVICE + "} )"
-//            + " AND status='x')"
             + " )>0 as selProperties,"
-            + " gpp.id groupPartyId,   "
-            + " gpp.name groupPartyName,   "
-            + " gpp.last_name groupPartyLastName, "
             + " pp.classification_code, "
             + " pp.redact_code "
             + " FROM party.party pp,"
             + " party.party tpp, "
-            + " administrative.notifiable_party_for_baunit npbu,"
-            + " party.party gpp,"
-            + " party.group_party gp  "
+            + " application.notifiable_party_for_baunit npbu"
             + " where (pp.id=npbu.party_id "
             + " and tpp.id=npbu.target_party_id)"
             + " and (compare_strings(#{" + QUERY_PARAM_NAME + "}, COALESCE(pp.name, '') || ' ' || COALESCE(pp.last_name, '') || ' ' || COALESCE(pp.alias, '')) "
             + " or compare_strings(#{" + QUERY_PARAM_NAME + "}, COALESCE(tpp.name, '') || ' ' || COALESCE(tpp.last_name, '') || ' ' || COALESCE(tpp.alias, '')) )"
             + " and npbu.service_id in (select from_service_id from transaction.transaction where status_code = 'approved')"
-            + " and  (gpp.id=gp.id)"
-            + " and (pp.id in (select pm.party_id from party.party_member pm where pm.group_id = gp.id))"
-            + " and (tpp.id in (select pm.party_id from party.party_member pm where pm.group_id = gp.id))"
             + " and (npbu.cancel_service_id = #{" + QUERY_PARAM_SERVICE + "} or npbu.cancel_service_id is null)"
             + " ORDER BY pp.name, pp.last_name";
 

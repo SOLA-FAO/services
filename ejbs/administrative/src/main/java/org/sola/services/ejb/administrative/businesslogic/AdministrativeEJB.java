@@ -179,65 +179,6 @@ public class AdministrativeEJB extends AbstractEJB
         return getRepository().getEntity(BaUnit.class, params);
     }
 
-    @Override
-    public NotifiablePartyForBaUnit getNotifiableParty(String partyId, String targetPartyId, String name, String application, String service) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_APPLICATION, application);
-        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_SERVICE, service);
-        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_NAME, name);
-        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_PARTY, partyId);
-        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_TARGET_PARTY, targetPartyId);
-
-        if (!partyId.equals("") && !targetPartyId.equals("") && !name.equals("") && !application.equals("") && !service.equals("")) {
-            params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_ALL);
-            params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
-            params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, NotifiablePartyForBaUnit.QUERY_ORDER_BY);
-        } else {
-            if (!partyId.equals("") && !targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
-                params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_PARTY_PROPERTY);
-                params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
-                params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, NotifiablePartyForBaUnit.QUERY_ORDER_BY);
-            } else {
-                if (partyId.equals("") && targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
-                    params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_APPLICATION_PROPERTY);
-                    params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
-                    params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, NotifiablePartyForBaUnit.QUERY_ORDER_BY);
-                } else {
-                    params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_APPLICATION_SERVICE);
-                    params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
-                    params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, NotifiablePartyForBaUnit.QUERY_ORDER_BY);
-                }
-            }
-        }
-
-        return getRepository().getEntity(NotifiablePartyForBaUnit.class, params);
-    }
-
-    @Override
-    public List<NotifiablePartyForBaUnit> getNotifiableParties(String partyId, String targetPartyId, String name, String application, String service) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_APPLICATION, application);
-        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_SERVICE, service);
-        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_NAME, name);
-        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_PARTY, partyId);
-        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_TARGET_PARTY, targetPartyId);
-//        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_BAUNITID, baunitId);
-
-        if (!partyId.equals("") && !targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
-            params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_PARTY_PROPERTY);
-        } else {
-            if (partyId.equals("") && targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
-                params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_APPLICATION_PROPERTY);
-//                params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
-            } else {
-                params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_APPLICATION_SERVICE);
-//                params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
-            }
-        }
-
-        return getRepository().getEntityList(NotifiablePartyForBaUnit.class, params);
-    }
-
     /**
      * Creates a new BA Unit with a default status of pending and a default type
      * of basicPropertyUnit. Will also create a new Transaction record for the
@@ -741,25 +682,27 @@ public class AdministrativeEJB extends AbstractEJB
         return result;
     }
 
+  
+
     /**
-     * Can be used to create a new groupParty or save any updates to the details
-     * of an existing groupParty. <p>Requires the
-     * {@linkplain RolesConstants#PATY_SAVE} role.</p>
+     * Returns a list of ba units matching the supplied ids. <p> No role is
+     * required to execute this method.</p>
      *
-     * @param groupParty The groupParty to create/save
-     * @return The groupParty after the save is completed.
+     * @param baUnitIds The list of baUnit ids
      */
-    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE,
-        RolesConstants.APPLICATION_EDIT_APPS, RolesConstants.APPLICATION_CREATE_APPS})
-    public NotifiablePartyForBaUnit saveNotifiableParty(NotifiablePartyForBaUnit notifiableParty) {
-        
-        if (notifiableParty.getCancelServiceId()!= null) {
-        TransactionBasic transaction =
-                transactionEJB.getTransactionByServiceId(notifiableParty.getCancelServiceId(), true, TransactionBasic.class);
-        LocalInfo.setTransactionId(transaction.getId());
-        }
-        
-        
-        return getRepository().saveEntity(notifiableParty);
+    @Override
+    public List<BaUnitBasic> getSummaryBaUnits(List<String> baUnitIds) {
+        return getRepository().getEntityListByIds(BaUnitBasic.class, baUnitIds);
+    }
+
+    /**
+     * Returns a summary ba unit matching the supplied id. <p> No role is
+     * required to execute this method.</p>
+     *
+     * @param baUnitId The id of the BA Unit
+     */
+    @Override
+    public BaUnitBasic getSummaryBaUnit(String baUnitId) {
+        return getRepository().getEntity(BaUnitBasic.class, baUnitId);
     }
 }

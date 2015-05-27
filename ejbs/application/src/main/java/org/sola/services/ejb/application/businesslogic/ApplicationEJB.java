@@ -37,15 +37,21 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import org.sola.common.*;
 import org.sola.common.messaging.ServiceMessage;
+import org.sola.services.common.LocalInfo;
 import org.sola.services.common.br.ValidationResult;
 import org.sola.services.common.ejbs.AbstractEJB;
 import org.sola.services.common.faults.SOLAValidationException;
 import org.sola.services.common.repository.CommonSqlProvider;
 import org.sola.services.ejb.administrative.businesslogic.AdministrativeEJBLocal;
-import org.sola.services.ejb.administrative.repository.entities.NotifiablePartyForBaUnit;
+import org.sola.services.ejb.administrative.repository.entities.BaUnitBasic;
+import org.sola.services.ejb.application.repository.entities.NotifiablePartyForBaUnit;
+import org.sola.services.ejb.application.repository.ApplicationSqlProvider;
 import org.sola.services.ejb.application.repository.entities.*;
 import org.sola.services.ejb.party.businesslogic.PartyEJBLocal;
 import org.sola.services.ejb.party.repository.entities.Party;
+import org.sola.services.ejb.search.businesslogic.SearchEJBLocal;
+import org.sola.services.ejb.search.repository.entities.BaUnitSearchParams;
+import org.sola.services.ejb.search.repository.entities.BaUnitSearchResult;
 import org.sola.services.ejb.source.businesslogic.SourceEJBLocal;
 import org.sola.services.ejb.source.repository.entities.Source;
 import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
@@ -53,6 +59,7 @@ import org.sola.services.ejb.system.repository.entities.BrValidation;
 import org.sola.services.ejb.transaction.businesslogic.TransactionEJBLocal;
 import org.sola.services.ejb.transaction.repository.entities.RegistrationStatusType;
 import org.sola.services.ejb.transaction.repository.entities.TransactionBasic;
+import org.sola.services.ejb.application.repository.entities.NotifyProperty;
 
 /**
  * EJB to manage data in the application schema. Supports retrieving and saving
@@ -74,6 +81,8 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
     private AdministrativeEJBLocal administrativeEJB;
     @EJB
     private PartyEJBLocal partyEJB;
+    @EJB
+    private SearchEJBLocal searchEJB;
 
     /**
      * Sets the entity package for the EJB to
@@ -381,10 +390,7 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
 
             for (Iterator<ApplicationProperty> it = application.getPropertyList().iterator(); it.hasNext();) {
                 ApplicationProperty appProperty = it.next();
-//                appProperty.getBaUnitId();
-
-
-                List<NotifiablePartyForBaUnit> notifiablePartyList = administrativeEJB.getNotifiableParties("", "", appProperty.getNameFirstpart() + "/" + appProperty.getNameLastpart(), "", "");
+                List<NotifiablePartyForBaUnit> notifiablePartyList = getNotifiableParties("", "", appProperty.getNameFirstpart() + "/" + appProperty.getNameLastpart(), "", "");
 
                 for (Iterator<NotifiablePartyForBaUnit> itNotPar = notifiablePartyList.iterator(); itNotPar.hasNext();) {
                     NotifiablePartyForBaUnit notifiableParty = itNotPar.next();
@@ -1449,5 +1455,262 @@ public class ApplicationEJB extends AbstractEJB implements ApplicationEJBLocal {
 //        }
 
         return getRepository().getEntityList(CancelNotification.class, params);
+    }
+
+    /**
+     * Retrieves all notification parties associated to a service. <p> Requires
+     * the {@linkplain RolesConstants#APPLICATION_VIEW_APPS} role.</p>
+     *
+     * @param serviceId Id of the service to retrieve notification parties for
+     * @param generateParties Flag to indicate if SOLA should attempt to
+     * generate notification parties through the properties linked to the job.
+     * @return Notify records
+     */
+    @Override
+    @RolesAllowed(RolesConstants.APPLICATION_VIEW_APPS)
+    public List<Notify> getNotifyParties(String serviceId, boolean generateParties) {
+        List<Notify> result = null;
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, Notify.QUERY_WHERE_BYSERVICEID);
+        params.put(Notify.QUERY_PARAMETER_SERVICE_ID, serviceId);
+        result = getRepository().getEntityList(Notify.class, params);
+
+        // Check if this application has any properties linked to it and retrieve any
+        // parties that are not currently included as Notify Parties   
+        if (generateParties) {
+            Service ser = getService(serviceId);
+            if (result == null) {
+                result = new ArrayList<Notify>();
+            }
+            BaUnitSearchParams searchParams = new BaUnitSearchParams();
+            searchParams.setApplicationId(ser.getApplicationId());
+            searchParams.setSearchType(BaUnitSearchParams.SEARCH_TYPE_PROPERTY);
+            List<BaUnitSearchResult> propertyList = searchEJB.searchBaUnits(searchParams);
+            if (propertyList != null && propertyList.size() > 0) {
+                result = processNotifyParties(serviceId, propertyList, result);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Processes the underlying properties for the job to determine if there are
+     * any new notification parties that need to be added
+     *
+     * @param serviceId
+     * @param propertyList
+     * @param result
+     * @return
+     */
+    private List<Notify> processNotifyParties(String serviceId, List<BaUnitSearchResult> propertyList, List<Notify> result) {
+        Map params = new HashMap<String, Object>();
+        params.put(ApplicationSqlProvider.PARAM_SERVICE_ID, serviceId);
+        for (BaUnitSearchResult prop : propertyList) {
+            params.put(CommonSqlProvider.PARAM_QUERY,
+                    ApplicationSqlProvider.buildSelectNotificationPartiesSql(
+                    RegistrationStatusType.STATUS_CURRENT.equals(prop.getStatusCode())));
+            params.put(ApplicationSqlProvider.PARAM_BA_UNIT_ID, prop.getId());
+            List<Notify> tempResult;
+            tempResult = getRepository().getEntityList(Notify.class, params);
+            if (tempResult != null && tempResult.size() > 0) {
+
+                for (Notify tmp : tempResult) {
+                    boolean found = false;
+                    String propertyId = tmp.getDescription();
+                    tmp.setDescription(null);
+                    for (Notify n : result) {
+                        if (n.getPartyId().equals(tmp.getPartyId())) {
+                            found = true;
+                            propertyId = tmp.getDescription();
+                            tmp = n;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        result.add(tmp);
+                    }
+                    if (propertyId != null) {
+                        if (tmp.getPropertyList() == null) {
+                            tmp.setPropertyList(new ArrayList<BaUnitBasic>());
+                        }
+                        BaUnitBasic basicProp = administrativeEJB.getSummaryBaUnit(propertyId);
+                        if (!tmp.getPropertyList().contains(basicProp)) {
+                            tmp.getPropertyList().add(basicProp);
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Saves changes to all notification parties associated to a service. <p>
+     * Requires the {@linkplain RolesConstants#SERVICE_START_NOTIFY} role.</p>
+     *
+     * @param notifyParties
+     * @return the list of notification parties for the service after they have
+     * been saved.
+     */
+    @Override
+//   @RolesAllowed(RolesConstants.SERVICE_START_NOTIFY)
+    public List<Notify> saveNotifyParties(List<Notify> notifyParties) {
+        if (notifyParties != null && notifyParties.size() > 0) {
+            ListIterator<Notify> it = notifyParties.listIterator();
+            while (it.hasNext()) {
+                Notify item = it.next();
+                it.remove();
+                Notify savedItem = getRepository().saveEntity(item);
+                if (savedItem != null) {
+                    it.add(savedItem);
+                }
+            }
+        }
+
+        return notifyParties;
+    }
+     @Override
+    public Notify getNotifyParty(String serviceId, String partyId, String relationshipType) {
+
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, Notify.QUERY_WHERE_PARTY);
+        params.put(Notify.QUERY_PARAMETER_SERVICE_ID, serviceId);
+        params.put(Notify.QUERY_PARAMETER_PARTY_ID, partyId);
+        params.put(Notify.QUERY_PARAMETER_RELATIONSHIP, relationshipType);
+       
+        return getRepository().getEntity(Notify.class, params);
+    }
+
+       /**
+     * Saves changes to all notification parties associated to a service. <p>
+     * Requires the {@linkplain RolesConstants#SERVICE_START_NOTIFY} role.</p>
+     *
+     * @param notifyParties
+     * @return the list of notification parties for the service after they have
+     * been saved.
+     */
+    @Override
+//   @RolesAllowed(RolesConstants.SERVICE_START_NOTIFY)
+    public Notify saveNotifyParty(Notify item) {
+            Notify savedItem = getRepository().saveEntity(item);
+        return savedItem;
+    }
+    
+    
+    /**
+     * Saves changes to all notification parties associated to a service. <p>
+     * Requires the {@linkplain RolesConstants#SERVICE_START_NOTIFY} role.</p>
+     *
+     * @param notifyParties
+     * @return the list of notification parties for the service after they have
+     * been saved.
+     */
+    @Override
+//   @RolesAllowed(RolesConstants.SERVICE_START_NOTIFY)
+    public NotifyProperty saveNotifyProperty(NotifyProperty item) {
+        
+        
+        if (item.getCancelServiceId() != null) {
+            TransactionBasic transaction =
+                    transactionEJB.getTransactionByServiceId(item.getCancelServiceId(), true, TransactionBasic.class);
+            LocalInfo.setTransactionId(transaction.getId());
+        }
+
+        
+            NotifyProperty savedItem = getRepository().saveEntity(item);
+        return savedItem;
+    }
+    
+     @Override
+    public NotifyProperty getNotifyProperty(String notifyId, String baUnitId) {
+
+        Map params = new HashMap<String, Object>();
+        params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifyProperty.QUERY_WHERE_BYIDS);
+        params.put(NotifyProperty.QUERY_PARAMETER_NOTIFY_ID, notifyId);
+        params.put(NotifyProperty.QUERY_PARAMETER_BAUNIT_ID, baUnitId);
+
+        return getRepository().getEntity(NotifyProperty.class, params);
+    }
+     
+     
+    @Override
+    public NotifiablePartyForBaUnit getNotifiableParty(String partyId, String targetPartyId, String name, String application, String service) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_APPLICATION, application);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_SERVICE, service);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_NAME, name);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_PARTY, partyId);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_TARGET_PARTY, targetPartyId);
+
+        if (!partyId.equals("") && !targetPartyId.equals("") && !name.equals("") && !application.equals("") && !service.equals("")) {
+            params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_ALL);
+            params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+            params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, NotifiablePartyForBaUnit.QUERY_ORDER_BY);
+        } else {
+            if (!partyId.equals("") && !targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
+                params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_PARTY_PROPERTY);
+                params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+                params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, NotifiablePartyForBaUnit.QUERY_ORDER_BY);
+            } else {
+                if (partyId.equals("") && targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
+                    params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_APPLICATION_PROPERTY);
+                    params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+                    params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, NotifiablePartyForBaUnit.QUERY_ORDER_BY);
+                } else {
+                    params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_APPLICATION_SERVICE);
+                    params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+                    params.put(CommonSqlProvider.PARAM_ORDER_BY_PART, NotifiablePartyForBaUnit.QUERY_ORDER_BY);
+                }
+            }
+        }
+
+        return getRepository().getEntity(NotifiablePartyForBaUnit.class, params);
+    }
+
+    @Override
+    public List<NotifiablePartyForBaUnit> getNotifiableParties(String partyId, String targetPartyId, String name, String application, String service) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_APPLICATION, application);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_SERVICE, service);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_NAME, name);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_PARTY, partyId);
+        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_TARGET_PARTY, targetPartyId);
+//        params.put(NotifiablePartyForBaUnit.QUERY_PARAM_BAUNITID, baunitId);
+
+        if (!partyId.equals("") && !targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
+            params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_PARTY_PROPERTY);
+        } else {
+            if (partyId.equals("") && targetPartyId.equals("") && !name.equals("") && application.equals("") && service.equals("")) {
+                params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_APPLICATION_PROPERTY);
+//                params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+            } else {
+                params.put(CommonSqlProvider.PARAM_WHERE_PART, NotifiablePartyForBaUnit.QUERY_WHERE_APPLICATION_SERVICE);
+//                params.put(CommonSqlProvider.PARAM_LIMIT_PART, 1);
+            }
+        }
+
+        return getRepository().getEntityList(NotifiablePartyForBaUnit.class, params);
+    }
+      /**
+     * Can be used to create a new groupParty or save any updates to the details
+     * of an existing groupParty. <p>Requires the
+     * {@linkplain RolesConstants#PATY_SAVE} role.</p>
+     *
+     * @param groupParty The groupParty to create/save
+     * @return The groupParty after the save is completed.
+     */
+    @RolesAllowed({RolesConstants.PARTY_SAVE, RolesConstants.PARTY_RIGHTHOLDERS_SAVE,
+        RolesConstants.APPLICATION_EDIT_APPS, RolesConstants.APPLICATION_CREATE_APPS})
+    public NotifiablePartyForBaUnit saveNotifiableParty(NotifiablePartyForBaUnit notifiableParty) {
+
+        if (notifiableParty.getCancelServiceId() != null) {
+            TransactionBasic transaction =
+                    transactionEJB.getTransactionByServiceId(notifiableParty.getCancelServiceId(), true, TransactionBasic.class);
+            LocalInfo.setTransactionId(transaction.getId());
+        }
+
+
+        return getRepository().saveEntity(notifiableParty);
     }
 }
