@@ -31,7 +31,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.sola.services.ejb.administrative.repository.entities;
+package org.sola.services.ejb.application.repository.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -45,7 +45,7 @@ import org.sola.services.common.repository.entities.AbstractVersionedEntity;
  *
  * @author soladev
  */
-@Table(name = "notifiable_party_for_baunit", schema = "administrative")
+@Table(name = "notifiable_party_for_baunit", schema = "application")
 public class NotifiablePartyForBaUnit extends AbstractVersionedEntity {
 
     public static final String QUERY_PARAM_NAME = "name";
@@ -53,7 +53,7 @@ public class NotifiablePartyForBaUnit extends AbstractVersionedEntity {
     public static final String QUERY_PARAM_TARGET_PARTY = "targetPartyId";
     public static final String QUERY_PARAM_APPLICATION = "application";
     public static final String QUERY_PARAM_SERVICE = "service";
-    public static final String QUERY_ORDER_BY = " group_id ";
+    public static final String QUERY_ORDER_BY = " party_id ";
     public static final String QUERY_WHERE_ALL = " "
             + "party_id = #{" + QUERY_PARAM_PARTY + "}"
             + " and target_party_id = #{" + QUERY_PARAM_TARGET_PARTY + "}"
@@ -102,20 +102,16 @@ public class NotifiablePartyForBaUnit extends AbstractVersionedEntity {
     + "  WHERE bu.name = baunit_name) ")
     @Column(name = "baunit_id", insertable = false, updatable = false)
     private String baunitId;
-    @AccessFunctions(onSelect = " ( select distinct (party.party_member.group_id) "
-    + " from party.party_member "
-    + " where party_id = party_id "
-    + " and group_id in "
-    + " (select distinct party.party_member.group_id from party.party_member "
-    + " where party_id=target_party_id)) ")
-    @Column(name = "group_id", insertable = false, updatable = false)
-    private String groupId;
     @Column(name = "application_id")
     private String applicationId;
     @Column(name = "service_id")
     private String serviceId;
     @Column(name = "cancel_service_id")
     private String cancelServiceId;
+    @Column(name = "notifyId")
+    private String notifyId;
+    @Column(name = "notifyTargetId")
+    private String notifyTargetId;
 
     public NotifiablePartyForBaUnit() {
         super();
@@ -131,14 +127,6 @@ public class NotifiablePartyForBaUnit extends AbstractVersionedEntity {
 
     public String getPartyId() {
         return partyId;
-    }
-
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
     }
 
     public void setPartyId(String partyId) {
@@ -191,5 +179,21 @@ public class NotifiablePartyForBaUnit extends AbstractVersionedEntity {
 
     public void setCancelServiceId(String cancelServiceId) {
         this.cancelServiceId = cancelServiceId;
+    }
+
+    public String getNotifyId() {
+        return notifyId;
+    }
+
+    public void setNotifyId(String notifyId) {
+        this.notifyId = notifyId;
+    }
+
+    public String getNotifyTargetId() {
+        return notifyTargetId;
+    }
+
+    public void setNotifyTargetId(String notifyTargetId) {
+        this.notifyTargetId = notifyTargetId;
     }
 }
